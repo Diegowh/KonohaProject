@@ -1,0 +1,49 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Source code
+*.java text
+*.kt text
+*.kts text
+*.xml text
+*.gradle text
+*.gradle.kts text
+*.properties text
+*.toml text
+*.pro text
+
+# Android specific
+*.json text
+*.yaml text
+*.yml text
+
+# Scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+gradlew text eol=lf
+
+# Documents
+*.md text
+*.txt text
+*.html text
+*.css text
+*.js text
+
+# Graphics and other binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+
+# Exclude specific directories from language statistics
+.gradle/** linguist-vendored
+build/** linguist-vendored
+.github/** linguist-documentation
+gradle/wrapper/** linguist-vendored
