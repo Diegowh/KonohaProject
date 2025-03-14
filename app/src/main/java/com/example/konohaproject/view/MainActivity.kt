@@ -3,6 +3,7 @@ package com.example.konohaproject.view
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
@@ -10,9 +11,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.konohaproject.R
+import com.example.konohaproject.controller.ControlState
 import com.example.konohaproject.controller.CountdownService
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var btnPlay: ImageButton
+    private lateinit var btnPause: ImageButton
+    private lateinit var btnStop: ImageButton
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -23,13 +30,42 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val btnPlay = findViewById<ImageButton>(R.id.btnPlay)
-            .setOnClickListener {startCountdown(25)}
+        btnPlay = findViewById<ImageButton>(R.id.btnPlay)
+        btnPause = findViewById<ImageButton>(R.id.btnPause)
+        btnStop = findViewById<ImageButton>(R.id.btnStop)
 
-        val btnStop = findViewById<ImageButton>(R.id.btnStop)
-            .setOnClickListener {stopCountdown()}
+        initListeners()
     }
 
+    private fun initListeners() {
+        btnPlay.setOnClickListener {
+            updateControlState(ControlState.Playing)
+            startCountdown(25)
+        }
+
+        btnPause.setOnClickListener{
+            updateControlState(ControlState.Paused)
+        }
+
+        btnStop.setOnClickListener {
+            stopCountdown()
+        }
+    }
+
+    private fun updateControlState(state: ControlState) {
+        when(state) {
+            is ControlState.Playing -> {
+                btnPlay.visibility = View.GONE
+                btnStop.visibility = View.GONE
+                btnPause.visibility = View.VISIBLE
+            }
+            is ControlState.Paused -> {
+                btnPlay.visibility = View.VISIBLE
+                btnStop.visibility = View.VISIBLE
+                btnPause.visibility = View.GONE
+            }
+        }
+    }
 
     private fun startCountdown(durationMinutes: Long) {
         val durationMillis = durationMinutes * 60 * 1000;
