@@ -1,9 +1,11 @@
 package com.example.konohaproject.controller
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
@@ -17,42 +19,112 @@ import kotlinx.coroutines.launch
 
 class CountdownService : Service() {
 
-
     private val serviceScope = CoroutineScope(Dispatchers.Default)
     private var countDownJob: Job? = null
     private var endTime: Long = 0L
 
+    inner class CountdownBinder : Binder() {
+        fun getService(): CountdownService = this@CountdownService
+    }
+
     companion object {
+        @Volatile
+        private var isRunning: Boolean = false
+
+        @Volatile
+        private var isPaused: Boolean = false
+
+        @Volatile
+        private var remainingTime: Long = 0L
+
+        fun isCountDownActive() = isRunning && !isPaused
+        fun isPaused() = isPaused
+
+        internal fun setRunning(running: Boolean) {
+            isRunning = running
+            if (!running) {
+                isPaused = false
+                remainingTime = 0L
+            }
+        }
+
+        internal fun setPaused(paused: Boolean, time: Long = 0L) {
+            isPaused = paused
+            if (paused) remainingTime = time
+        }
+
         const val TAG = "CountdownService"
         const val CHANNEL_ID = "countdown_channel"
         const val NOTIFICATION_ID = 101
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    override fun onBind(intent: Intent?): IBinder? = CountdownBinder()
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        startForegroundService()
+        startForeground(NOTIFICATION_ID, createNotification())
+    }
+
+    private fun createNotification(): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("Contador en ejecución")
+            .setContentText("El contador está activo en segundo plano")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)  // Notificación persistente
+            .build()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startCountdown(intent?.getLongExtra("duration", 0L) ?: 0L)
+        if (intent?.action == "STOP") {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+        if (!isRunning) {
+            setRunning(true)
+            val duration = intent?.getLongExtra("duration", 0L) ?: 0L
+            startCountdown(duration)
+
+        }
         return START_STICKY
     }
 
     private fun startCountdown(durationMillis: Long) {
-
-        endTime = SystemClock.elapsedRealtime() + durationMillis
         countDownJob?.cancel();
+        endTime = SystemClock.elapsedRealtime() + durationMillis
 
         countDownJob = serviceScope.launch {
+            setPaused(false)
             while (SystemClock.elapsedRealtime() < endTime) {
-                val remaining = endTime - SystemClock.elapsedRealtime()
-                logRemainingTime(remaining)
+                if (isPaused){
+                    setPaused(true, endTime - SystemClock.elapsedRealtime())
+                    delay(100)
+                    continue
+                }
+                logRemainingTime(endTime - SystemClock.elapsedRealtime())
                 delay(1000)
+
             }
-            stopSelf()
+            if (!isPaused) {
+                stopSelf()
+            }
+        }
+    }
+
+    fun pauseCountdown() {
+        if (isRunning && !isPaused) {
+            setPaused(true, endTime - SystemClock.elapsedRealtime())
+            countDownJob?.cancel()
+        }
+    }
+
+    fun resumeCountdown() {
+        if (isRunning && isPaused) {
+            setPaused(false)
+            endTime = SystemClock.elapsedRealtime() + remainingTime
+            startCountdown(remainingTime)
         }
     }
 
@@ -84,8 +156,24 @@ class CountdownService : Service() {
     }
 
     override fun onDestroy() {
-        countDownJob?.cancel()
         super.onDestroy()
+        setRunning(false)
+        countDownJob?.cancel()
+        endTime = 0L
+        remainingTime = 0L
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
+    public fun isPaused(): Boolean {
+        return isPaused
+    }
+
+    fun hardReset() {
+        countDownJob?.cancel()
+        endTime = 0L
+        remainingTime = 0L
+        setRunning(false)
+        setPaused(false)
+    }
 }

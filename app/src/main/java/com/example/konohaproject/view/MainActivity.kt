@@ -1,8 +1,12 @@
 package com.example.konohaproject.view
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -20,6 +24,36 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnPause: ImageButton
     private lateinit var btnStop: ImageButton
 
+    private var countdownService: CountdownService? = null
+    private var isBound = false
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as CountdownService.CountdownBinder
+            countdownService = binder.getService()
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            isBound = false
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        bindService(
+            Intent(this, CountdownService::class.java),
+            serviceConnection,
+            Context.BIND_AUTO_CREATE
+        )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isBound) {
+            unbindService(serviceConnection)
+            isBound = false
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,27 +73,51 @@ class MainActivity : AppCompatActivity() {
 
     private fun initListeners() {
         btnPlay.setOnClickListener {
-            updateControlState(ControlState.Playing)
-            startCountdown(25)
+            when {
+                CountdownService.isPaused() -> {
+                    countdownService?.resumeCountdown()
+                    updateControlState(ControlState.Running)
+                }
+                !CountdownService.isCountDownActive() -> {
+                    startCountdown(25)
+                    updateControlState(ControlState.Running)
+                }
+            }
         }
 
-        btnPause.setOnClickListener{
+        btnPause.setOnClickListener {
+            countdownService?.pauseCountdown()
             updateControlState(ControlState.Paused)
         }
 
         btnStop.setOnClickListener {
-            stopCountdown()
+            if (CountdownService.isPaused()) {
+                Intent(this, CountdownService::class.java).apply {
+                    action = "STOP"
+                    startService(this)
+                }
+                stopCountdown()
+                updateControlState(ControlState.Stopped)
+
+            }
+
         }
     }
 
+
     private fun updateControlState(state: ControlState) {
         when(state) {
-            is ControlState.Playing -> {
+            ControlState.Running -> {
                 btnPlay.visibility = View.GONE
                 btnStop.visibility = View.GONE
                 btnPause.visibility = View.VISIBLE
             }
-            is ControlState.Paused -> {
+            ControlState.Paused -> {
+                btnPlay.visibility = View.VISIBLE
+                btnStop.visibility = View.VISIBLE
+                btnPause.visibility = View.GONE
+            }
+            ControlState.Stopped -> {
                 btnPlay.visibility = View.VISIBLE
                 btnStop.visibility = View.VISIBLE
                 btnPause.visibility = View.GONE
@@ -68,6 +126,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCountdown(durationMinutes: Long) {
+
+        stopCountdown()
+
         val durationMillis = durationMinutes * 60 * 1000;
         val serviceIntent = Intent(this, CountdownService::class.java).apply {
             putExtra("duration", durationMillis);
@@ -81,6 +142,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopCountdown() {
-        stopService(Intent(this, CountdownService::class.java));
+        countdownService?.hardReset()
+        Intent(this, CountdownService::class.java).apply {
+            action = "STOP"
+            startService(this)
+            stopService(this)
+        }
+        updateControlState(ControlState.Stopped)
     }
 }
