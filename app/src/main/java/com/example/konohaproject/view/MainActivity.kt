@@ -6,10 +6,12 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.IBinder
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -18,8 +20,9 @@ import com.example.konohaproject.R
 import com.example.konohaproject.controller.ControlState
 import com.example.konohaproject.controller.CountdownService
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
+    private lateinit var txtTimer: TextView
     private lateinit var btnPlay: ImageButton
     private lateinit var btnPause: ImageButton
     private lateinit var btnStop: ImageButton
@@ -30,7 +33,15 @@ class MainActivity : AppCompatActivity() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as CountdownService.CountdownBinder
             countdownService = binder.getService()
+            countdownService?.timeListener = this@MainActivity
             isBound = true
+
+            countdownService?.let {
+                if (CountdownService.isCountDownActive() || CountdownService.isPaused()) {
+                    val currentTime = it.getCurrentRemainingTime()
+                    onTimeUpdate(currentTime)
+                }
+            }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -50,8 +61,11 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         if (isBound) {
+
+            countdownService?.timeListener = null
             unbindService(serviceConnection)
             isBound = false
+
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +78,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        txtTimer = findViewById<TextView>(R.id.txtTimer)
         btnPlay = findViewById<ImageButton>(R.id.btnPlay)
         btnPause = findViewById<ImageButton>(R.id.btnPause)
         btnStop = findViewById<ImageButton>(R.id.btnStop)
@@ -149,5 +164,14 @@ class MainActivity : AppCompatActivity() {
             stopService(this)
         }
         updateControlState(ControlState.Stopped)
+        txtTimer.text = "25:00"
+    }
+
+    override fun onTimeUpdate(remainingTime: Long) {
+        runOnUiThread {
+            val minutes = remainingTime / 1000 / 60
+            val seconds = remainingTime / 1000 % 60
+            txtTimer.text = String.format("%02d:%02d", minutes, seconds)
+        }
     }
 }

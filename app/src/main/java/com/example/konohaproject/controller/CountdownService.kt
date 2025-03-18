@@ -19,6 +19,12 @@ import kotlinx.coroutines.launch
 
 class CountdownService : Service() {
 
+    interface TimeUpdateListener {
+        fun onTimeUpdate(remainingTime: Long)
+    }
+
+    var timeListener: TimeUpdateListener? = null
+
     private val serviceScope = CoroutineScope(Dispatchers.Default)
     private var countDownJob: Job? = null
     private var endTime: Long = 0L
@@ -131,7 +137,7 @@ class CountdownService : Service() {
     private fun logRemainingTime(remaining: Long) {
         val minutes = remaining / 1000 / 60
         val seconds = remaining / 1000 % 60
-        Log.d(TAG, "Tiempo restante:  ${minutes}m ${seconds}s");
+        timeListener?.onTimeUpdate(remaining)
     }
 
     private fun createNotificationChannel() {
@@ -169,11 +175,24 @@ class CountdownService : Service() {
         return isPaused
     }
 
+    fun fullReset() {
+        hardReset()
+        remainingTime = 25 * 60 * 1000L
+    }
+
     fun hardReset() {
         countDownJob?.cancel()
         endTime = 0L
         remainingTime = 0L
         setRunning(false)
         setPaused(false)
+    }
+
+    fun getCurrentRemainingTime(): Long {
+        return if (isRunning) {
+            if (isPaused) remainingTime else endTime - SystemClock.elapsedRealtime()
+        } else {
+            0L
+        }
     }
 }
