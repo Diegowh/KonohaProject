@@ -18,6 +18,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.konohaproject.R
 import com.example.konohaproject.controller.ControlState
+import com.example.konohaproject.controller.CountdownController
 import com.example.konohaproject.controller.CountdownService
 
 class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
@@ -27,28 +28,42 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private lateinit var btnPause: ImageButton
     private lateinit var btnStop: ImageButton
 
-    private var countdownService: CountdownService? = null
+    private var countdownController: CountdownController? = null
     private var isBound = false
+
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as CountdownService.CountdownBinder
-            countdownService = binder.getService()
-            countdownService?.timeListener = this@MainActivity
+            countdownController = binder.getController().apply {
+                setTimeUpdateListener(this@MainActivity)
+            }
             isBound = true
 
-            countdownService?.let {
-                if (CountdownService.isCountDownActive() || CountdownService.isPaused()) {
-                    val currentTime = it.getCurrentRemainingTime()
-                    onTimeUpdate(currentTime)
-                }
-            }
+            updateUIWithCurrentState()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             isBound = false
+            countdownController = null
         }
     }
 
+    private fun updateUIWithCurrentState() {
+        countdownController?.let { controller ->
+            val isRunning = controller.isRunning()
+            val isPaused = controller.isPaused()
+
+            when {
+                isRunning && !isPaused -> updateControlState(ControlState.Running)
+                isPaused -> updateControlState(ControlState.Paused)
+                else -> updateControlState(ControlState.Stopped)
+            }
+
+            if (isRunning) {
+                onTimeUpdate(controller.getRemainingTime())
+            }
+        }
+    }
     override fun onStart() {
         super.onStart()
         bindService(
@@ -61,13 +76,13 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     override fun onStop() {
         super.onStop()
         if (isBound) {
-
-            countdownService?.timeListener = null
+            countdownController?.setTimeUpdateListener(null)
             unbindService(serviceConnection)
             isBound = false
-
+            countdownController = null
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -88,34 +103,29 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
     private fun initListeners() {
         btnPlay.setOnClickListener {
-            when {
-                CountdownService.isPaused() -> {
-                    countdownService?.resumeCountdown()
-                    updateControlState(ControlState.Running)
-                }
-                !CountdownService.isCountDownActive() -> {
-                    startCountdown(25)
-                    updateControlState(ControlState.Running)
+            countdownController?.let { controller ->
+                when {
+                    controller.isPaused() -> {
+                        controller.resume()
+                        updateControlState(ControlState.Running)
+                    }
+
+                    !controller.isRunning() -> {
+                        startCountdown(25)
+                        updateControlState(ControlState.Running)
+                    }
                 }
             }
         }
 
         btnPause.setOnClickListener {
-            countdownService?.pauseCountdown()
+            countdownController?.pause()
             updateControlState(ControlState.Paused)
         }
 
         btnStop.setOnClickListener {
-            if (CountdownService.isPaused()) {
-                Intent(this, CountdownService::class.java).apply {
-                    action = "STOP"
-                    startService(this)
-                }
-                stopCountdown()
-                updateControlState(ControlState.Stopped)
-
-            }
-
+            countdownController?.reset()
+            stopCountdown()
         }
     }
 
@@ -141,30 +151,16 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     }
 
     private fun startCountdown(durationMinutes: Long) {
-
-        stopCountdown()
-
         val durationMillis = durationMinutes * 60 * 1000;
-        val serviceIntent = Intent(this, CountdownService::class.java).apply {
-            putExtra("duration", durationMillis);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
-        } else {
-            startService(serviceIntent);
-        }
+        countdownController?.start(durationMillis)
+        startService(Intent(this, CountdownService::class.java))
     }
 
     private fun stopCountdown() {
-        countdownService?.hardReset()
-        Intent(this, CountdownService::class.java).apply {
-            action = "STOP"
-            startService(this)
-            stopService(this)
-        }
-        updateControlState(ControlState.Stopped)
+        countdownController?.reset()
+        stopService(Intent(this, CountdownService::class.java))
         txtTimer.text = "25:00"
+        updateControlState(ControlState.Stopped)
     }
 
     override fun onTimeUpdate(remainingTime: Long) {
