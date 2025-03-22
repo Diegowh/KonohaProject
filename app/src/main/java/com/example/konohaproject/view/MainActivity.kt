@@ -45,7 +45,6 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                 setTimeUpdateListener(this@MainActivity)
             }
             isBound = true
-
             updateUIWithCurrentState()
         }
 
@@ -70,6 +69,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                 onTimeUpdate(controller.getRemainingTime())
             } else {
                 txtTimer.text = TimeConfig.initialFocusDisplayTime()
+                updateCycleUI(0, false)
+
             }
         }
     }
@@ -172,6 +173,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         countdownController?.reset()
         stopService(Intent(this, CountdownService::class.java))
         txtTimer.text = TimeConfig.initialFocusDisplayTime()
+        resetCycleUI()
         updateControlState(ControlState.Stopped)
     }
 
@@ -197,5 +199,9 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         runOnUiThread {
             updateCycleUI(currentCycle, isFocus)
         }
+    }
+
+    private fun resetCycleUI() {
+        updateCycleUI(0, false)
     }
 }

@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 class CountdownService : Service(), CountdownController, CountdownTimer.Listener {
 
 
-    private var currentCycle = 1
+    private var currentCycle = 0
     private var isFocusSession = true
     private var totalCycles = TimeConfig.getTotalCycles()
 
@@ -66,7 +66,11 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     }
 
     override fun start(durationMillis: Long) {
-        countdownTimer.pause()
+//        countdownTimer.pause()
+        if (currentCycle == 0) {
+            currentCycle++
+            timeListener?.onCycleUpdated(currentCycle, true)
+        }
         countdownTimer.reset()
         countdownTimer.start(durationMillis)
     }
