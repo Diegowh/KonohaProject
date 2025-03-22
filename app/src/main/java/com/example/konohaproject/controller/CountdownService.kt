@@ -90,12 +90,20 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     override fun moveToNextSession() {
 
         if (isFocusSession) {
+            // Estamos en sesion de Focus, por lo que hay que pasar a sesión de Break independientemente del ciclo.
             isFocusSession = false
             start(TimeConfig.breakTimeMillis())
-        } else {
+
+        } else if (currentCycle < totalCycles) {
+            // Es sesion de Break pero quedan ciclos antes del tope.
             isFocusSession = true
-            currentCycle = if (currentCycle == totalCycles) 1 else currentCycle + 1
+            currentCycle++
             start(TimeConfig.focusTimeMillis())
+        } else {
+            // Es sesion de Break pero estamos en el ultimo ciclo, por lo que hay que resetear ciclo y parar timer
+            isFocusSession = true
+            currentCycle = 0
+            reset()
         }
         timeListener?.onCycleUpdated(currentCycle, isFocusSession)
 
