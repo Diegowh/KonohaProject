@@ -21,8 +21,6 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
         fun getController(): CountdownController = this@CountdownService
     }
 
-
-
     interface TimeUpdateListener {
         fun onTimeUpdate(remainingTime: Long)
     }
