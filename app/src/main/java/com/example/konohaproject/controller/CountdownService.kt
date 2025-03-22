@@ -77,7 +77,10 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
 
     override fun pause() = countdownTimer.pause()
     override fun resume() = countdownTimer.resume()
-    override fun reset() = countdownTimer.reset()
+    override fun reset() {
+        currentCycle = 0
+        countdownTimer.reset()
+    }
     override fun getRemainingTime(): Long = countdownTimer.getRemainingTime()
     override fun isPaused(): Boolean = countdownTimer.isPaused()
     override fun isRunning(): Boolean = countdownTimer.isRunning()
