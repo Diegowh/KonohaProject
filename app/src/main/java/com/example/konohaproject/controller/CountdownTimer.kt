@@ -21,7 +21,6 @@ class CountdownTimer(
     private var remainingWhenPaused: Long = 0L
 
     fun start(durationMillis: Long) {
-//        reset()
         endTime = SystemClock.elapsedRealtime() + durationMillis
         startCountdownLoop()
     }
