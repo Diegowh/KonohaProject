@@ -4,12 +4,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.IBinder
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -20,18 +17,19 @@ import com.example.konohaproject.R
 import com.example.konohaproject.controller.ControlState
 import com.example.konohaproject.controller.CountdownController
 import com.example.konohaproject.controller.CountdownService
+import com.example.konohaproject.controller.TimeConfig
 
 class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
     private lateinit var txtTimer: TextView
     private lateinit var btnPlay: ImageButton
     private lateinit var btnPause: ImageButton
-    private lateinit var btnStop: ImageButton
+    private lateinit var btnReset: ImageButton
 
     private var countdownController: CountdownController? = null
     private var isBound = false
 
-    private var focusTime: Long = 25L
+//    private var focusTime: Long = 25L
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -95,10 +93,10 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             insets
         }
 
-        txtTimer = findViewById<TextView>(R.id.txtTimer)
-        btnPlay = findViewById<ImageButton>(R.id.btnPlay)
-        btnPause = findViewById<ImageButton>(R.id.btnPause)
-        btnStop = findViewById<ImageButton>(R.id.btnStop)
+        txtTimer = findViewById(R.id.txtTimer)
+        btnPlay = findViewById(R.id.btnPlay)
+        btnPause = findViewById(R.id.btnPause)
+        btnReset = findViewById(R.id.btnReset)
 
         initListeners()
     }
@@ -113,7 +111,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                     }
 
                     !controller.isRunning() -> {
-                        startCountdown(focusTime)
+                        startCountdown()
                         updateControlState(ControlState.Running)
                     }
                 }
@@ -125,7 +123,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             updateControlState(ControlState.Paused)
         }
 
-        btnStop.setOnClickListener {
+        btnReset.setOnClickListener {
             countdownController?.reset()
             stopCountdown()
         }
@@ -136,32 +134,31 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         when(state) {
             ControlState.Running -> {
                 btnPlay.visibility = View.GONE
-                btnStop.visibility = View.GONE
+                btnReset.visibility = View.GONE
                 btnPause.visibility = View.VISIBLE
             }
             ControlState.Paused -> {
                 btnPlay.visibility = View.VISIBLE
-                btnStop.visibility = View.VISIBLE
+                btnReset.visibility = View.VISIBLE
                 btnPause.visibility = View.GONE
             }
             ControlState.Stopped -> {
                 btnPlay.visibility = View.VISIBLE
-                btnStop.visibility = View.VISIBLE
+                btnReset.visibility = View.VISIBLE
                 btnPause.visibility = View.GONE
             }
         }
     }
 
-    private fun startCountdown(durationMinutes: Long) {
-        val durationMillis = durationMinutes * 60 * 1000;
-        countdownController?.start(durationMillis)
+    private fun startCountdown() {
+        countdownController?.start(TimeConfig.focusTimeMillis())
         startService(Intent(this, CountdownService::class.java))
     }
 
     private fun stopCountdown() {
         countdownController?.reset()
         stopService(Intent(this, CountdownService::class.java))
-        txtTimer.text = "25:00"
+        txtTimer.text = TimeConfig.initialFocusDisplayTime()
         updateControlState(ControlState.Stopped)
     }
 
