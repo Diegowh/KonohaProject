@@ -174,7 +174,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         countdownController?.reset()
         stopService(Intent(this, CountdownService::class.java))
         txtTimer.text = TimeConfig.initialFocusDisplayTime()
-        resetCycleUI()
+        val currentCycle = countdownController?.getCurrentCycle() ?: 0
+        updateCycleUI(currentCycle)
         updateControlState(ControlState.Stopped)
     }
 
