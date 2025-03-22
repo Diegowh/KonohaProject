@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
         btnReset.setOnClickListener {
             countdownController?.reset()
-            stopCountdown()
+            resetCountdown()
         }
     }
 
@@ -176,12 +176,13 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         startService(Intent(this, CountdownService::class.java))
     }
 
-    private fun stopCountdown() {
+    private fun resetCountdown() {
         countdownController?.reset()
         stopService(Intent(this, CountdownService::class.java))
         txtTimer.text = TimeConfig.initialFocusDisplayTime()
         val currentCycle = countdownController?.getCurrentCycle() ?: 0
         updateCycleUI(currentCycle)
+        pnlMain.setBackgroundColor(ContextCompat.getColor(this, R.color.background_focus))
         updateControlState(ControlState.Stopped)
     }
 
@@ -217,7 +218,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
                 // Va solo, con el ciclo el tio se apaña
                 updateCycleUI(currentCycle)
-                
+
                 // Aqui habra que comprobar si es el ciclo 1 (autorestart on) o el 0 (autorestart off)
                 if (currentCycle == 0) {
                     updateControlState(ControlState.Stopped)
@@ -225,23 +226,5 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             }
         }
 
-
-    }
-
-//    override fun onCountdownFinished(isFocusSession: Boolean) {
-//
-//        if (!TimeConfig.isAutoRestartEnabled()) {
-//
-//        }
-//        if (!isFocusSession) {
-//            // Es Break Session
-//        } else if (isFirstCycle){
-//            // Es Focus Session y es la primera
-//            // Por lo tanto se ha reiniciado
-//        }
-//    }
-
-    private fun resetCycleUI() {
-        updateCycleUI(0)
     }
 }
