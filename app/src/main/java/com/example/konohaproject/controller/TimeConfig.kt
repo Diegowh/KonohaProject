@@ -3,8 +3,10 @@ package com.example.konohaproject.controller
 import java.util.Locale
 
 object TimeConfig {
-    private const val FOCUS_TIME_MINUTES: Long = 1L
-    private const val BREAK_TIME_MINUTES: Long = 1L
+    private const val FOCUS_TIME_MINUTES: Long = 25L
+    private const val BREAK_TIME_MINUTES: Long = 5L
+    private const val LONG_BREAK_TIME_MINUTES: Long = 15L
+
     private const val TOTAL_CYCLES: Int = 4
 
     fun getTotalCycles() = TOTAL_CYCLES
