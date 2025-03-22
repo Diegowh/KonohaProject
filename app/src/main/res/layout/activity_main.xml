@@ -128,11 +128,11 @@
             android:visibility="gone" />
 
         <ImageButton
-            android:id="@+id/btnStop"
+            android:id="@+id/btnReset"
             android:layout_width="46dp"
             android:layout_height="46dp"
             android:background="@drawable/round_button"
-            android:src="@drawable/ic_stop"
+            android:src="@drawable/ic_reset"
             android:backgroundTint="@color/background_button"
             android:gravity="center"
             android:layout_marginLeft="89dp"
