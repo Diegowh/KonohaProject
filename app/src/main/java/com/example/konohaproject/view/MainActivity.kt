@@ -11,6 +11,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -22,6 +23,9 @@ import com.example.konohaproject.controller.TimeConfig
 import java.util.Locale
 
 class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
+
+
+    private lateinit var pnlMain: ConstraintLayout
 
     private lateinit var txtTimer: TextView
     private lateinit var btnPlay: ImageButton
@@ -102,6 +106,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        pnlMain = findViewById(R.id.main)
 
         txtTimer = findViewById(R.id.txtTimer)
         btnPlay = findViewById(R.id.btnPlay)
@@ -201,14 +207,18 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
         runOnUiThread {
             if (!isFocus) {
-                // Cambiar a diseño de ventana de Break
+                val breakColor = ContextCompat.getColor(this, R.color.background_break)
+                pnlMain.setBackgroundColor(breakColor)
             } else {
+
                 // Cambiar el diseño a la pantalla de Focus
+                val focusColor = ContextCompat.getColor(this, R.color.background_focus)
+                pnlMain.setBackgroundColor(focusColor)
 
                 // Va solo, con el ciclo el tio se apaña
                 updateCycleUI(currentCycle)
-                // Aqui habra que mostrar la pantalla de foco
-                // Y comprobar si es el ciclo 1 (autorestart on) o el 0 (autorestart off)
+                
+                // Aqui habra que comprobar si es el ciclo 1 (autorestart on) o el 0 (autorestart off)
                 if (currentCycle == 0) {
                     updateControlState(ControlState.Stopped)
                 }

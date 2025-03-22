@@ -14,4 +14,6 @@
     <color name="active_cycle">#4CAF50</color>
     <color name="inactive_cycle">#FF8D8E98</color>
 
+    <color name="background_focus">#0E0B20</color>
+    <color name="background_break">#0A2012</color>
 </resources>
