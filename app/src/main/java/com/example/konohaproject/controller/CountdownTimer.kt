@@ -58,12 +58,12 @@ class CountdownTimer(
     fun isRunning(): Boolean = endTime > 0L
 
     private fun startCountdownLoop() {
+        job?.cancel()
         job = scope.launch {
             while (isRunning() && !isPaused) {
                 val remaining = endTime - SystemClock.elapsedRealtime()
                 if (remaining <= 0) {
                     listener.onCountdownFinished()
-                    reset()
                     break
                 }
                 listener.onTimeUpdate(remaining)

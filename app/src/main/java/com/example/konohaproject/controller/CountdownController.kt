@@ -11,4 +11,8 @@ interface CountdownController {
     fun isPaused(): Boolean
     fun isRunning(): Boolean
     fun setTimeUpdateListener(listener: TimeUpdateListener?)
+    fun getCurrentCycle(): Int
+    fun isFocusSession(): Boolean
+    fun moveToNextSession()
+
 }

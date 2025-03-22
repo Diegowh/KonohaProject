@@ -10,6 +10,10 @@ import kotlinx.coroutines.Dispatchers
 class CountdownService : Service(), CountdownController, CountdownTimer.Listener {
 
 
+    private var currentCycle = 1
+    private var isFocusSession = true
+    private var totalCycles = TimeConfig.getTotalCycles()
+
     private val binder = CountdownBinder()
     private lateinit var notificationHelper: NotificationHelper
     private lateinit var countdownTimer: CountdownTimer
@@ -23,6 +27,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
 
     interface TimeUpdateListener {
         fun onTimeUpdate(remainingTime: Long)
+        fun onCycleUpdated(currentCycle: Int, isFocus: Boolean)
     }
 
     override fun onCreate() {
@@ -55,16 +60,17 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
         super.onDestroy()
     }
 
-    override fun onTimeUpdate(remainingTime: Long) {
-        timeListener?.onTimeUpdate(remainingTime)
-        notificationHelper.updateNotification(this, remainingTime)
+    override fun onTimeUpdate(remaining: Long) {
+        timeListener?.onTimeUpdate(remaining)
+        notificationHelper.updateNotification(this, remaining)
     }
 
-    override fun onCountdownFinished() {
-        stopSelf()
+    override fun start(durationMillis: Long) {
+        countdownTimer.pause()
+        countdownTimer.reset()
+        countdownTimer.start(durationMillis)
     }
 
-    override fun start(durationMillis: Long) = countdownTimer.start(durationMillis)
     override fun pause() = countdownTimer.pause()
     override fun resume() = countdownTimer.resume()
     override fun reset() = countdownTimer.reset()
@@ -73,6 +79,27 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     override fun isRunning(): Boolean = countdownTimer.isRunning()
     override fun setTimeUpdateListener(listener: TimeUpdateListener?) {
         timeListener = listener
+    }
+    override fun getCurrentCycle() = currentCycle
+    override fun isFocusSession() = isFocusSession
+
+    override fun moveToNextSession() {
+
+        if (isFocusSession) {
+            isFocusSession = false
+            start(TimeConfig.breakTimeMillis())
+        } else {
+            isFocusSession = true
+            currentCycle = if (currentCycle == totalCycles) 1 else currentCycle + 1
+            start(TimeConfig.focusTimeMillis())
+        }
+        timeListener?.onCycleUpdated(currentCycle, isFocusSession)
+
+//        startForegroundService()
+    }
+
+    override fun onCountdownFinished() {
+        moveToNextSession()
     }
 
     companion object {

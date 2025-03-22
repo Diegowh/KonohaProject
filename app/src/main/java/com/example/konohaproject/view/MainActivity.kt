@@ -11,6 +11,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.konohaproject.R
@@ -18,6 +19,7 @@ import com.example.konohaproject.controller.ControlState
 import com.example.konohaproject.controller.CountdownController
 import com.example.konohaproject.controller.CountdownService
 import com.example.konohaproject.controller.TimeConfig
+import java.util.Locale
 
 class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
@@ -26,10 +28,15 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private lateinit var btnPause: ImageButton
     private lateinit var btnReset: ImageButton
 
+    private lateinit var viewRound1: View
+    private lateinit var viewRound2: View
+    private lateinit var viewRound3: View
+    private lateinit var viewRound4: View
+
+
     private var countdownController: CountdownController? = null
     private var isBound = false
 
-//    private var focusTime: Long = 25L
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -61,6 +68,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
             if (isRunning) {
                 onTimeUpdate(controller.getRemainingTime())
+            } else {
+                txtTimer.text = TimeConfig.initialFocusDisplayTime()
             }
         }
     }
@@ -98,6 +107,10 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         btnPause = findViewById(R.id.btnPause)
         btnReset = findViewById(R.id.btnReset)
 
+        viewRound1 = findViewById(R.id.viewRound1)
+        viewRound2 = findViewById(R.id.viewRound2)
+        viewRound3 = findViewById(R.id.viewRound3)
+        viewRound4 = findViewById(R.id.viewRound4)
         initListeners()
     }
 
@@ -166,7 +179,23 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         runOnUiThread {
             val minutes = remainingTime / 1000 / 60
             val seconds = remainingTime / 1000 % 60
-            txtTimer.text = String.format("%02d:%02d", minutes, seconds)
+            txtTimer.text = String.format(Locale.US,"%02d:%02d", minutes, seconds)
+        }
+    }
+
+    private fun updateCycleUI(currentCycle: Int, isFocus: Boolean) {
+        val activeColor = ContextCompat.getColorStateList(this, R.color.active_cycle)
+        val inactiveColor = ContextCompat.getColorStateList(this, R.color.inactive_cycle)
+
+        listOf(viewRound1, viewRound2, viewRound3, viewRound4).forEachIndexed {
+            index, view ->
+            view.backgroundTintList = if (index < currentCycle) activeColor else inactiveColor
+        }
+    }
+
+    override fun onCycleUpdated(currentCycle: Int, isFocus: Boolean) {
+        runOnUiThread {
+            updateCycleUI(currentCycle, isFocus)
         }
     }
 }
