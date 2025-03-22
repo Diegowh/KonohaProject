@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                 onTimeUpdate(controller.getRemainingTime())
             } else {
                 txtTimer.text = TimeConfig.initialFocusDisplayTime()
-                updateCycleUI(0, false)
+                updateCycleUI(0)
 
             }
         }
@@ -160,6 +160,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                 btnPlay.visibility = View.VISIBLE
                 btnReset.visibility = View.VISIBLE
                 btnPause.visibility = View.GONE
+                txtTimer.text = TimeConfig.initialFocusDisplayTime()
             }
         }
     }
@@ -185,7 +186,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         }
     }
 
-    private fun updateCycleUI(currentCycle: Int, isFocus: Boolean) {
+    private fun updateCycleUI(currentCycle: Int) {
         val activeColor = ContextCompat.getColorStateList(this, R.color.active_cycle)
         val inactiveColor = ContextCompat.getColorStateList(this, R.color.inactive_cycle)
 
@@ -195,13 +196,41 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         }
     }
 
-    override fun onCycleUpdated(currentCycle: Int, isFocus: Boolean) {
+    override fun onCountdownFinished(currentCycle: Int, isFocus: Boolean) {
+
         runOnUiThread {
-            updateCycleUI(currentCycle, isFocus)
+            if (!isFocus) {
+                // Cambiar a diseño de ventana de Break
+            } else {
+                // Cambiar el diseño a la pantalla de Focus
+
+                // Va solo, con el ciclo el tio se apaña
+                updateCycleUI(currentCycle)
+                // Aqui habra que mostrar la pantalla de foco
+                // Y comprobar si es el ciclo 1 (autorestart on) o el 0 (autorestart off)
+                if (currentCycle == 0) {
+                    updateControlState(ControlState.Stopped)
+                }
+            }
         }
+
+
     }
 
+//    override fun onCountdownFinished(isFocusSession: Boolean) {
+//
+//        if (!TimeConfig.isAutoRestartEnabled()) {
+//
+//        }
+//        if (!isFocusSession) {
+//            // Es Break Session
+//        } else if (isFirstCycle){
+//            // Es Focus Session y es la primera
+//            // Por lo tanto se ha reiniciado
+//        }
+//    }
+
     private fun resetCycleUI() {
-        updateCycleUI(0, false)
+        updateCycleUI(0)
     }
 }
