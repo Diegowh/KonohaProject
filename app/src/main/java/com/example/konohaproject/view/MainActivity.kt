@@ -31,6 +31,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private var countdownController: CountdownController? = null
     private var isBound = false
 
+    private var focusTime: Long = 25L
+
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as CountdownService.CountdownBinder
@@ -111,7 +113,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                     }
 
                     !controller.isRunning() -> {
-                        startCountdown(25)
+                        startCountdown(focusTime)
                         updateControlState(ControlState.Running)
                     }
                 }
