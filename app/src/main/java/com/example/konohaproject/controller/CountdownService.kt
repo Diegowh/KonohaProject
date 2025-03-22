@@ -27,7 +27,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
 
     interface TimeUpdateListener {
         fun onTimeUpdate(remainingTime: Long)
-        fun onCycleUpdated(currentCycle: Int, isFocus: Boolean)
+        fun onCountdownFinished(currentCycle: Int, isFocus: Boolean)
     }
 
     override fun onCreate() {
@@ -69,7 +69,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
 //        countdownTimer.pause()
         if (currentCycle == 0) {
             currentCycle++
-            timeListener?.onCycleUpdated(currentCycle, true)
+            timeListener?.onCountdownFinished(currentCycle, true)
         }
         countdownTimer.reset()
         countdownTimer.start(durationMillis)
@@ -87,7 +87,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     override fun getCurrentCycle() = currentCycle
     override fun isFocusSession() = isFocusSession
 
-    override fun moveToNextSession() {
+    override fun onCountdownFinished() {
 
         if (isFocusSession) {
             // Estamos en sesion de Focus, por lo que hay que pasar a sesión de Break independientemente del ciclo.
@@ -100,19 +100,25 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
             currentCycle++
             start(TimeConfig.focusTimeMillis())
         } else {
-            // Es sesion de Break pero estamos en el ultimo ciclo, por lo que hay que resetear ciclo y parar timer
-            isFocusSession = true
-            currentCycle = 0
-            reset()
+            if (!TimeConfig.isAutoRestartEnabled()) {
+                // Es sesion de Break pero estamos en el ultimo ciclo, por lo que hay que resetear ciclo y parar timer
+                isFocusSession = true
+                currentCycle = 0
+                reset()
+            } else {
+                isFocusSession = true
+                currentCycle = 1
+                start(TimeConfig.focusTimeMillis())
+            }
+
         }
-        timeListener?.onCycleUpdated(currentCycle, isFocusSession)
+        timeListener?.onCountdownFinished(currentCycle, isFocusSession)
 
-//        startForegroundService()
     }
 
-    override fun onCountdownFinished() {
-        moveToNextSession()
-    }
+//    override fun onCountdownFinished() {
+//        moveToNextSession()
+//    }
 
     companion object {
         const val ACTION_STOP = "STOP"
