@@ -1,6 +1,5 @@
 package com.example.konohaproject.controller
 
-import android.location.GnssAntennaInfo.Listener
 import android.os.SystemClock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -22,7 +21,7 @@ class CountdownTimer(
     private var remainingWhenPaused: Long = 0L
 
     fun start(durationMillis: Long) {
-        reset()
+//        reset()
         endTime = SystemClock.elapsedRealtime() + durationMillis
         startCountdownLoop()
     }
