@@ -15,8 +15,10 @@ object TimeConfig {
     fun isAutoRestartEnabled() = AUTO_RESTART
     fun focusTimeMinutes() = FOCUS_TIME_MINUTES
     fun breakTimeMinutes() = BREAK_TIME_MINUTES
-    fun focusTimeMillis() = FOCUS_TIME_MINUTES * 60 * 1000
-    fun breakTimeMillis() = BREAK_TIME_MINUTES * 60 * 1000
+    fun longBreakTimeMinutes() = LONG_BREAK_TIME_MINUTES
+    fun focusTimeMillis() = minutesToMilliseconds(FOCUS_TIME_MINUTES)
+    fun breakTimeMillis() = minutesToMilliseconds(BREAK_TIME_MINUTES)
+    fun longBreakTimeMillis() = minutesToMilliseconds(LONG_BREAK_TIME_MINUTES)
 
     fun initialFocusDisplayTime() = initialDisplayTime(focusTimeMillis())
     fun initialBreakDisplayTime() = initialDisplayTime(breakTimeMillis())
@@ -25,5 +27,9 @@ object TimeConfig {
         val minutes = displayTime / 1000 / 60
         val seconds = displayTime / 1000 % 60
         return String.format(Locale.US, "%02d:%02d", minutes, seconds)
+    }
+
+    private fun minutesToMilliseconds(minutes: Long): Long {
+        return minutes * 60 * 1000
     }
 }
