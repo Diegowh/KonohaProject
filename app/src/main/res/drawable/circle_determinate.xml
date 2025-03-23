@@ -6,21 +6,21 @@
             android:shape="ring"
             android:thicknessRatio="100"
             android:useLevel="false">
-            <solid android:color="#DDD"/>
+            <solid android:color="@color/button_primary"/>
         </shape>
     </item>
 
     <item>
         <rotate
-            android:fromDegrees="270"
-            android:toDegrees="270">
+            android:fromDegrees="270">
             <shape
                 android:shape="ring"
                 android:thicknessRatio="100"
-                android:useLevel="true">
+                android:useLevel="true"
+                android:angle="270">
                 <gradient
-                    android:endColor="@color/background_button"
-                    android:startColor="@color/background_fab"
+                    android:endColor="@color/button_primary"
+                    android:startColor="@color/button_secondary"
                     android:type="sweep"/>
             </shape>
         </rotate>
