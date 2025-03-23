@@ -66,7 +66,6 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     }
 
     override fun start(durationMillis: Long) {
-//        countdownTimer.pause()
         if (currentCycle == 0) {
             currentCycle++
             timeListener?.onCountdownFinished(currentCycle, true)
@@ -95,7 +94,11 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
         if (isFocusSession) {
             // Estamos en sesion de Focus, por lo que hay que pasar a sesión de Break independientemente del ciclo.
             isFocusSession = false
-            start(TimeConfig.breakTimeMillis())
+            if (currentCycle == totalCycles) {
+                start(TimeConfig.longBreakTimeMillis())
+            } else {
+                start(TimeConfig.breakTimeMillis())
+            }
 
         } else if (currentCycle < totalCycles) {
             // Es sesion de Break pero quedan ciclos antes del tope.
