@@ -10,13 +10,13 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/containerTopButtons"
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:orientation="horizontal">
+        android:paddingTop="30dp"
+        android:paddingHorizontal="30dp"
+        >
 
         <ImageButton
             android:id="@+id/btnSettings"
@@ -29,8 +29,6 @@
             app:layout_constraintStart_toStartOf="parent"
 
             android:gravity="center"
-            android:layout_marginTop="30dp"
-            android:layout_marginStart="30dp"
             />
 
         <ImageButton
@@ -44,8 +42,6 @@
             app:layout_constraintEnd_toEndOf="parent"
 
             android:gravity="center"
-            android:layout_marginTop="30dp"
-            android:layout_marginEnd="30dp"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -54,9 +50,11 @@
         android:id="@+id/containerTimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/containerTopButtons"
+        android:layout_marginTop="150dp"
+        app:layout_constraintTop_toBottomOf="@+id/header"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/footer"
 
         >
         <ProgressBar
@@ -73,10 +71,10 @@
         <ImageView
             android:id="@+id/imgCharacter"
             android:layout_width="wrap_content"
-            android:layout_height="270dp"
-            android:src="@drawable/sakura_focus"
+            android:layout_height="250dp"
+            android:src="@drawable/sakura_focus_crop"
+            android:layout_marginTop="30dp"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginStart="40dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
@@ -145,15 +143,12 @@
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingBottom="90dp"
-        android:gravity="center"
+        android:paddingBottom="60dp"
 
         >
 
@@ -163,9 +158,11 @@
             android:layout_height="46dp"
             android:background="@drawable/round_button"
             android:backgroundTint="@color/button_secondary"
-            android:gravity="center"
             android:src="@drawable/ic_play"
-
+            app:layout_constraintEnd_toStartOf="@+id/btnReset"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             />
 
         <ImageButton
@@ -175,7 +172,12 @@
             android:background="@drawable/round_button"
             android:backgroundTint="@color/button_secondary"
             android:src="@drawable/ic_pause"
-            android:visibility="gone" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"
+             />
 
         <ImageButton
             android:id="@+id/btnReset"
@@ -184,8 +186,12 @@
             android:background="@drawable/round_button"
             android:src="@drawable/ic_reset"
             android:backgroundTint="@color/button_secondary"
-            android:gravity="center"
-            android:layout_marginLeft="89dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnPlay"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+
+
             />
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
