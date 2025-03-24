@@ -34,7 +34,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
         super.onCreate()
         notificationHelper = NotificationHelper(this)
         countdownTimer = CountdownTimer(serviceScope, this)
-        startForegroundService()
+        // startForegroundService()
     }
 
     private fun startForegroundService() {
