@@ -1,6 +1,6 @@
 # KonohaProject
 
-[![Static Badge](https://img.shields.io/badge/CC_BY--NC--ND_4.0-blue?style=for-the-badge&color=gray)](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en)
+[![Static Badge](https://img.shields.io/badge/CC_BY--NC--ND_4.0-blue?style=for-the-badge&color=gray)](https://github.com/Diegowh/KonohaProject/blob/main/LICENSE)
 
 ## License
 
