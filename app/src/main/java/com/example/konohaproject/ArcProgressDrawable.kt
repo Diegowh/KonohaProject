@@ -12,6 +12,7 @@ class ArcProgressDrawable(
     private val strokeWidth: Float = 15f,
     private val arcAngle: Float = 270f,
     private val startAngle: Float = 135f
+
 ) : Drawable() {
 
     // Configuración de paints
@@ -51,7 +52,7 @@ class ArcProgressDrawable(
     private fun setupDimensions() {
         val bounds = bounds
         val size = bounds.width().coerceAtMost(bounds.height())
-        val padding = strokeWidth / 2
+        val padding = strokeWidth * 1.5f
 
         arcRect = RectF(padding, padding, size - padding, size - padding)
         centerX = bounds.exactCenterX()
