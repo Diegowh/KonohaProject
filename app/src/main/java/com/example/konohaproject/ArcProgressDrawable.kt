@@ -25,6 +25,7 @@ class ArcProgressDrawable(
     }
 
     private val progressPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.button_primary)
         style = Paint.Style.STROKE
         this.strokeWidth = this@ArcProgressDrawable.strokeWidth
         isAntiAlias = true
@@ -66,21 +67,23 @@ class ArcProgressDrawable(
 
     private fun drawProgressArc(canvas: Canvas) {
 
-        val gradient = SweepGradient(
-            centerX, centerY,
-            intArrayOf(
-                ContextCompat.getColor(context, R.color.button_secondary),
-                ContextCompat.getColor(context, R.color.button_primary)
-            ),
-            null
-        )
+        // Esta comentado porque no se si voy a querer utilizar el gradiente
+        // en el futuro, asi que aqui se queda por ahora jeje
 
+//        val gradient = SweepGradient(
+//            centerX, centerY,
+//            intArrayOf(
+//                ContextCompat.getColor(context, R.color.button_secondary),
+//                ContextCompat.getColor(context, R.color.button_primary)
+//            ),
+//            null
+//        )
 
-        val matrix = Matrix().apply {
-            postRotate(startAngle, centerX, centerY)
-        }
-        gradient.setLocalMatrix(matrix)
-        progressPaint.shader = gradient
+//        val matrix = Matrix().apply {
+//            postRotate(startAngle, centerX, centerY)
+//        }
+//        gradient.setLocalMatrix(matrix)
+//        progressPaint.shader = gradient
 
 
         val progress = (level / 10000f) * arcAngle
