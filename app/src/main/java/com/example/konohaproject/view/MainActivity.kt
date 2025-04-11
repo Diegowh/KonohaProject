@@ -1,5 +1,6 @@
 package com.example.konohaproject.view
 
+import android.animation.ValueAnimator
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -7,7 +8,9 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
+import android.view.animation.LinearInterpolator
 import android.widget.ImageButton
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +18,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.konohaproject.ArcProgressDrawable
 import com.example.konohaproject.R
 import com.example.konohaproject.controller.ControlState
 import com.example.konohaproject.controller.CountdownController
@@ -107,6 +111,26 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             insets
         }
 
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar).apply {
+            progressDrawable = ArcProgressDrawable(
+                context = this@MainActivity
+            )
+            max = 10000 // Nivel máximo (requerido para usar level)
+        }
+
+
+        val pomodoroDuration = 1 * 60 * 1000L
+
+        ValueAnimator.ofInt(0, 10000).apply {
+            duration = pomodoroDuration
+            interpolator = LinearInterpolator()
+            addUpdateListener {
+                progressBar.progress = it.animatedValue as Int
+            }
+            start()
+        }
+
+
         pnlMain = findViewById(R.id.main)
 
         txtTimer = findViewById(R.id.txtTimer)
@@ -182,7 +206,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         txtTimer.text = TimeConfig.initialFocusDisplayTime()
         val currentCycle = countdownController?.getCurrentCycle() ?: 0
         updateCycleUI(currentCycle)
-        pnlMain.setBackgroundColor(ContextCompat.getColor(this, R.color.background_focus))
+        pnlMain.setBackgroundColor(ContextCompat.getColor(this, R.color.background_app_focus))
         updateControlState(ControlState.Stopped)
     }
 
@@ -195,8 +219,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     }
 
     private fun updateCycleUI(currentCycle: Int) {
-        val activeColor = ContextCompat.getColorStateList(this, R.color.active_cycle)
-        val inactiveColor = ContextCompat.getColorStateList(this, R.color.inactive_cycle)
+        val activeColor = ContextCompat.getColorStateList(this, R.color.button_primary)
+        val inactiveColor = ContextCompat.getColorStateList(this, R.color.button_secondary)
 
         listOf(viewRound1, viewRound2, viewRound3, viewRound4).forEachIndexed {
             index, view ->
@@ -208,12 +232,12 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
         runOnUiThread {
             if (!isFocus) {
-                val breakColor = ContextCompat.getColor(this, R.color.background_break)
+                val breakColor = ContextCompat.getColor(this, R.color.background_app_break)
                 pnlMain.setBackgroundColor(breakColor)
             } else {
 
                 // Cambiar el diseño a la pantalla de Focus
-                val focusColor = ContextCompat.getColor(this, R.color.background_focus)
+                val focusColor = ContextCompat.getColor(this, R.color.background_app_focus)
                 pnlMain.setBackgroundColor(focusColor)
 
                 // Va solo, con el ciclo el tio se apaña
