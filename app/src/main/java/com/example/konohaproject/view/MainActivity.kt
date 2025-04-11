@@ -45,6 +45,11 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private var countdownController: CountdownController? = null
     private var isBound = false
 
+    companion object {
+        private const val SEGUNDOS_POR_MINUTO = 60
+        private const val MILESIMAS_POR_SEGUNDO = 1000L
+    }
+
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -111,21 +116,16 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             insets
         }
 
-        val progressBar = findViewById<ProgressBar>(R.id.progressBar).apply {
-            progressDrawable = ArcProgressDrawable(
-                context = this@MainActivity
-            )
-            max = 10000 // Nivel máximo (requerido para usar level)
-        }
+        val minutos = 1
+        val timerDuration = minutos * SEGUNDOS_POR_MINUTO * MILESIMAS_POR_SEGUNDO
 
-
-        val pomodoroDuration = 1 * 60 * 1000L
+        val progressBar = initProgressArc()
 
         ValueAnimator.ofInt(0, 10000).apply {
-            duration = pomodoroDuration
+            duration = timerDuration
             interpolator = LinearInterpolator()
             addUpdateListener {
-                progressBar.progress = it.animatedValue as Int
+                progressBar?.progress = it.animatedValue as Int
             }
             start()
         }
@@ -143,6 +143,16 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         viewRound3 = findViewById(R.id.viewRound3)
         viewRound4 = findViewById(R.id.viewRound4)
         initListeners()
+    }
+
+    private fun initProgressArc(): ProgressBar? {
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar).apply {
+            progressDrawable = ArcProgressDrawable(
+                context = this@MainActivity
+            )
+            max = 10000 // Nivel máximo (requerido para usar level)
+        }
+        return progressBar
     }
 
     private fun initListeners() {
