@@ -113,10 +113,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
         val progressBar = findViewById<ProgressBar>(R.id.progressBar).apply {
             progressDrawable = ArcProgressDrawable(
-                context = this@MainActivity,
-                strokeWidth = 15f,
-                arcAngle = 270f,
-                startAngle = 135f
+                context = this@MainActivity
             )
             max = 10000 // Nivel máximo (requerido para usar level)
         }
