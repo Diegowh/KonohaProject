@@ -25,7 +25,7 @@ import com.example.konohaproject.controller.CountdownService
 import com.example.konohaproject.controller.TimeConfig
 import java.util.Locale
 
-class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
+class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, SettingsFragment.SettingsListener {
 
 
     private lateinit var pnlMain: ConstraintLayout
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private lateinit var viewRound4: View
 
     private lateinit var progressBar: ProgressBar
-    private var currentTotalDuration: Long = TimeConfig.focusTimeMillis();
+    private var currentTotalDuration: Long = 0
 
     private var countdownController: CountdownController? = null
     private var isBound = false
@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                 btnPlay.visibility = View.VISIBLE
                 btnReset.visibility = View.VISIBLE
                 btnPause.visibility = View.GONE
-                txtTimer.text = TimeConfig.initialFocusDisplayTime()
+                txtTimer.text = TimeConfig.initialDisplayTime(this, true)
             }
         }
     }
@@ -206,7 +206,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private fun startCountdown() {
         countdownController?.let { controller ->
 
-            val duration = TimeConfig.focusTimeMillis()
+            val duration = TimeConfig.focusTimeMillis(this)
             currentTotalDuration = duration
 
             controller.start(duration)
@@ -231,8 +231,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         countdownController?.reset()
         resetProgressAnimation()
         stopService(Intent(this, CountdownService::class.java))
-        txtTimer.text = TimeConfig.initialFocusDisplayTime()
-        currentTotalDuration = TimeConfig.focusTimeMillis()
+        txtTimer.text = TimeConfig.initialDisplayTime(this, true)
+        currentTotalDuration = TimeConfig.focusTimeMillis(this)
         progressBar.progress = 0
 
         updateCycleUI(0)
@@ -290,15 +290,15 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
     override fun onCountdownFinished(currentCycle: Int, isFocus: Boolean) {
 
-        val totalCycles = TimeConfig.getTotalCycles()
+        val totalCycles = TimeConfig.getTotalCycles(this)
 
         currentTotalDuration = if (isFocus) {
-            TimeConfig.focusTimeMillis()
+            TimeConfig.focusTimeMillis(this)
         } else {
             if (currentCycle == totalCycles) {
-                TimeConfig.longBreakTimeMillis()
+                TimeConfig.longBreakTimeMillis(this)
             } else {
-                TimeConfig.breakTimeMillis()
+                TimeConfig.shortBreakTimeMillis(this)
             }
         }
 
@@ -326,5 +326,10 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                 }
             }
         }
+    }
+
+    override fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int) {
+
+        resetCountdown()
     }
 }
