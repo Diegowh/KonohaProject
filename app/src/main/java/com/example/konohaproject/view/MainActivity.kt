@@ -224,12 +224,13 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
     override fun onTimeUpdate(remainingTime: Long) {
         runOnUiThread {
-            val minutes = remainingTime / 1000 / 60
-            val seconds = remainingTime / 1000 % 60
+            val totalSeconds = (remainingTime + 500) / 1000
+            val minutes = totalSeconds / 60
+            val seconds = totalSeconds % 60
             txtTimer.text = String.format(Locale.US,"%02d:%02d", minutes, seconds)
 
             val progress = ((currentTotalDuration - remainingTime).toFloat() / currentTotalDuration * 10000).toInt()
-            println(progress)
+
             progressBar.progress = progress
         }
 
