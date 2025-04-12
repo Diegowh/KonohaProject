@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">KonohaProject</string>
+    <string name="minutes_format">%d min</string>
+    <string name="save">Guardar</string>
 </resources>
