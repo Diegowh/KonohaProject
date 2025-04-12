@@ -1,5 +1,7 @@
 package com.example.konohaproject.controller
 
+import android.content.Context
+import android.content.SharedPreferences
 import java.util.Locale
 
 object TimeConfig {
@@ -10,39 +12,89 @@ object TimeConfig {
     private const val KEY_CYCLES = "total_cycles"
     private const val KEY_AUTO_RESTART = "auto_restart"
 
+
     private const val DEFAULT_FOCUS = 25L
     private const val DEFAULT_SHORT_BREAK = 5L
     private const val DEFAULT_LONG_BREAK = 15L
     private const val DEFAULT_CYCLES = 4
     private const val DEFAULT_AUTO_RESTART = false
 
-    private const val FOCUS_TIME_MINUTES: Long = 25L
-    private const val BREAK_TIME_MINUTES: Long = 5L
-    private const val LONG_BREAK_TIME_MINUTES: Long = 15L
 
-    private const val TOTAL_CYCLES: Int = 4
+    fun getFocusMinutes(context: Context): Long {
+        val prefs = getPrefs(context)
+        return try {
+            prefs.getLong(KEY_FOCUS, DEFAULT_FOCUS)
+        } catch (e: ClassCastException) {
 
-    private const val AUTO_RESTART: Boolean = false
+            val intValue = prefs.getInt(KEY_FOCUS, DEFAULT_FOCUS.toInt())
+            val longValue = intValue.toLong()
 
-    fun getTotalCycles() = TOTAL_CYCLES
-    fun isAutoRestartEnabled() = AUTO_RESTART
-    fun focusTimeMinutes() = FOCUS_TIME_MINUTES
-    fun breakTimeMinutes() = BREAK_TIME_MINUTES
-    fun longBreakTimeMinutes() = LONG_BREAK_TIME_MINUTES
-    fun focusTimeMillis() = minutesToMilliseconds(FOCUS_TIME_MINUTES)
-    fun breakTimeMillis() = minutesToMilliseconds(BREAK_TIME_MINUTES)
-    fun longBreakTimeMillis() = minutesToMilliseconds(LONG_BREAK_TIME_MINUTES)
+            prefs.edit().putLong(KEY_FOCUS, longValue).apply()
+            longValue
+        }
+    }
 
-    fun initialFocusDisplayTime() = initialDisplayTime(focusTimeMillis())
-    fun initialBreakDisplayTime() = initialDisplayTime(breakTimeMillis())
+    fun getShortBreakMinutes(context: Context): Long {
+        val prefs = getPrefs(context)
+        return try {
+            prefs.getLong(KEY_SHORT_BREAK, DEFAULT_SHORT_BREAK)
+        } catch (e: ClassCastException) {
+            val intValue = prefs.getInt(KEY_SHORT_BREAK, DEFAULT_SHORT_BREAK.toInt())
+            val longValue = intValue.toLong()
+            prefs.edit().putLong(KEY_SHORT_BREAK, longValue).apply()
+            longValue
+        }
+    }
 
-    private fun initialDisplayTime(displayTime: Long): String {
-        val minutes = displayTime / 1000 / 60
-        val seconds = displayTime / 1000 % 60
+    fun getLongBreakMinutes(context: Context): Long {
+        val prefs = getPrefs(context)
+        return try {
+            prefs.getLong(KEY_LONG_BREAK, DEFAULT_LONG_BREAK)
+        } catch (e: ClassCastException) {
+            val intValue = prefs.getInt(KEY_LONG_BREAK, DEFAULT_LONG_BREAK.toInt())
+            val longValue = intValue.toLong()
+            prefs.edit().putLong(KEY_LONG_BREAK, longValue).apply()
+            longValue
+        }
+    }
+    fun getTotalCycles(context: Context): Int = getPrefs(context).getInt(KEY_CYCLES, DEFAULT_CYCLES)
+    fun isAutoRestartEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_AUTO_RESTART, DEFAULT_AUTO_RESTART)
+
+
+
+    fun focusTimeMillis(context: Context) = minutesToMilliseconds(getFocusMinutes(context))
+    fun shortBreakTimeMillis(context: Context) = minutesToMilliseconds(getShortBreakMinutes(context))
+    fun longBreakTimeMillis(context: Context) = minutesToMilliseconds(getLongBreakMinutes(context))
+
+
+    fun initialDisplayTime(context: Context, isFocus: Boolean = true): String {
+        val millis = if (isFocus) focusTimeMillis(context) else shortBreakTimeMillis(context)
+        val minutes = millis / 1000 / 60
+        val seconds = millis / 1000 % 60
         return String.format(Locale.US, "%02d:%02d", minutes, seconds)
     }
 
-    private fun minutesToMilliseconds(minutes: Long): Long {
-        return minutes * 60 * 1000
+    private fun getPrefs(context: Context): SharedPreferences {
+        return context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    private fun minutesToMilliseconds(minutes: Long): Long = minutes * 60 * 1000
+
+    fun updateSettings(
+        context: Context,
+        focus: Long,
+        shortBreak: Long,
+        longBreak: Long,
+        cycles: Int,
+        autoRestart: Boolean
+    ) {
+        getPrefs(context).edit().apply {
+            putLong(KEY_FOCUS, focus)
+            putLong(KEY_SHORT_BREAK, shortBreak)
+            putLong(KEY_LONG_BREAK, longBreak)
+            putInt(KEY_CYCLES, cycles)
+            putBoolean(KEY_AUTO_RESTART, autoRestart)
+            apply()
+        }
     }
 }
