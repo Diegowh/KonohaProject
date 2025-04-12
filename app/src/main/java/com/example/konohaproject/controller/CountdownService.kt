@@ -12,7 +12,6 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
 
     private var currentCycle = 0
     private var isFocusSession = true
-    private var totalCycles = TimeConfig.getTotalCycles()
 
     private val binder = CountdownBinder()
     private lateinit var notificationHelper: NotificationHelper
@@ -43,7 +42,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
             notificationHelper.buildDefaultNotification()
         )
     }
-    override fun onBind(intent: Intent?): IBinder? = binder
+    override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
@@ -90,34 +89,30 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     override fun isFocusSession() = isFocusSession
 
     override fun onCountdownFinished() {
+         val totalCycles = TimeConfig.getTotalCycles()
 
         if (isFocusSession) {
             // Estamos en sesion de Focus, por lo que hay que pasar a sesión de Break independientemente del ciclo.
             isFocusSession = false
-            if (currentCycle == totalCycles) {
-                start(TimeConfig.longBreakTimeMillis())
+            val breakDuration = if (currentCycle == totalCycles) {
+                TimeConfig.longBreakTimeMillis()
             } else {
-                start(TimeConfig.breakTimeMillis())
+                TimeConfig.breakTimeMillis()
             }
+            start(breakDuration)
 
-        } else if (currentCycle < totalCycles) {
-            // Es sesion de Break pero quedan ciclos antes del tope.
-            isFocusSession = true
-            currentCycle++
-            start(TimeConfig.focusTimeMillis())
         } else {
-            if (!TimeConfig.isAutoRestartEnabled()) {
-                // Es sesion de Break pero estamos en el ultimo ciclo, por lo que hay que resetear ciclo y parar timer
-                isFocusSession = true
-                currentCycle = 0
-                reset()
+            // Transicion de Break a Focus
+            isFocusSession = true
+            if (currentCycle < totalCycles) {
+                currentCycle++
             } else {
-                isFocusSession = true
-                currentCycle = 1
-                start(TimeConfig.focusTimeMillis())
+                currentCycle = if (TimeConfig.isAutoRestartEnabled()) 1 else 0
             }
-
+            start(TimeConfig.focusTimeMillis())
         }
+
+        // Notifica al MaiNActivity para actualizar la UI
         timeListener?.onCountdownFinished(currentCycle, isFocusSession)
 
     }
