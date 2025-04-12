@@ -1,9 +1,10 @@
-package com.example.konohaproject
+package com.example.konohaproject.view
 
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import com.example.konohaproject.R
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -15,7 +16,6 @@ class ArcProgressDrawable(
 
 ) : Drawable() {
 
-    // Configuración de paints
     private val backgroundPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.button_secondary)
         style = Paint.Style.STROKE
