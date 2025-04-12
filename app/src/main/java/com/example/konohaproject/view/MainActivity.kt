@@ -41,6 +41,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private lateinit var viewRound3: View
     private lateinit var viewRound4: View
 
+    private lateinit var progressBar: ProgressBar
+    private var currentTotalDuration: Long = TimeConfig.focusTimeMillis();
 
     private var countdownController: CountdownController? = null
     private var isBound = false
@@ -87,6 +89,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             }
         }
     }
+
     override fun onStart() {
         super.onStart()
         bindService(
@@ -115,20 +118,16 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        progressBar = initProgressArc()
 
-        val minutos = 1
-        val timerDuration = minutos * SEGUNDOS_POR_MINUTO * MILESIMAS_POR_SEGUNDO
-
-        val progressBar = initProgressArc()
-
-        ValueAnimator.ofInt(0, 10000).apply {
-            duration = timerDuration
-            interpolator = LinearInterpolator()
-            addUpdateListener {
-                progressBar?.progress = it.animatedValue as Int
-            }
-            start()
-        }
+//        ValueAnimator.ofInt(0, 10000).apply {
+//            duration = timerDuration
+//            interpolator = LinearInterpolator()
+//            addUpdateListener {
+//                progressBar?.progress = it.animatedValue as Int
+//            }
+//            start()
+//        }
 
 
         pnlMain = findViewById(R.id.main)
@@ -145,12 +144,13 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         initListeners()
     }
 
-    private fun initProgressArc(): ProgressBar? {
+    private fun initProgressArc(): ProgressBar {
         val progressBar = findViewById<ProgressBar>(R.id.progressBar).apply {
             progressDrawable = ArcProgressDrawable(
                 context = this@MainActivity
             )
             max = 10000 // Nivel máximo (requerido para usar level)
+            progress = 0
         }
         return progressBar
     }
@@ -214,8 +214,10 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         countdownController?.reset()
         stopService(Intent(this, CountdownService::class.java))
         txtTimer.text = TimeConfig.initialFocusDisplayTime()
-        val currentCycle = countdownController?.getCurrentCycle() ?: 0
-        updateCycleUI(currentCycle)
+        currentTotalDuration = TimeConfig.focusTimeMillis()
+        progressBar.progress = 0
+//        val currentCycle = countdownController?.getCurrentCycle() ?: 0
+        updateCycleUI(0)
         pnlMain.setBackgroundColor(ContextCompat.getColor(this, R.color.background_app_focus))
         updateControlState(ControlState.Stopped)
     }
@@ -225,7 +227,12 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             val minutes = remainingTime / 1000 / 60
             val seconds = remainingTime / 1000 % 60
             txtTimer.text = String.format(Locale.US,"%02d:%02d", minutes, seconds)
+
+            val progress = ((currentTotalDuration - remainingTime).toFloat() / currentTotalDuration * 10000).toInt()
+            println(progress)
+            progressBar.progress = progress
         }
+
     }
 
     private fun updateCycleUI(currentCycle: Int) {
@@ -239,6 +246,19 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     }
 
     override fun onCountdownFinished(currentCycle: Int, isFocus: Boolean) {
+
+        val totalCycles = TimeConfig.getTotalCycles()
+
+        currentTotalDuration = if (isFocus) {
+            TimeConfig.focusTimeMillis()
+        } else {
+            if (currentCycle == totalCycles) {
+                TimeConfig.longBreakTimeMillis()
+            } else {
+                TimeConfig.breakTimeMillis()
+            }
+        }
+
 
         runOnUiThread {
             if (!isFocus) {
