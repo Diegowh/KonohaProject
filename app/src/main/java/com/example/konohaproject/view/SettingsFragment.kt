@@ -1,12 +1,12 @@
 package com.example.konohaproject.view
 
+import com.example.konohaproject.controller.TimeConfig
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import androidx.core.content.ContextCompat
 import com.example.konohaproject.R
 import com.example.konohaproject.databinding.FragmentSettingsListDialogBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -132,20 +132,21 @@ class SettingsFragment : BottomSheetDialogFragment() {
     }
 
     private fun savePreferences() {
-        val prefs = requireContext().getSharedPreferences("timer_settings", Context.MODE_PRIVATE)
-        prefs.edit().apply {
-            putInt("focus_time", focusValues[binding.seekBarFocusTime.progress])
-            putInt("short_break", shortBreakValues[binding.seekBarShortBreak.progress])
-            putInt("long_break", longBreakValues[binding.seekBarLongBreak.progress])
-            apply()
-        }
+        TimeConfig.updateSettings(
+            requireContext(),
+            focus = focusValues[binding.seekBarFocusTime.progress].toLong(),
+            shortBreak = shortBreakValues[binding.seekBarShortBreak.progress].toLong(),
+            longBreak = longBreakValues[binding.seekBarLongBreak.progress].toLong(),
+            cycles = 4,
+            autoRestart = true
+        )
     }
 
     private fun loadSavedPreferences() {
-        val prefs = requireContext().getSharedPreferences("timer_settings", Context.MODE_PRIVATE)
-        binding.seekBarFocusTime.progress = focusValues.indexOf(prefs.getInt("focus_time", 25)).coerceAtLeast(0)
-        binding.seekBarShortBreak.progress = shortBreakValues.indexOf(prefs.getInt("short_break", 5)).coerceAtLeast(0)
-        binding.seekBarLongBreak.progress = longBreakValues.indexOf(prefs.getInt("long_break", 15)).coerceAtLeast(0)
+        val context = requireContext()
+        binding.seekBarFocusTime.progress = focusValues.indexOf(TimeConfig.getFocusMinutes(context).toInt())
+        binding.seekBarShortBreak.progress = shortBreakValues.indexOf(TimeConfig.getShortBreakMinutes(context).toInt())
+        binding.seekBarLongBreak.progress = longBreakValues.indexOf(TimeConfig.getLongBreakMinutes(context).toInt())
 
         updateFocusTime(binding.seekBarFocusTime.progress)
         updateShortBreak(binding.seekBarShortBreak.progress)
