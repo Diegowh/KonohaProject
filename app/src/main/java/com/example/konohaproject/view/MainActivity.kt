@@ -18,7 +18,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.konohaproject.ArcProgressDrawable
 import com.example.konohaproject.R
 import com.example.konohaproject.controller.ControlState
 import com.example.konohaproject.controller.CountdownController
@@ -41,10 +40,14 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private lateinit var viewRound3: View
     private lateinit var viewRound4: View
 
+    private lateinit var progressBar: ProgressBar
+    private var currentTotalDuration: Long = TimeConfig.focusTimeMillis();
 
     private var countdownController: CountdownController? = null
     private var isBound = false
 
+    private var progressAnimator: ValueAnimator? = null
+    private var currentProgress: Int = 0
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -74,14 +77,14 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             }
 
             if (isRunning) {
-                onTimeUpdate(controller.getRemainingTime())
+                val remaining = controller.getRemainingTime()
+                startProgressAnimation(remaining)
             } else {
-                txtTimer.text = TimeConfig.initialFocusDisplayTime()
-                updateCycleUI(0)
-
+                resetProgressAnimation()
             }
         }
     }
+
     override fun onStart() {
         super.onStart()
         bindService(
@@ -110,26 +113,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        val progressBar = findViewById<ProgressBar>(R.id.progressBar).apply {
-            progressDrawable = ArcProgressDrawable(
-                context = this@MainActivity
-            )
-            max = 10000 // Nivel máximo (requerido para usar level)
-        }
-
-
-        val pomodoroDuration = 1 * 60 * 1000L
-
-        ValueAnimator.ofInt(0, 10000).apply {
-            duration = pomodoroDuration
-            interpolator = LinearInterpolator()
-            addUpdateListener {
-                progressBar.progress = it.animatedValue as Int
-            }
-            start()
-        }
-
+        progressBar = initProgressArc()
 
         pnlMain = findViewById(R.id.main)
 
@@ -145,12 +129,23 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         initListeners()
     }
 
+    private fun initProgressArc(): ProgressBar {
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar).apply {
+            progressDrawable = ArcProgressDrawable(
+                context = this@MainActivity
+            )
+            max = 10000 // Nivel máximo (requerido para usar level)
+            progress = 0
+        }
+        return progressBar
+    }
+
     private fun initListeners() {
         btnPlay.setOnClickListener {
             countdownController?.let { controller ->
                 when {
                     controller.isPaused() -> {
-                        controller.resume()
+                        resumeCountdown()
                         updateControlState(ControlState.Running)
                     }
 
@@ -164,6 +159,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
         btnPause.setOnClickListener {
             countdownController?.pause()
+            pauseProgressAnimation()
             updateControlState(ControlState.Paused)
         }
 
@@ -196,26 +192,78 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     }
 
     private fun startCountdown() {
-        countdownController?.start(TimeConfig.focusTimeMillis())
-        startService(Intent(this, CountdownService::class.java))
+        countdownController?.let { controller ->
+
+            val duration = TimeConfig.focusTimeMillis()
+            currentTotalDuration = duration
+
+            controller.start(duration)
+            startProgressAnimation(duration)
+
+            startService(Intent(this, CountdownService::class.java))
+        }
+    }
+
+    private fun resumeCountdown() {
+        countdownController?.let { controller ->
+
+            val remaining = controller.getRemainingTime()
+
+
+            controller.resume()
+            startProgressAnimation(remaining)
+        }
     }
 
     private fun resetCountdown() {
         countdownController?.reset()
+        resetProgressAnimation()
         stopService(Intent(this, CountdownService::class.java))
         txtTimer.text = TimeConfig.initialFocusDisplayTime()
-        val currentCycle = countdownController?.getCurrentCycle() ?: 0
-        updateCycleUI(currentCycle)
+        currentTotalDuration = TimeConfig.focusTimeMillis()
+        progressBar.progress = 0
+
+        updateCycleUI(0)
         pnlMain.setBackgroundColor(ContextCompat.getColor(this, R.color.background_app_focus))
         updateControlState(ControlState.Stopped)
     }
 
     override fun onTimeUpdate(remainingTime: Long) {
         runOnUiThread {
-            val minutes = remainingTime / 1000 / 60
-            val seconds = remainingTime / 1000 % 60
+            val totalSeconds = (remainingTime + 500) / 1000
+            val minutes = totalSeconds / 60
+            val seconds = totalSeconds % 60
             txtTimer.text = String.format(Locale.US,"%02d:%02d", minutes, seconds)
+
         }
+
+    }
+
+    private fun startProgressAnimation(durationMillis: Long) {
+        progressAnimator?.cancel()
+
+        progressAnimator = ValueAnimator.ofInt(currentProgress, 10000).apply {
+            this.duration = durationMillis
+            interpolator = LinearInterpolator()
+            addUpdateListener { animation ->
+                val progress = animation.animatedValue as Int
+                progressBar.progress = progress
+            }
+            start()
+        }
+    }
+
+    private fun pauseProgressAnimation() {
+        progressAnimator?.let {
+            currentProgress = it.animatedValue as Int
+            it.cancel()
+        }
+    }
+
+    private fun resetProgressAnimation() {
+        progressAnimator?.cancel()
+        currentProgress = 0
+        progressBar.progress = 0
     }
 
     private fun updateCycleUI(currentCycle: Int) {
@@ -230,7 +278,24 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
 
     override fun onCountdownFinished(currentCycle: Int, isFocus: Boolean) {
 
+        val totalCycles = TimeConfig.getTotalCycles()
+
+        currentTotalDuration = if (isFocus) {
+            TimeConfig.focusTimeMillis()
+        } else {
+            if (currentCycle == totalCycles) {
+                TimeConfig.longBreakTimeMillis()
+            } else {
+                TimeConfig.breakTimeMillis()
+            }
+        }
+
+
         runOnUiThread {
+
+            resetProgressAnimation()
+            startProgressAnimation(currentTotalDuration)
+
             if (!isFocus) {
                 val breakColor = ContextCompat.getColor(this, R.color.background_app_break)
                 pnlMain.setBackgroundColor(breakColor)
@@ -249,6 +314,5 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                 }
             }
         }
-
     }
 }
