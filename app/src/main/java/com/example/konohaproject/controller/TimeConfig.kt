@@ -3,8 +3,21 @@ package com.example.konohaproject.controller
 import java.util.Locale
 
 object TimeConfig {
-    private const val FOCUS_TIME_MINUTES: Long = 1L
-    private const val BREAK_TIME_MINUTES: Long = 1L
+    private const val PREFS_NAME = "timer_settings"
+    private const val KEY_FOCUS = "focus_time"
+    private const val KEY_SHORT_BREAK = "short_break"
+    private const val KEY_LONG_BREAK = "long_break"
+    private const val KEY_CYCLES = "total_cycles"
+    private const val KEY_AUTO_RESTART = "auto_restart"
+
+    private const val DEFAULT_FOCUS = 25L
+    private const val DEFAULT_SHORT_BREAK = 5L
+    private const val DEFAULT_LONG_BREAK = 15L
+    private const val DEFAULT_CYCLES = 4
+    private const val DEFAULT_AUTO_RESTART = false
+
+    private const val FOCUS_TIME_MINUTES: Long = 25L
+    private const val BREAK_TIME_MINUTES: Long = 5L
     private const val LONG_BREAK_TIME_MINUTES: Long = 15L
 
     private const val TOTAL_CYCLES: Int = 4

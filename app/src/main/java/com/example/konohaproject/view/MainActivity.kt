@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private lateinit var btnPlay: ImageButton
     private lateinit var btnPause: ImageButton
     private lateinit var btnReset: ImageButton
+    private lateinit var btnSettings: ImageButton
 
     private lateinit var viewRound1: View
     private lateinit var viewRound2: View
@@ -121,6 +122,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         btnPlay = findViewById(R.id.btnPlay)
         btnPause = findViewById(R.id.btnPause)
         btnReset = findViewById(R.id.btnReset)
+        btnSettings = findViewById(R.id.btnSettings)
 
         viewRound1 = findViewById(R.id.viewRound1)
         viewRound2 = findViewById(R.id.viewRound2)
@@ -166,6 +168,16 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         btnReset.setOnClickListener {
             countdownController?.reset()
             resetCountdown()
+        }
+
+        btnSettings.setOnClickListener {
+
+            countdownController?.pause()
+            pauseProgressAnimation()
+            updateControlState(ControlState.Paused)
+
+            SettingsFragment.newInstance()
+                .show(supportFragmentManager, "SettingsDialog")
         }
     }
 
