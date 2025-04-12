@@ -33,7 +33,6 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
         super.onCreate()
         notificationHelper = NotificationHelper(this)
         countdownTimer = CountdownTimer(serviceScope, this)
-        // startForegroundService()
     }
 
     private fun startForegroundService() {
@@ -89,15 +88,15 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     override fun isFocusSession() = isFocusSession
 
     override fun onCountdownFinished() {
-         val totalCycles = TimeConfig.getTotalCycles()
+         val totalCycles = TimeConfig.getTotalCycles(applicationContext)
 
         if (isFocusSession) {
             // Estamos en sesion de Focus, por lo que hay que pasar a sesión de Break independientemente del ciclo.
             isFocusSession = false
             val breakDuration = if (currentCycle == totalCycles) {
-                TimeConfig.longBreakTimeMillis()
+                TimeConfig.longBreakTimeMillis(applicationContext)
             } else {
-                TimeConfig.breakTimeMillis()
+                TimeConfig.shortBreakTimeMillis(applicationContext)
             }
             start(breakDuration)
 
@@ -107,19 +106,15 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
             if (currentCycle < totalCycles) {
                 currentCycle++
             } else {
-                currentCycle = if (TimeConfig.isAutoRestartEnabled()) 1 else 0
+                currentCycle = if (TimeConfig.isAutoRestartEnabled(applicationContext)) 1 else 0
             }
-            start(TimeConfig.focusTimeMillis())
+            start(TimeConfig.focusTimeMillis(applicationContext))
         }
 
         // Notifica al MaiNActivity para actualizar la UI
         timeListener?.onCountdownFinished(currentCycle, isFocusSession)
 
     }
-
-//    override fun onCountdownFinished() {
-//        moveToNextSession()
-//    }
 
     companion object {
         const val ACTION_STOP = "STOP"
