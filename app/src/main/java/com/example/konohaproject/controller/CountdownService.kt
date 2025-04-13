@@ -26,7 +26,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
 
     interface TimeUpdateListener {
         fun onTimeUpdate(remainingTime: Long)
-        fun onCountdownFinished(currentCycle: Int, isFocus: Boolean)
+        fun onCountdownFinished(currentRound: Int, isFocus: Boolean)
     }
 
     override fun onCreate() {
