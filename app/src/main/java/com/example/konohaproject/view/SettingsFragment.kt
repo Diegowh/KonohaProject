@@ -45,6 +45,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
         setupSeekBars()
         loadSavedPreferences()
         setupSaveButton()
+        setupResetButton()
     }
 
 
@@ -151,6 +152,40 @@ class SettingsFragment : BottomSheetDialogFragment() {
             savePreferences()
             notifySettingsChanged()
             dismiss()
+        }
+    }
+
+    private fun setupResetButton() {
+        binding.btnReset.setOnClickListener {
+            val defaultFocus = TimeConfig.getDefaultFocus().toInt()
+            val defaultShortBreak = TimeConfig.getDefaultShortBreak().toInt()
+            val defaultLongBreak = TimeConfig.getDefaultLongBreak().toInt()
+            val defaultRounds = TimeConfig.getDefaultRounds()
+
+            val focusIndex = focusValues.indexOf(defaultFocus)
+            val shortBreakIndex = shortBreakValues.indexOf(defaultShortBreak)
+            val longBreakIndex = longBreakValues.indexOf(defaultLongBreak)
+            val roundsIndex = roundsValues.indexOf(defaultRounds)
+
+            if (focusIndex != -1) {
+                binding.seekBarFocusTime.progress = focusIndex
+                updateFocusTime(focusIndex)
+            }
+
+            if (shortBreakIndex != -1) {
+                binding.seekBarShortBreak.progress = shortBreakIndex
+                updateShortBreak(shortBreakIndex)
+            }
+
+            if (longBreakIndex != -1) {
+                binding.seekBarLongBreak.progress = longBreakIndex
+                updateLongBreak(longBreakIndex)
+            }
+
+            if (roundsIndex != -1) {
+                binding.seekBarRounds.progress = roundsIndex
+                updateRounds(roundsIndex)
+            }
         }
     }
 
