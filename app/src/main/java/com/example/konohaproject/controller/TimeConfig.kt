@@ -9,14 +9,14 @@ object TimeConfig {
     private const val KEY_FOCUS = "focus_time"
     private const val KEY_SHORT_BREAK = "short_break"
     private const val KEY_LONG_BREAK = "long_break"
-    private const val KEY_CYCLES = "total_cycles"
+    private const val KEY_ROUNDS = "total_rounds"
     private const val KEY_AUTO_RESTART = "auto_restart"
 
 
     private const val DEFAULT_FOCUS = 25L
     private const val DEFAULT_SHORT_BREAK = 5L
     private const val DEFAULT_LONG_BREAK = 15L
-    private const val DEFAULT_CYCLES = 4
+    private const val DEFAULT_ROUNDS = 4
     private const val DEFAULT_AUTO_RESTART = false
 
 
@@ -57,7 +57,7 @@ object TimeConfig {
             longValue
         }
     }
-    fun getTotalCycles(context: Context): Int = getPrefs(context).getInt(KEY_CYCLES, DEFAULT_CYCLES)
+    fun getTotalRounds(context: Context): Int = getPrefs(context).getInt(KEY_ROUNDS, DEFAULT_ROUNDS)
     fun isAutoRestartEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_AUTO_RESTART, DEFAULT_AUTO_RESTART)
 
 
@@ -85,14 +85,14 @@ object TimeConfig {
         focus: Long,
         shortBreak: Long,
         longBreak: Long,
-        cycles: Int,
+        rounds: Int,
         autoRestart: Boolean
     ) {
         getPrefs(context).edit().apply {
             putLong(KEY_FOCUS, focus)
             putLong(KEY_SHORT_BREAK, shortBreak)
             putLong(KEY_LONG_BREAK, longBreak)
-            putInt(KEY_CYCLES, cycles)
+            putInt(KEY_ROUNDS, rounds)
             putBoolean(KEY_AUTO_RESTART, autoRestart)
             apply()
         }

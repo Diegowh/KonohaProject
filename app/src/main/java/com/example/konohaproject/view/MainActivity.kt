@@ -237,7 +237,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
         currentTotalDuration = TimeConfig.focusTimeMillis(this)
         progressBar.progress = 0
 
-        updateCycleUI(0)
+        updateRoundUI(0)
         pnlMain.setBackgroundColor(ContextCompat.getColor(this, R.color.background_app_focus))
         updateControlState(ControlState.Stopped)
     }
@@ -280,7 +280,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
         progressBar.progress = 0
     }
 
-    private fun updateCycleUI(currentCycle: Int) {
+    private fun updateRoundUI(currentCycle: Int) {
         val activeColor = ContextCompat.getColorStateList(this, R.color.button_primary)
         val inactiveColor = ContextCompat.getColorStateList(this, R.color.button_secondary)
 
@@ -290,14 +290,14 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
         }
     }
 
-    override fun onCountdownFinished(currentCycle: Int, isFocus: Boolean) {
+    override fun onCountdownFinished(currentRound: Int, isFocus: Boolean) {
 
-        val totalCycles = TimeConfig.getTotalCycles(this)
+        val totalRounds = TimeConfig.getTotalRounds(this)
 
         currentTotalDuration = if (isFocus) {
             TimeConfig.focusTimeMillis(this)
         } else {
-            if (currentCycle == totalCycles) {
+            if (currentRound == totalRounds) {
                 TimeConfig.longBreakTimeMillis(this)
             } else {
                 TimeConfig.shortBreakTimeMillis(this)
@@ -319,11 +319,11 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
                 val focusColor = ContextCompat.getColor(this, R.color.background_app_focus)
                 pnlMain.setBackgroundColor(focusColor)
 
-                // Va solo, con el ciclo el tio se apaña
-                updateCycleUI(currentCycle)
+                // Va solo, con el round el tio se apaña
+                updateRoundUI(currentRound)
 
-                // Aqui habra que comprobar si es el ciclo 1 (autorestart on) o el 0 (autorestart off)
-                if (currentCycle == 0) {
+                // Aqui habra que comprobar si es el round 1 (autorestart on) o el 0 (autorestart off)
+                if (currentRound == 0) {
                     updateControlState(ControlState.Stopped)
                 }
             }
