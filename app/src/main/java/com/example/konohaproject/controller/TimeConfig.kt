@@ -19,6 +19,10 @@ object TimeConfig {
     private const val DEFAULT_ROUNDS = 4
     private const val DEFAULT_AUTO_RESTART = false
 
+    fun getDefaultFocus(): Long { return DEFAULT_FOCUS }
+    fun getDefaultShortBreak(): Long { return DEFAULT_SHORT_BREAK }
+    fun getDefaultLongBreak(): Long { return DEFAULT_LONG_BREAK }
+    fun getDefaultRounds(): Int { return DEFAULT_ROUNDS }
 
     fun getFocusMinutes(context: Context): Long {
         val prefs = getPrefs(context)
