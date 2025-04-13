@@ -1,7 +1,6 @@
 package com.example.konohaproject.view
 
 import com.example.konohaproject.controller.TimeConfig
-import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,6 +10,7 @@ import android.widget.SeekBar
 import com.example.konohaproject.R
 import com.example.konohaproject.databinding.FragmentSettingsListDialogBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import java.util.Locale
 
 class SettingsFragment : BottomSheetDialogFragment() {
 
@@ -20,9 +20,10 @@ class SettingsFragment : BottomSheetDialogFragment() {
     private val focusValues = mutableListOf<Int>()
     private val shortBreakValues = mutableListOf<Int>()
     private val longBreakValues = mutableListOf<Int>()
+    private val roundsValues = mutableListOf<Int>()
 
     interface SettingsListener {
-        fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int)
+        fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int, rounds: Int)
         fun onDismiss();
     }
 
@@ -40,6 +41,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
         setupFocusValues()
         setupShortBreakValues()
         setupLongBreakValues()
+        setupRoundsValues()
         setupSeekBars()
         loadSavedPreferences()
         setupSaveButton()
@@ -83,6 +85,15 @@ class SettingsFragment : BottomSheetDialogFragment() {
         }
     }
 
+    private fun setupRoundsValues() {
+
+        var current = 2
+        while (current <= 8) {
+            roundsValues.add(current)
+            current += 1
+        }
+    }
+
     private fun setupSeekBars() {
         binding.seekBarFocusTime.apply {
             max = focusValues.size - 1
@@ -97,6 +108,11 @@ class SettingsFragment : BottomSheetDialogFragment() {
         binding.seekBarLongBreak.apply {
             max = longBreakValues.size - 1
             setOnSeekBarChangeListener(createSeekBarListener(::updateLongBreak))
+        }
+
+        binding.seekBarRounds.apply {
+            max = roundsValues.size - 1
+            setOnSeekBarChangeListener(createSeekBarListener(::updateRounds ))
         }
     }
 
@@ -125,6 +141,11 @@ class SettingsFragment : BottomSheetDialogFragment() {
         binding.txtLongBreak.text = getString(R.string.minutes_format, value)
     }
 
+    private fun updateRounds(progress: Int) {
+        val value = roundsValues[progress]
+        binding.txtRounds.text = String.format(Locale.US, "%d", value)
+    }
+
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
             savePreferences()
@@ -139,7 +160,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
             focus = focusValues[binding.seekBarFocusTime.progress].toLong(),
             shortBreak = shortBreakValues[binding.seekBarShortBreak.progress].toLong(),
             longBreak = longBreakValues[binding.seekBarLongBreak.progress].toLong(),
-            cycles = 4,
+            rounds = roundsValues[binding.seekBarRounds.progress],
             autoRestart = true
         )
     }
@@ -149,10 +170,12 @@ class SettingsFragment : BottomSheetDialogFragment() {
         binding.seekBarFocusTime.progress = focusValues.indexOf(TimeConfig.getFocusMinutes(context).toInt())
         binding.seekBarShortBreak.progress = shortBreakValues.indexOf(TimeConfig.getShortBreakMinutes(context).toInt())
         binding.seekBarLongBreak.progress = longBreakValues.indexOf(TimeConfig.getLongBreakMinutes(context).toInt())
+        binding.seekBarRounds.progress = roundsValues.indexOf(TimeConfig.getTotalRounds(context))
 
         updateFocusTime(binding.seekBarFocusTime.progress)
         updateShortBreak(binding.seekBarShortBreak.progress)
         updateLongBreak(binding.seekBarLongBreak.progress)
+        updateRounds(binding.seekBarRounds.progress)
     }
 
     private fun notifySettingsChanged() {
@@ -160,7 +183,8 @@ class SettingsFragment : BottomSheetDialogFragment() {
         listener?.onSettingsChanged(
             focusValues[binding.seekBarFocusTime.progress],
             shortBreakValues[binding.seekBarShortBreak.progress],
-            longBreakValues[binding.seekBarLongBreak.progress]
+            longBreakValues[binding.seekBarLongBreak.progress],
+            roundsValues[binding.seekBarRounds.progress]
         )
     }
 

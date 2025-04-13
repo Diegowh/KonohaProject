@@ -5,11 +5,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.res.Resources
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -36,13 +38,17 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
     private lateinit var btnReset: ImageButton
     private lateinit var btnSettings: ImageButton
 
-    private lateinit var viewRound1: View
-    private lateinit var viewRound2: View
-    private lateinit var viewRound3: View
-    private lateinit var viewRound4: View
+    private lateinit var roundCounterContainer: LinearLayout
+
+//    private lateinit var viewRound1: View
+//    private lateinit var viewRound2: View
+//    private lateinit var viewRound3: View
+//    private lateinit var viewRound4: View
 
     private lateinit var progressBar: ProgressBar
     private var currentTotalDuration: Long = 0
+
+    private val roundViews = mutableListOf<View>()
 
     private var countdownController: CountdownController? = null
     private var isBound = false
@@ -123,13 +129,40 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
         btnPause = findViewById(R.id.btnPause)
         btnReset = findViewById(R.id.btnReset)
         btnSettings = findViewById(R.id.btnSettings)
+        roundCounterContainer = findViewById(R.id.roundCounterContainer)
 
-        viewRound1 = findViewById(R.id.viewRound1)
-        viewRound2 = findViewById(R.id.viewRound2)
-        viewRound3 = findViewById(R.id.viewRound3)
-        viewRound4 = findViewById(R.id.viewRound4)
+//        viewRound1 = findViewById(R.id.viewRound1)
+//        viewRound2 = findViewById(R.id.viewRound2)
+//        viewRound3 = findViewById(R.id.viewRound3)
+//        viewRound4 = findViewById(R.id.viewRound4)
+        initRoundCounterViews()
         initListeners()
     }
+
+
+    private fun initRoundCounterViews() {
+        val totalRounds = TimeConfig.getTotalRounds(this)
+        roundCounterContainer.removeAllViews()
+        roundViews.clear()
+
+        val sizeInPx = 8.dpToPx()
+        val marginInPx = 8.dpToPx()
+
+        repeat(totalRounds) { index ->
+            View(this).apply {
+                layoutParams = LinearLayout.LayoutParams(sizeInPx, sizeInPx).apply {
+                    if (index < totalRounds - 1) marginEnd = marginInPx
+                }
+                setBackgroundResource(R.drawable.round_button)
+                backgroundTintList = ContextCompat.getColorStateList(context, R.color.button_secondary)
+
+                roundCounterContainer.addView(this)
+                roundViews.add(this)
+            }
+        }
+    }
+
+    private fun Int.dpToPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
     private fun initProgressArc(): ProgressBar {
         val progressBar = findViewById<ProgressBar>(R.id.progressBar).apply {
@@ -284,7 +317,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
         val activeColor = ContextCompat.getColorStateList(this, R.color.button_primary)
         val inactiveColor = ContextCompat.getColorStateList(this, R.color.button_secondary)
 
-        listOf(viewRound1, viewRound2, viewRound3, viewRound4).forEachIndexed {
+        roundViews.forEachIndexed {
             index, view ->
             view.backgroundTintList = if (index < currentCycle) activeColor else inactiveColor
         }
@@ -330,7 +363,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
         }
     }
 
-    override fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int) {
+    override fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int, rounds: Int) {
+        initRoundCounterViews()
         resetCountdown()
     }
 
