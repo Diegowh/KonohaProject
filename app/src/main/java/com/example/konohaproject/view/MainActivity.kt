@@ -136,8 +136,8 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
         roundCounterContainer.removeAllViews()
         roundViews.clear()
 
-        val sizeInPx = 8.dpToPx()
-        val marginInPx = 8.dpToPx()
+        val sizeInPx = 12.dpToPx()
+        val marginInPx = 12.dpToPx()
 
         repeat(totalRounds) { index ->
             View(this).apply {
