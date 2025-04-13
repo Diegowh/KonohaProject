@@ -40,11 +40,6 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
 
     private lateinit var roundCounterContainer: LinearLayout
 
-//    private lateinit var viewRound1: View
-//    private lateinit var viewRound2: View
-//    private lateinit var viewRound3: View
-//    private lateinit var viewRound4: View
-
     private lateinit var progressBar: ProgressBar
     private var currentTotalDuration: Long = 0
 
@@ -131,10 +126,6 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
         btnSettings = findViewById(R.id.btnSettings)
         roundCounterContainer = findViewById(R.id.roundCounterContainer)
 
-//        viewRound1 = findViewById(R.id.viewRound1)
-//        viewRound2 = findViewById(R.id.viewRound2)
-//        viewRound3 = findViewById(R.id.viewRound3)
-//        viewRound4 = findViewById(R.id.viewRound4)
         initRoundCounterViews()
         initListeners()
     }
