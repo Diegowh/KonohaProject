@@ -5,11 +5,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.res.Resources
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -25,7 +27,7 @@ import com.example.konohaproject.controller.CountdownService
 import com.example.konohaproject.controller.TimeConfig
 import java.util.Locale
 
-class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
+class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, SettingsFragment.SettingsListener {
 
 
     private lateinit var pnlMain: ConstraintLayout
@@ -34,14 +36,14 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private lateinit var btnPlay: ImageButton
     private lateinit var btnPause: ImageButton
     private lateinit var btnReset: ImageButton
+    private lateinit var btnSettings: ImageButton
 
-    private lateinit var viewRound1: View
-    private lateinit var viewRound2: View
-    private lateinit var viewRound3: View
-    private lateinit var viewRound4: View
+    private lateinit var roundCounterContainer: LinearLayout
 
     private lateinit var progressBar: ProgressBar
-    private var currentTotalDuration: Long = TimeConfig.focusTimeMillis();
+    private var currentTotalDuration: Long = 0
+
+    private val roundViews = mutableListOf<View>()
 
     private var countdownController: CountdownController? = null
     private var isBound = false
@@ -121,13 +123,37 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         btnPlay = findViewById(R.id.btnPlay)
         btnPause = findViewById(R.id.btnPause)
         btnReset = findViewById(R.id.btnReset)
+        btnSettings = findViewById(R.id.btnSettings)
+        roundCounterContainer = findViewById(R.id.roundCounterContainer)
 
-        viewRound1 = findViewById(R.id.viewRound1)
-        viewRound2 = findViewById(R.id.viewRound2)
-        viewRound3 = findViewById(R.id.viewRound3)
-        viewRound4 = findViewById(R.id.viewRound4)
+        initRoundCounterViews()
         initListeners()
     }
+
+
+    private fun initRoundCounterViews() {
+        val totalRounds = TimeConfig.getTotalRounds(this)
+        roundCounterContainer.removeAllViews()
+        roundViews.clear()
+
+        val sizeInPx = 8.dpToPx()
+        val marginInPx = 8.dpToPx()
+
+        repeat(totalRounds) { index ->
+            View(this).apply {
+                layoutParams = LinearLayout.LayoutParams(sizeInPx, sizeInPx).apply {
+                    if (index < totalRounds - 1) marginEnd = marginInPx
+                }
+                setBackgroundResource(R.drawable.round_button)
+                backgroundTintList = ContextCompat.getColorStateList(context, R.color.button_secondary)
+
+                roundCounterContainer.addView(this)
+                roundViews.add(this)
+            }
+        }
+    }
+
+    private fun Int.dpToPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
     private fun initProgressArc(): ProgressBar {
         val progressBar = findViewById<ProgressBar>(R.id.progressBar).apply {
@@ -167,6 +193,18 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
             countdownController?.reset()
             resetCountdown()
         }
+
+        btnSettings.setOnClickListener {
+
+            btnSettings.setEnabled(false)
+            countdownController?.pause()
+            pauseProgressAnimation()
+            updateControlState(ControlState.Paused)
+
+            SettingsFragment.newInstance()
+                .show(supportFragmentManager, "SettingsDialog")
+
+        }
     }
 
 
@@ -186,7 +224,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                 btnPlay.visibility = View.VISIBLE
                 btnReset.visibility = View.VISIBLE
                 btnPause.visibility = View.GONE
-                txtTimer.text = TimeConfig.initialFocusDisplayTime()
+                txtTimer.text = TimeConfig.initialDisplayTime(this, true)
             }
         }
     }
@@ -194,7 +232,7 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
     private fun startCountdown() {
         countdownController?.let { controller ->
 
-            val duration = TimeConfig.focusTimeMillis()
+            val duration = TimeConfig.focusTimeMillis(this)
             currentTotalDuration = duration
 
             controller.start(duration)
@@ -219,11 +257,11 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         countdownController?.reset()
         resetProgressAnimation()
         stopService(Intent(this, CountdownService::class.java))
-        txtTimer.text = TimeConfig.initialFocusDisplayTime()
-        currentTotalDuration = TimeConfig.focusTimeMillis()
+        txtTimer.text = TimeConfig.initialDisplayTime(this, true)
+        currentTotalDuration = TimeConfig.focusTimeMillis(this)
         progressBar.progress = 0
 
-        updateCycleUI(0)
+        updateRoundUI(0)
         pnlMain.setBackgroundColor(ContextCompat.getColor(this, R.color.background_app_focus))
         updateControlState(ControlState.Stopped)
     }
@@ -266,27 +304,27 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
         progressBar.progress = 0
     }
 
-    private fun updateCycleUI(currentCycle: Int) {
+    private fun updateRoundUI(currentCycle: Int) {
         val activeColor = ContextCompat.getColorStateList(this, R.color.button_primary)
         val inactiveColor = ContextCompat.getColorStateList(this, R.color.button_secondary)
 
-        listOf(viewRound1, viewRound2, viewRound3, viewRound4).forEachIndexed {
+        roundViews.forEachIndexed {
             index, view ->
             view.backgroundTintList = if (index < currentCycle) activeColor else inactiveColor
         }
     }
 
-    override fun onCountdownFinished(currentCycle: Int, isFocus: Boolean) {
+    override fun onCountdownFinished(currentRound: Int, isFocus: Boolean) {
 
-        val totalCycles = TimeConfig.getTotalCycles()
+        val totalRounds = TimeConfig.getTotalRounds(this)
 
         currentTotalDuration = if (isFocus) {
-            TimeConfig.focusTimeMillis()
+            TimeConfig.focusTimeMillis(this)
         } else {
-            if (currentCycle == totalCycles) {
-                TimeConfig.longBreakTimeMillis()
+            if (currentRound == totalRounds) {
+                TimeConfig.longBreakTimeMillis(this)
             } else {
-                TimeConfig.breakTimeMillis()
+                TimeConfig.shortBreakTimeMillis(this)
             }
         }
 
@@ -305,14 +343,23 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener {
                 val focusColor = ContextCompat.getColor(this, R.color.background_app_focus)
                 pnlMain.setBackgroundColor(focusColor)
 
-                // Va solo, con el ciclo el tio se apaña
-                updateCycleUI(currentCycle)
+                // Va solo, con el round el tio se apaña
+                updateRoundUI(currentRound)
 
-                // Aqui habra que comprobar si es el ciclo 1 (autorestart on) o el 0 (autorestart off)
-                if (currentCycle == 0) {
+                // Aqui habra que comprobar si es el round 1 (autorestart on) o el 0 (autorestart off)
+                if (currentRound == 0) {
                     updateControlState(ControlState.Stopped)
                 }
             }
         }
+    }
+
+    override fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int, rounds: Int) {
+        initRoundCounterViews()
+        resetCountdown()
+    }
+
+    override fun onDismiss() {
+        btnSettings.setEnabled(true)
     }
 }
