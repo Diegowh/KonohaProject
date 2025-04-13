@@ -2,6 +2,7 @@ package com.example.konohaproject.view
 
 import com.example.konohaproject.controller.TimeConfig
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
 
     interface SettingsListener {
         fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int)
+        fun onDismiss();
     }
 
     override fun onCreateView(
@@ -165,6 +167,12 @@ class SettingsFragment : BottomSheetDialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        val listener = parentFragment as? SettingsListener ?: activity as? SettingsListener
+        listener?.onDismiss()
     }
 
     companion object {
