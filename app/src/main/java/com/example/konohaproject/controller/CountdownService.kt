@@ -35,12 +35,6 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
         countdownTimer = CountdownTimer(serviceScope, this)
     }
 
-    private fun startForegroundService() {
-        startForeground(
-            NotificationHelper.NOTIFICATION_ID,
-            notificationHelper.buildDefaultNotification()
-        )
-    }
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
