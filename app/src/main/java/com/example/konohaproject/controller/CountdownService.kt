@@ -26,7 +26,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
 
     interface TimeUpdateListener {
         fun onTimeUpdate(remainingTime: Long)
-        fun onCountdownFinished(currentCycle: Int, isFocus: Boolean)
+        fun onCountdownFinished(currentRound: Int, isFocus: Boolean)
     }
 
     override fun onCreate() {
@@ -35,12 +35,6 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
         countdownTimer = CountdownTimer(serviceScope, this)
     }
 
-    private fun startForegroundService() {
-        startForeground(
-            NotificationHelper.NOTIFICATION_ID,
-            notificationHelper.buildDefaultNotification()
-        )
-    }
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

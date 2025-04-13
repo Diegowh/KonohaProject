@@ -11,8 +11,8 @@ import kotlin.math.sin
 class ArcProgressDrawable(
     private val context: Context,
     private val strokeWidth: Float = 15f,
-    private val arcAngle: Float = 270f,
-    private val startAngle: Float = 135f
+    private val arcAngle: Float = 250f,
+    private val startAngle: Float = 145f
 
 ) : Drawable() {
 
