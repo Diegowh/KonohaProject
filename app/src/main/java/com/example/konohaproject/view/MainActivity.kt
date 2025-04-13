@@ -172,12 +172,14 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
 
         btnSettings.setOnClickListener {
 
+            btnSettings.setEnabled(false)
             countdownController?.pause()
             pauseProgressAnimation()
             updateControlState(ControlState.Paused)
 
             SettingsFragment.newInstance()
                 .show(supportFragmentManager, "SettingsDialog")
+
         }
     }
 
@@ -329,7 +331,10 @@ class MainActivity : AppCompatActivity(), CountdownService.TimeUpdateListener, S
     }
 
     override fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int) {
-
         resetCountdown()
+    }
+
+    override fun onDismiss() {
+        btnSettings.setEnabled(true)
     }
 }
