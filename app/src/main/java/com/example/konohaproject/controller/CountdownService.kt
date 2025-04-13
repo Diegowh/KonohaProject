@@ -88,7 +88,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     override fun isFocusSession() = isFocusSession
 
     override fun onCountdownFinished() {
-         val totalCycles = TimeConfig.getTotalCycles(applicationContext)
+         val totalCycles = TimeConfig.getTotalRounds(applicationContext)
 
         if (isFocusSession) {
             // Estamos en sesion de Focus, por lo que hay que pasar a sesión de Break independientemente del ciclo.
