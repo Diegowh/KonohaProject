@@ -42,6 +42,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
         setupResetButton()
     }
 
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
