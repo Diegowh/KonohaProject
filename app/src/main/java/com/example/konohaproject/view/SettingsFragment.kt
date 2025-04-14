@@ -1,14 +1,16 @@
 package com.example.konohaproject.view
 
-import com.example.konohaproject.controller.TimeConfig
+import com.example.konohaproject.model.TimeConfig
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.fragment.app.viewModels
 import com.example.konohaproject.R
 import com.example.konohaproject.databinding.FragmentSettingsListDialogBinding
+import com.example.konohaproject.viewmodel.SettingsViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 
@@ -16,11 +18,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
 
     private var _binding: FragmentSettingsListDialogBinding? = null
     private val binding get() = _binding!!
-
-    private val focusValues = mutableListOf<Int>()
-    private val shortBreakValues = mutableListOf<Int>()
-    private val longBreakValues = mutableListOf<Int>()
-    private val roundsValues = mutableListOf<Int>()
+    private val viewModel: SettingsViewModel by viewModels()
 
     interface SettingsListener {
         fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int, rounds: Int)
@@ -38,88 +36,55 @@ class SettingsFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupFocusValues()
-        setupShortBreakValues()
-        setupLongBreakValues()
-        setupRoundsValues()
-        setupSeekBars()
         loadSavedPreferences()
+        setupSeekBars()
         setupSaveButton()
         setupResetButton()
     }
 
 
-    private fun setupFocusValues() {
-
-        var current = 10
-        while (current <= 60) {
-            focusValues.add(current)
-            current += 5
-        }
-        current = 75
-        while (current <= 90) {
-            focusValues.add(current)
-            current += 15
-        }
-    }
-
-    private fun setupShortBreakValues() {
-
-        var current = 2
-        while (current <= 5) {
-            shortBreakValues.add(current)
-            current += 1
-        }
-        current = 10
-        while (current <= 15) {
-            shortBreakValues.add(current)
-            current += 5
-        }
-    }
-
-    private fun setupLongBreakValues() {
-
-        var current = 15
-        while (current <= 40) {
-            longBreakValues.add(current)
-            current += 5
-        }
-    }
-
-    private fun setupRoundsValues() {
-
-        var current = 2
-        while (current <= 8) {
-            roundsValues.add(current)
-            current += 1
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setupSeekBars() {
-        binding.seekBarFocusTime.apply {
-            max = focusValues.size - 1
-            setOnSeekBarChangeListener(createSeekBarListener(::updateFocusTime))
-        }
+        with(binding) {
+            seekBarFocusTime.apply {
+                max = viewModel.focusValues.size - 1
+                progress = viewModel.focusProgress
+                setOnSeekBarChangeListener(createSeekBarListener(::updateFocusTime))
+            }
 
-        binding.seekBarShortBreak.apply {
-            max = shortBreakValues.size - 1
-            setOnSeekBarChangeListener(createSeekBarListener(::updateShortBreak))
-        }
+            seekBarShortBreak.apply {
+                max = viewModel.shortBreakValues.size - 1
+                progress = viewModel.shortBreakProgress
+                setOnSeekBarChangeListener(createSeekBarListener(::updateShortBreak))
+            }
 
-        binding.seekBarLongBreak.apply {
-            max = longBreakValues.size - 1
-            setOnSeekBarChangeListener(createSeekBarListener(::updateLongBreak))
-        }
+            seekBarLongBreak.apply {
+                max = viewModel.longBreakValues.size - 1
+                progress = viewModel.longBreakProgress
+                setOnSeekBarChangeListener(createSeekBarListener(::updateLongBreak))
+            }
 
-        binding.seekBarRounds.apply {
-            max = roundsValues.size - 1
-            setOnSeekBarChangeListener(createSeekBarListener(::updateRounds ))
+            seekBarRounds.apply {
+                max = viewModel.roundsValues.size - 1
+                progress = viewModel.roundsProgress
+                setOnSeekBarChangeListener(createSeekBarListener(::updateRounds))
+            }
         }
     }
 
     private fun createSeekBarListener(updateFunction: (Int) -> Unit): SeekBar.OnSeekBarChangeListener {
         return object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                when (seekBar) {
+                    binding.seekBarFocusTime -> viewModel.focusProgress = progress
+                    binding.seekBarShortBreak -> viewModel.shortBreakProgress = progress
+                    binding.seekBarLongBreak -> viewModel.longBreakProgress = progress
+                    binding.seekBarRounds -> viewModel.roundsProgress = progress
+                }
                 updateFunction(progress)
             }
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -128,28 +93,28 @@ class SettingsFragment : BottomSheetDialogFragment() {
     }
 
     private fun updateFocusTime(progress: Int) {
-        val value = focusValues[progress]
+        val value = viewModel.focusValues[progress]
         binding.txtFocusTime.text = getString(R.string.minutes_format, value)
     }
 
     private fun updateShortBreak(progress: Int) {
-        val value = shortBreakValues[progress]
+        val value = viewModel.shortBreakValues[progress]
         binding.txtShortBreak.text = getString(R.string.minutes_format, value)
     }
 
     private fun updateLongBreak(progress: Int) {
-        val value = longBreakValues[progress]
+        val value = viewModel.longBreakValues[progress]
         binding.txtLongBreak.text = getString(R.string.minutes_format, value)
     }
 
     private fun updateRounds(progress: Int) {
-        val value = roundsValues[progress]
+        val value = viewModel.roundsValues[progress]
         binding.txtRounds.text = String.format(Locale.US, "%d", value)
     }
 
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
-            savePreferences()
+            viewModel.savePreferences(requireContext())
             notifySettingsChanged()
             dismiss()
         }
@@ -157,75 +122,46 @@ class SettingsFragment : BottomSheetDialogFragment() {
 
     private fun setupResetButton() {
         binding.btnReset.setOnClickListener {
-            val defaultFocus = TimeConfig.getDefaultFocus().toInt()
-            val defaultShortBreak = TimeConfig.getDefaultShortBreak().toInt()
-            val defaultLongBreak = TimeConfig.getDefaultLongBreak().toInt()
-            val defaultRounds = TimeConfig.getDefaultRounds()
+            val defaults = viewModel.getDefaultIndices()
 
-            val focusIndex = focusValues.indexOf(defaultFocus)
-            val shortBreakIndex = shortBreakValues.indexOf(defaultShortBreak)
-            val longBreakIndex = longBreakValues.indexOf(defaultLongBreak)
-            val roundsIndex = roundsValues.indexOf(defaultRounds)
-
-            if (focusIndex != -1) {
-                binding.seekBarFocusTime.progress = focusIndex
-                updateFocusTime(focusIndex)
+            defaults["focus"]?.takeIf { it != -1 }?.let {
+                binding.seekBarFocusTime.progress = it
+                updateFocusTime(it)
             }
 
-            if (shortBreakIndex != -1) {
-                binding.seekBarShortBreak.progress = shortBreakIndex
-                updateShortBreak(shortBreakIndex)
+            defaults["shortBreak"]?.takeIf { it != -1 }?.let {
+                binding.seekBarShortBreak.progress = it
+                updateShortBreak(it)
             }
 
-            if (longBreakIndex != -1) {
-                binding.seekBarLongBreak.progress = longBreakIndex
-                updateLongBreak(longBreakIndex)
+            defaults["longBreak"]?.takeIf { it != -1 }?.let {
+                binding.seekBarLongBreak.progress = it
+                updateLongBreak(it)
             }
 
-            if (roundsIndex != -1) {
-                binding.seekBarRounds.progress = roundsIndex
-                updateRounds(roundsIndex)
+            defaults["rounds"]?.takeIf { it != -1 }?.let {
+                binding.seekBarRounds.progress = it
+                updateRounds(it)
             }
         }
     }
 
-    private fun savePreferences() {
-        TimeConfig.updateSettings(
-            requireContext(),
-            focus = focusValues[binding.seekBarFocusTime.progress].toLong(),
-            shortBreak = shortBreakValues[binding.seekBarShortBreak.progress].toLong(),
-            longBreak = longBreakValues[binding.seekBarLongBreak.progress].toLong(),
-            rounds = roundsValues[binding.seekBarRounds.progress],
-            autoRestart = true
-        )
-    }
-
     private fun loadSavedPreferences() {
-        val context = requireContext()
-        binding.seekBarFocusTime.progress = focusValues.indexOf(TimeConfig.getFocusMinutes(context).toInt())
-        binding.seekBarShortBreak.progress = shortBreakValues.indexOf(TimeConfig.getShortBreakMinutes(context).toInt())
-        binding.seekBarLongBreak.progress = longBreakValues.indexOf(TimeConfig.getLongBreakMinutes(context).toInt())
-        binding.seekBarRounds.progress = roundsValues.indexOf(TimeConfig.getTotalRounds(context))
-
-        updateFocusTime(binding.seekBarFocusTime.progress)
-        updateShortBreak(binding.seekBarShortBreak.progress)
-        updateLongBreak(binding.seekBarLongBreak.progress)
-        updateRounds(binding.seekBarRounds.progress)
+        viewModel.loadSavedPreferences(requireContext())
+        updateFocusTime(viewModel.focusProgress)
+        updateShortBreak(viewModel.shortBreakProgress)
+        updateLongBreak(viewModel.longBreakProgress)
+        updateRounds(viewModel.roundsProgress)
     }
 
     private fun notifySettingsChanged() {
         val listener = parentFragment as? SettingsListener ?: activity as? SettingsListener
         listener?.onSettingsChanged(
-            focusValues[binding.seekBarFocusTime.progress],
-            shortBreakValues[binding.seekBarShortBreak.progress],
-            longBreakValues[binding.seekBarLongBreak.progress],
-            roundsValues[binding.seekBarRounds.progress]
+            viewModel.focusValues[viewModel.focusProgress],
+            viewModel.shortBreakValues[viewModel.shortBreakProgress],
+            viewModel.longBreakValues[viewModel.longBreakProgress],
+            viewModel.roundsValues[viewModel.roundsProgress]
         )
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     override fun onDismiss(dialog: DialogInterface) {

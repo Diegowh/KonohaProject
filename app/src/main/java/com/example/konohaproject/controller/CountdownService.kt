@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import com.example.konohaproject.model.TimeConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -14,7 +15,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     private var isFocusSession = true
 
     private val binder = CountdownBinder()
-    private lateinit var notificationHelper: NotificationHelper
+    private lateinit var serviceNotifier: ServiceNotifier
     private lateinit var countdownTimer: CountdownTimer
     private var timeListener: TimeUpdateListener? = null
 
@@ -31,7 +32,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
 
     override fun onCreate() {
         super.onCreate()
-        notificationHelper = NotificationHelper(this)
+        serviceNotifier = ServiceNotifier(this)
         countdownTimer = CountdownTimer(serviceScope, this)
     }
 
@@ -54,7 +55,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
 
     override fun onTimeUpdate(remaining: Long) {
         timeListener?.onTimeUpdate(remaining)
-        notificationHelper.updateNotification(this, remaining)
+        serviceNotifier.updateNotification()
     }
 
     override fun start(durationMillis: Long) {
