@@ -59,8 +59,8 @@
 
         <ProgressBar
             android:id="@+id/progressBar"
-            android:layout_width="350dp"
-            android:layout_height="350dp"
+            android:layout_width="360dp"
+            android:layout_height="360dp"
             android:layout_marginTop="4dp"
             android:indeterminateOnly="false"
             android:max="100"
@@ -71,12 +71,13 @@
 
         <ImageView
             android:id="@+id/imgCharacter"
-            android:layout_width="wrap_content"
+            android:layout_width="280dp"
             android:layout_height="280dp"
-            android:layout_marginTop="110dp"
+            android:layout_marginTop="108dp"
             android:src="@drawable/sakura_focus_crop"
             app:layout_constraintEnd_toEndOf="parent"
 
+            app:layout_constraintHorizontal_bias="0.357"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

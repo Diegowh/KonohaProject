@@ -1,4 +1,4 @@
-package com.example.konohaproject.controller
+package com.example.konohaproject.model
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -62,7 +62,9 @@ object TimeConfig {
         }
     }
     fun getTotalRounds(context: Context): Int = getPrefs(context).getInt(KEY_ROUNDS, DEFAULT_ROUNDS)
-    fun isAutoRestartEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_AUTO_RESTART, DEFAULT_AUTO_RESTART)
+    fun isAutoRestartEnabled(context: Context): Boolean = getPrefs(context).getBoolean(
+        KEY_AUTO_RESTART, DEFAULT_AUTO_RESTART
+    )
 
 
 
