@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.konohaproject.controller.ControlState
 import com.example.konohaproject.controller.CountdownService
 import com.example.konohaproject.controller.TimeConfig
+import java.lang.ref.WeakReference
 import java.util.Locale
 
 data class CycleInfo(
@@ -34,13 +35,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application), C
     private val _cycleInfo = MutableLiveData<CycleInfo>()
     val cycleInfo: LiveData<CycleInfo> get() = _cycleInfo
 
-    private var countdownController: CountdownService? = null
+    /* Utilizo WeakReference para evitar que el CountdownService mantenga una referencia fuerte
+    * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
+    * memoria (cosa que tampoco llegue a comprobar, pero me avisaba el IDE)
+    * De esta manera el colector de basura no tendra problemas para liberarlo si fuese necesario */
+    private var countdownController: WeakReference<CountdownService>? = null
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as CountdownService.CountdownBinder
-            countdownController = binder.getController() as CountdownService
-            countdownController?.setTimeUpdateListener(this@MainViewModel)
+            val controller = binder.getController() as CountdownService
+            countdownController = WeakReference(controller)
+            controller.setTimeUpdateListener(this@MainViewModel)
             updateUIWithCurrentState()
         }
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -62,7 +68,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), C
     }
 
     private fun updateUIWithCurrentState() {
-        countdownController?.let { controller ->
+        countdownController?.get()?.let { controller ->
             when {
                 controller.isRunning() && !controller.isPaused() ->
                     _controlState.postValue(ControlState.Running)
@@ -83,7 +89,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), C
     }
 
     fun onPlayClicked() {
-        countdownController?.let { controller ->
+        countdownController?.get()?.let { controller ->
             when {
                 controller.isPaused() -> {
                     controller.resume()
@@ -99,12 +105,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application), C
     }
 
     fun onPauseClicked() {
-        countdownController?.pause()
+        countdownController?.get()?.pause()
         _controlState.postValue(ControlState.Paused)
     }
 
     fun onResetClicked() {
-        countdownController?.reset()
+        countdownController?.get()?.reset()
         _controlState.postValue(ControlState.Stopped)
         _timerText.postValue(TimeConfig.initialDisplayTime(getApplication(), true))
         _currentRound.postValue(0)
