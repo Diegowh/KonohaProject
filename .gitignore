@@ -399,4 +399,10 @@ obj/
 
 !/gradle/wrapper/gradle-wrapper.jar
 
+# Ignorar perfiles de baseline generados automáticamente
+app/release/baselineProfiles/
+
+# Ignorar metadatos de compilación
+app/release/output-metadata.json
+
 # End of https://www.toptal.com/developers/gitignore/api/android,androidstudio,kotlin,java,gradle,intellij,intellij+all
