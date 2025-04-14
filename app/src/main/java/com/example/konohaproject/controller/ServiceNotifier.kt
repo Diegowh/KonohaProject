@@ -32,7 +32,10 @@ class ServiceNotifier(private val context: Context) {
             CHANNEL_ID,
             "Contador regresivo",
             NotificationManager.IMPORTANCE_LOW
-        ).apply { description = "Canal para contador regresivo" }
+        ).apply {
+            description = "Canal para contador regresivo"
+            setShowBadge(false)
+        }
 
         (context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
             .createNotificationChannel(channel)
