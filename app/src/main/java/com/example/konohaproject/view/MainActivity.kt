@@ -1,35 +1,19 @@
 package com.example.konohaproject.view
 
 import android.animation.ValueAnimator
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.content.res.Resources
 import android.os.Bundle
-import android.os.IBinder
 import android.view.View
 import android.view.animation.LinearInterpolator
-import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.Observer
 import com.example.konohaproject.R
 import com.example.konohaproject.controller.ControlState
-import com.example.konohaproject.controller.CountdownController
-import com.example.konohaproject.controller.CountdownService
-import com.example.konohaproject.controller.TimeConfig
+import com.example.konohaproject.model.TimeConfig
 import com.example.konohaproject.databinding.ActivityMainBinding
 import com.example.konohaproject.viewmodel.MainViewModel
-import java.util.Locale
 
 class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
 
