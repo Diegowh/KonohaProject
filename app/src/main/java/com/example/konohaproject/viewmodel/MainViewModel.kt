@@ -11,7 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.konohaproject.controller.ControlState
 import com.example.konohaproject.controller.CountdownService
-import com.example.konohaproject.controller.TimeConfig
+import com.example.konohaproject.model.TimeConfig
 import java.lang.ref.WeakReference
 import java.util.Locale
 
