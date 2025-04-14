@@ -51,7 +51,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
 
     private fun setupFocusValues() {
 
-        var current = 10
+        var current = 1 // TODO: PONER 10 AL TERMINAR PRUEBAS
         while (current <= 60) {
             focusValues.add(current)
             current += 5
@@ -65,7 +65,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
 
     private fun setupShortBreakValues() {
 
-        var current = 2
+        var current = 1 // TODO: PONER 2 AL TERMINAR PRUEBAS
         while (current <= 5) {
             shortBreakValues.add(current)
             current += 1
@@ -79,7 +79,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
 
     private fun setupLongBreakValues() {
 
-        var current = 15
+        var current = 2 // TODO: PONER 15 AL TERMINAR PRUEBAS
         while (current <= 40) {
             longBreakValues.add(current)
             current += 5
