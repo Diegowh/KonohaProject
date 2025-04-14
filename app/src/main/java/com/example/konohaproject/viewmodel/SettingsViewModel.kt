@@ -24,7 +24,7 @@ class SettingsViewModel : ViewModel() {
     }
 
     private fun setupFocusValues() {
-        var current = 1
+        var current = 5
         while (current <= 60) {
             focusValues.add(current)
             current += 5
@@ -43,14 +43,14 @@ class SettingsViewModel : ViewModel() {
             current += 1
         }
         current = 10
-        while (current <= 15) {
+        while (current <= 30) {
             shortBreakValues.add(current)
             current += 5
         }
     }
 
     private fun setupLongBreakValues() {
-        var current = 2
+        var current = 5
         while (current <= 40) {
             longBreakValues.add(current)
             current += 5
@@ -59,7 +59,7 @@ class SettingsViewModel : ViewModel() {
 
     private fun setupRoundsValues() {
         var current = 2
-        while (current <= 8) {
+        while (current <= 6) {
             roundsValues.add(current)
             current += 1
         }
@@ -75,10 +75,17 @@ class SettingsViewModel : ViewModel() {
     }
 
     fun loadSavedPreferences(context: Context) {
-        focusProgress = focusValues.indexOf(TimeConfig.getFocusMinutes(context).toInt())
-        shortBreakProgress = shortBreakValues.indexOf(TimeConfig.getShortBreakMinutes(context).toInt())
-        longBreakProgress = longBreakValues.indexOf(TimeConfig.getLongBreakMinutes(context).toInt())
-        roundsProgress = roundsValues.indexOf(TimeConfig.getTotalRounds(context))
+        val savedFocus = TimeConfig.getFocusMinutes(context).toInt()
+        focusProgress = focusValues.indexOf(savedFocus).coerceAtLeast(0)
+
+        val savedShort = TimeConfig.getShortBreakMinutes(context).toInt()
+        shortBreakProgress = shortBreakValues.indexOf(savedShort).coerceAtLeast(0)
+
+        val savedLong = TimeConfig.getLongBreakMinutes(context).toInt()
+        longBreakProgress = longBreakValues.indexOf(savedLong).coerceAtLeast(0)
+
+        val savedRounds = TimeConfig.getTotalRounds(context)
+        roundsProgress = roundsValues.indexOf(savedRounds).coerceAtLeast(0)
     }
 
     fun savePreferences(context: Context) {
