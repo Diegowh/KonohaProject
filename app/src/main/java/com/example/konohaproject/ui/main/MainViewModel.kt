@@ -9,6 +9,7 @@ import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.konohaproject.domain.timer.TimeUpdateListener
 import com.example.konohaproject.domain.timer.TimerState
 import com.example.konohaproject.domain.timer.TimerService
 import com.example.konohaproject.domain.timer.TimerController
@@ -22,7 +23,7 @@ data class CycleInfo(
     val nextDuration: Long
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application), TimerController.TimeUpdateListener {
+class MainViewModel(application: Application) : AndroidViewModel(application), TimeUpdateListener {
 
     private val _timerText = MutableLiveData<String>()
     val timerText: LiveData<String> get() = _timerText
