@@ -51,7 +51,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     }
 
     override fun onDestroy() {
-        stopForeground(Service.STOP_FOREGROUND_REMOVE)
+        stopForeground(STOP_FOREGROUND_REMOVE)
         countdownTimer.reset()
         super.onDestroy()
     }
@@ -88,7 +88,7 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
          val totalCycles = TimeConfig.getTotalRounds(applicationContext)
 
         if (isFocusSession) {
-            // Estamos en sesion de Focus, por lo que hay que pasar a sesión de Break independientemente del ciclo.
+            // Transicion de Focus a Break.
             isFocusSession = false
             val breakDuration = if (currentCycle == totalCycles) {
                 TimeConfig.longBreakTimeMillis(applicationContext)
@@ -100,17 +100,26 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
         } else {
             // Transicion de Break a Focus
             isFocusSession = true
-            if (currentCycle < totalCycles) {
-                currentCycle++
-            } else {
-                currentCycle = if (TimeConfig.isAutoRestartEnabled(applicationContext)) 1 else 0
-            }
-            start(TimeConfig.focusTimeMillis(applicationContext))
-        }
+            val focusDuration = TimeConfig.focusTimeMillis(applicationContext)
+            val isAutorunEnabled = TimeConfig.isAutorunEnabled(applicationContext)
+            val isLastRound = currentCycle >= totalCycles
 
+            when {
+                !isLastRound -> {
+                    currentCycle++
+                    start(focusDuration)
+                }
+                isAutorunEnabled -> {
+                    currentCycle = 1
+                    start(focusDuration)
+                }
+                else -> {
+                    reset()
+                }
+            }
+        }
         // Notifica al MaiNActivity para actualizar la UI
         timeListener?.onCountdownFinished(currentCycle, isFocusSession)
-
     }
 
     companion object {
