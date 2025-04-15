@@ -10,7 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.konohaproject.R
-import com.example.konohaproject.controller.ControlState
+import com.example.konohaproject.model.ControlState
 import com.example.konohaproject.model.TimeConfig
 import com.example.konohaproject.databinding.ActivityMainBinding
 import com.example.konohaproject.viewmodel.MainViewModel

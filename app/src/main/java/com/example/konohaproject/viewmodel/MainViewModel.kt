@@ -9,7 +9,7 @@ import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.konohaproject.controller.ControlState
+import com.example.konohaproject.model.ControlState
 import com.example.konohaproject.controller.CountdownService
 import com.example.konohaproject.model.TimeConfig
 import java.lang.ref.WeakReference

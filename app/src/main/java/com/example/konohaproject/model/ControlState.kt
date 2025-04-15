@@ -1,4 +1,4 @@
-package com.example.konohaproject.controller
+package com.example.konohaproject.model
 
 sealed class ControlState {
     data object Running : ControlState()
