@@ -9,10 +9,10 @@ import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.konohaproject.domain.timer.ControlState
-import com.example.konohaproject.domain.timer.CountdownService
-import com.example.konohaproject.domain.timer.CountdownController
-import com.example.konohaproject.domain.timer.TimeConfig
+import com.example.konohaproject.domain.timer.TimerState
+import com.example.konohaproject.domain.timer.TimerService
+import com.example.konohaproject.domain.timer.TimerController
+import com.example.konohaproject.domain.timer.TimerSettings
 import java.lang.ref.WeakReference
 import java.util.Locale
 
@@ -22,13 +22,13 @@ data class CycleInfo(
     val nextDuration: Long
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application), CountdownController.TimeUpdateListener {
+class MainViewModel(application: Application) : AndroidViewModel(application), TimerController.TimeUpdateListener {
 
     private val _timerText = MutableLiveData<String>()
     val timerText: LiveData<String> get() = _timerText
 
-    private val _controlState = MutableLiveData<ControlState>()
-    val controlState: LiveData<ControlState> get() = _controlState
+    private val _timerState = MutableLiveData<TimerState>()
+    val timerState: LiveData<TimerState> get() = _timerState
 
     private val _currentRound = MutableLiveData<Int>()
     val currentRound: LiveData<Int> get() = _currentRound
@@ -36,16 +36,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application), C
     private val _cycleInfo = MutableLiveData<CycleInfo>()
     val cycleInfo: LiveData<CycleInfo> get() = _cycleInfo
 
-    /* Utilizo WeakReference para evitar que el CountdownService mantenga una referencia fuerte
+    /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
     * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
     * memoria (cosa que tampoco llegue a comprobar, pero me avisaba el IDE)
     * De esta manera el colector de basura no tendra problemas para liberarlo si fuese necesario */
-    private var countdownController: WeakReference<CountdownService>? = null
+    private var countdownController: WeakReference<TimerService>? = null
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as CountdownService.CountdownBinder
-            val controller = binder.getController() as CountdownService
+            val binder = service as TimerService.TimerBinder
+            val controller = binder.getController() as TimerService
             countdownController = WeakReference(controller)
             controller.setTimeUpdateListener(this@MainViewModel)
             updateUIWithCurrentState()
@@ -56,15 +56,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application), C
     }
 
     init {
-        val intent = Intent(getApplication(), CountdownService::class.java)
+        val intent = Intent(getApplication(), TimerService::class.java)
         getApplication<Application>().bindService(
             intent,
             serviceConnection,
             Context.BIND_AUTO_CREATE
         )
 
-        _timerText.value = TimeConfig.initialDisplayTime(getApplication(), true)
-        _controlState.value = ControlState.Stopped
+        _timerText.value = TimerSettings.initialDisplayTime(getApplication(), true)
+        _timerState.value = TimerState.Stopped
         _currentRound.value = 0
     }
 
@@ -72,11 +72,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application), C
         countdownController?.get()?.let { controller ->
             when {
                 controller.isRunning() && !controller.isPaused() ->
-                    _controlState.postValue(ControlState.Running)
+                    _timerState.postValue(TimerState.Running)
                 controller.isPaused() ->
-                    _controlState.postValue(ControlState.Paused)
+                    _timerState.postValue(TimerState.Paused)
                 else ->
-                    _controlState.postValue(ControlState.Stopped)
+                    _timerState.postValue(TimerState.Stopped)
             }
         }
     }
@@ -94,12 +94,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application), C
             when {
                 controller.isPaused() -> {
                     controller.resume()
-                    _controlState.postValue(ControlState.Running)
+                    _timerState.postValue(TimerState.Running)
                 }
                 !controller.isRunning() -> {
-                    val duration = TimeConfig.focusTimeMillis(getApplication())
+                    val duration = TimerSettings.focusTimeMillis(getApplication())
                     controller.start(duration)
-                    _controlState.postValue(ControlState.Running)
+                    _timerState.postValue(TimerState.Running)
                 }
             }
         }
@@ -107,27 +107,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application), C
 
     fun onPauseClicked() {
         countdownController?.get()?.pause()
-        _controlState.postValue(ControlState.Paused)
+        _timerState.postValue(TimerState.Paused)
     }
 
     fun onResetClicked() {
         countdownController?.get()?.reset()
-        _controlState.postValue(ControlState.Stopped)
-        _timerText.postValue(TimeConfig.initialDisplayTime(getApplication(), true))
+        _timerState.postValue(TimerState.Stopped)
+        _timerText.postValue(TimerSettings.initialDisplayTime(getApplication(), true))
         _currentRound.postValue(0)
     }
 
-    override fun onCountdownFinished(currentRound: Int, isFocus: Boolean) {
+    override fun onTimerFinished(currentRound: Int, isFocus: Boolean) {
 
         // se calcula la duracion del siguiente ciclo en funcion del estado
-        val totalRounds = TimeConfig.getTotalRounds(getApplication())
+        val totalRounds = TimerSettings.getTotalRounds(getApplication())
         val nextDuration = if (isFocus) {
-            TimeConfig.focusTimeMillis(getApplication())
+            TimerSettings.focusTimeMillis(getApplication())
         } else {
             if (currentRound == totalRounds) {
-                TimeConfig.longBreakTimeMillis(getApplication())
+                TimerSettings.longBreakTimeMillis(getApplication())
             } else {
-                TimeConfig.shortBreakTimeMillis(getApplication())
+                TimerSettings.shortBreakTimeMillis(getApplication())
             }
         }
 

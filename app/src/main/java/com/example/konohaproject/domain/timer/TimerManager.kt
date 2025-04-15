@@ -3,13 +3,13 @@ package com.example.konohaproject.domain.timer
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 
-class CountdownManager (
+class TimerManager (
     private val context: Context,
-    private val scope: CoroutineScope,
-    private val listener: CountdownController.TimeUpdateListener
-) : CountdownTimer.Listener {
+    scope: CoroutineScope,
+    private val listener: TimeUpdateListener
+) : TimerEngine.Listener {
 
-    private val timer = CountdownTimer(scope, this)
+    private val timer = TimerEngine(scope, this)
     private var currentCycle = 0
     private var isFocusSession = false
 
@@ -18,19 +18,19 @@ class CountdownManager (
     }
 
     override fun onCountdownFinished() {
-        val totalRounds = TimeConfig.getTotalRounds(context)
+        val totalRounds = TimerSettings.getTotalRounds(context)
         if (isFocusSession) {
             isFocusSession = false
             val breakDuration = if (currentCycle == totalRounds) {
-                TimeConfig.longBreakTimeMillis(context)
+                TimerSettings.longBreakTimeMillis(context)
             } else {
-                TimeConfig.shortBreakTimeMillis(context)
+                TimerSettings.shortBreakTimeMillis(context)
             }
             start(breakDuration)
         } else {
             isFocusSession = true
-            val focusDuration = TimeConfig.focusTimeMillis(context)
-            val isAutorun = TimeConfig.isAutorunEnabled(context)
+            val focusDuration = TimerSettings.focusTimeMillis(context)
+            val isAutorun = TimerSettings.isAutorunEnabled(context)
             val isLastRound = currentCycle >= totalRounds
 
             when {
@@ -47,13 +47,13 @@ class CountdownManager (
                 }
             }
         }
-        listener.onCountdownFinished(currentCycle, isFocusSession)
+        listener.onTimerFinished(currentCycle, isFocusSession)
     }
 
     fun start(durationMillis: Long) {
         if (currentCycle == 0) {
             currentCycle++
-            listener.onCountdownFinished(currentCycle, true)
+            listener.onTimerFinished(currentCycle, true)
         }
         timer.reset()
         timer.start(durationMillis)
