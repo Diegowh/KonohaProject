@@ -1,8 +1,11 @@
-package com.example.konohaproject.model
-
-import com.example.konohaproject.controller.CountdownService.TimeUpdateListener
+package com.example.konohaproject.domain.timer
 
 interface CountdownController {
+    interface TimeUpdateListener {
+        fun onTimeUpdate(remainingTime: Long)
+        fun onCountdownFinished(currentRound: Int, isFocus: Boolean)
+    }
+
     fun start(durationMillis: Long)
     fun pause()
     fun resume()
