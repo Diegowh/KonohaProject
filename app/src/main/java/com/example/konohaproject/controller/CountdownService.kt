@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import com.example.konohaproject.model.CountdownController
+import com.example.konohaproject.model.CountdownTimer
+import com.example.konohaproject.model.ServiceNotifier
 import com.example.konohaproject.model.TimeConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

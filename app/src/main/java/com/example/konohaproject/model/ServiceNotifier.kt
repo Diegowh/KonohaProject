@@ -1,4 +1,4 @@
-package com.example.konohaproject.controller
+package com.example.konohaproject.model
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
 import androidx.core.app.NotificationCompat
-import java.util.Locale
 
 class ServiceNotifier(private val context: Context) {
 
