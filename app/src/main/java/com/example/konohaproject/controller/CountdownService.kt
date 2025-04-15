@@ -39,6 +39,8 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        startForeground(ServiceNotifier.NOTIFICATION_ID, serviceNotifier.buildNotification())
         when (intent?.action) {
             ACTION_STOP -> stopSelf()
             else -> intent?.getLongExtra(EXTRA_DURATION, 0L)?.let {
@@ -49,13 +51,13 @@ class CountdownService : Service(), CountdownController, CountdownTimer.Listener
     }
 
     override fun onDestroy() {
+        stopForeground(Service.STOP_FOREGROUND_REMOVE)
         countdownTimer.reset()
         super.onDestroy()
     }
 
     override fun onTimeUpdate(remaining: Long) {
         timeListener?.onTimeUpdate(remaining)
-        serviceNotifier.updateNotification()
     }
 
     override fun start(durationMillis: Long) {
