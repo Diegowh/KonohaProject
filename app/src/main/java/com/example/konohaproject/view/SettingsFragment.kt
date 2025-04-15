@@ -38,6 +38,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         loadSavedPreferences()
         setupSeekBars()
+        setupAutorunSwitch()
         setupSaveButton()
         setupResetButton()
     }
@@ -72,6 +73,15 @@ class SettingsFragment : BottomSheetDialogFragment() {
                 max = viewModel.roundsValues.size - 1
                 progress = viewModel.roundsProgress
                 setOnSeekBarChangeListener(createSeekBarListener(::updateRounds))
+            }
+        }
+    }
+
+    private fun setupAutorunSwitch() {
+        binding.btnAutorun.apply {
+            isChecked = viewModel.autorun
+            setOnCheckedChangeListener { _, isChecked ->
+                viewModel.autorun = isChecked
             }
         }
     }
@@ -112,6 +122,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
         binding.txtRounds.text = String.format(Locale.US, "%d", value)
     }
 
+
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
             viewModel.savePreferences(requireContext())
@@ -142,6 +153,12 @@ class SettingsFragment : BottomSheetDialogFragment() {
             defaults["rounds"]?.takeIf { it != -1 }?.let {
                 binding.seekBarRounds.progress = it
                 updateRounds(it)
+            }
+
+            defaults["autorun"]?.takeIf { it == 0 || it == 1 }?.let {
+                val autorunDefault: Boolean = (it == 1)
+                viewModel.autorun = autorunDefault
+                binding.btnAutorun.isChecked = autorunDefault
             }
         }
     }

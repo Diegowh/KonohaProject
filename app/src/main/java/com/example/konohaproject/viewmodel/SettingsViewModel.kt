@@ -15,6 +15,7 @@ class SettingsViewModel : ViewModel() {
     var shortBreakProgress: Int = 0
     var longBreakProgress: Int = 0
     var roundsProgress: Int = 0
+    var autorun: Boolean = true
 
     init {
         setupFocusValues()
@@ -70,7 +71,8 @@ class SettingsViewModel : ViewModel() {
             "focus" to focusValues.indexOf(TimeConfig.getDefaultFocus().toInt()),
             "shortBreak" to shortBreakValues.indexOf(TimeConfig.getDefaultShortBreak().toInt()),
             "longBreak" to longBreakValues.indexOf(TimeConfig.getDefaultLongBreak().toInt()),
-            "rounds" to roundsValues.indexOf(TimeConfig.getDefaultRounds())
+            "rounds" to roundsValues.indexOf(TimeConfig.getDefaultRounds()),
+            "autorun" to if (TimeConfig.getDefaultAutorun()) 1 else 0 // quiero mantener el tipo del Map en String, Int
         )
     }
 
@@ -86,6 +88,9 @@ class SettingsViewModel : ViewModel() {
 
         val savedRounds = TimeConfig.getTotalRounds(context)
         roundsProgress = roundsValues.indexOf(savedRounds).coerceAtLeast(0)
+
+        autorun = TimeConfig.isAutorunEnabled(context)
+
     }
 
     fun savePreferences(context: Context) {
@@ -95,7 +100,7 @@ class SettingsViewModel : ViewModel() {
             shortBreak = shortBreakValues[shortBreakProgress].toLong(),
             longBreak = longBreakValues[longBreakProgress].toLong(),
             rounds = roundsValues[roundsProgress],
-            autoRestart = true
+            autorun = autorun
         )
     }
 }
