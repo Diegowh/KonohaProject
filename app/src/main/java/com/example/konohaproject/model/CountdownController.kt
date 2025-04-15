@@ -1,4 +1,4 @@
-package com.example.konohaproject.controller
+package com.example.konohaproject.model
 
 import com.example.konohaproject.controller.CountdownService.TimeUpdateListener
 
