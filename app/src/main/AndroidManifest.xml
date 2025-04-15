@@ -24,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".domain.timer.CountdownService"
+            android:name=".domain.timer.TimerService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="shortService"/>

@@ -2,7 +2,7 @@ package com.example.konohaproject.ui.settings
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.example.konohaproject.domain.timer.TimeConfig
+import com.example.konohaproject.domain.timer.TimerSettings
 
 class SettingsViewModel : ViewModel() {
 
@@ -68,33 +68,33 @@ class SettingsViewModel : ViewModel() {
 
     fun getDefaultIndices(): Map<String, Int> {
         return mapOf(
-            "focus" to focusValues.indexOf(TimeConfig.getDefaultFocus().toInt()),
-            "shortBreak" to shortBreakValues.indexOf(TimeConfig.getDefaultShortBreak().toInt()),
-            "longBreak" to longBreakValues.indexOf(TimeConfig.getDefaultLongBreak().toInt()),
-            "rounds" to roundsValues.indexOf(TimeConfig.getDefaultRounds()),
-            "autorun" to if (TimeConfig.getDefaultAutorun()) 1 else 0 // quiero mantener el tipo del Map en String, Int
+            "focus" to focusValues.indexOf(TimerSettings.getDefaultFocus().toInt()),
+            "shortBreak" to shortBreakValues.indexOf(TimerSettings.getDefaultShortBreak().toInt()),
+            "longBreak" to longBreakValues.indexOf(TimerSettings.getDefaultLongBreak().toInt()),
+            "rounds" to roundsValues.indexOf(TimerSettings.getDefaultRounds()),
+            "autorun" to if (TimerSettings.getDefaultAutorun()) 1 else 0 // quiero mantener el tipo del Map en String, Int
         )
     }
 
     fun loadSavedPreferences(context: Context) {
-        val savedFocus = TimeConfig.getFocusMinutes(context).toInt()
+        val savedFocus = TimerSettings.getFocusMinutes(context).toInt()
         focusProgress = focusValues.indexOf(savedFocus).coerceAtLeast(0)
 
-        val savedShort = TimeConfig.getShortBreakMinutes(context).toInt()
+        val savedShort = TimerSettings.getShortBreakMinutes(context).toInt()
         shortBreakProgress = shortBreakValues.indexOf(savedShort).coerceAtLeast(0)
 
-        val savedLong = TimeConfig.getLongBreakMinutes(context).toInt()
+        val savedLong = TimerSettings.getLongBreakMinutes(context).toInt()
         longBreakProgress = longBreakValues.indexOf(savedLong).coerceAtLeast(0)
 
-        val savedRounds = TimeConfig.getTotalRounds(context)
+        val savedRounds = TimerSettings.getTotalRounds(context)
         roundsProgress = roundsValues.indexOf(savedRounds).coerceAtLeast(0)
 
-        autorun = TimeConfig.isAutorunEnabled(context)
+        autorun = TimerSettings.isAutorunEnabled(context)
 
     }
 
     fun savePreferences(context: Context) {
-        TimeConfig.updateSettings(
+        TimerSettings.updateSettings(
             context,
             focus = focusValues[focusProgress].toLong(),
             shortBreak = shortBreakValues[shortBreakProgress].toLong(),
