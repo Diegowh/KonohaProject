@@ -1,4 +1,4 @@
-package com.example.konohaproject.model
+package com.example.konohaproject.domain.timer
 
 sealed class ControlState {
     data object Running : ControlState()

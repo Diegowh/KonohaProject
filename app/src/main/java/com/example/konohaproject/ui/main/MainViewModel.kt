@@ -1,4 +1,4 @@
-package com.example.konohaproject.viewmodel
+package com.example.konohaproject.ui.main
 
 import android.app.Application
 import android.content.ComponentName
@@ -9,9 +9,10 @@ import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.konohaproject.model.ControlState
-import com.example.konohaproject.controller.CountdownService
-import com.example.konohaproject.model.TimeConfig
+import com.example.konohaproject.domain.timer.ControlState
+import com.example.konohaproject.domain.timer.CountdownService
+import com.example.konohaproject.domain.timer.CountdownController
+import com.example.konohaproject.domain.timer.TimeConfig
 import java.lang.ref.WeakReference
 import java.util.Locale
 
@@ -21,7 +22,7 @@ data class CycleInfo(
     val nextDuration: Long
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application), CountdownService.TimeUpdateListener {
+class MainViewModel(application: Application) : AndroidViewModel(application), CountdownController.TimeUpdateListener {
 
     private val _timerText = MutableLiveData<String>()
     val timerText: LiveData<String> get() = _timerText

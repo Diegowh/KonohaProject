@@ -1,6 +1,5 @@
-package com.example.konohaproject.view
+package com.example.konohaproject.ui.settings
 
-import com.example.konohaproject.model.TimeConfig
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +9,6 @@ import android.widget.SeekBar
 import androidx.fragment.app.viewModels
 import com.example.konohaproject.R
 import com.example.konohaproject.databinding.FragmentSettingsListDialogBinding
-import com.example.konohaproject.viewmodel.SettingsViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 

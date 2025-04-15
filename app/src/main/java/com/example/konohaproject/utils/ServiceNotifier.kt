@@ -1,4 +1,4 @@
-package com.example.konohaproject.model
+package com.example.konohaproject.utils
 
 import android.app.Notification
 import android.app.NotificationChannel

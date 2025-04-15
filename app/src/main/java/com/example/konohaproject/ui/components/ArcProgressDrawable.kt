@@ -1,4 +1,4 @@
-package com.example.konohaproject.view
+package com.example.konohaproject.ui.components
 
 import android.content.Context
 import android.graphics.*
