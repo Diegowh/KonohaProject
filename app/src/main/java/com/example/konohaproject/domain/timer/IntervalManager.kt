@@ -3,7 +3,7 @@ package com.example.konohaproject.domain.timer
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 
-class TimerManager (
+class IntervalManager (
     private val context: Context,
     scope: CoroutineScope,
     private val listener: TimeUpdateListener

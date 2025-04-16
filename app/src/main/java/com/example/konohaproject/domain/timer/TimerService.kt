@@ -12,7 +12,7 @@ class TimerService : Service(), TimerController {
 
     private val binder = TimerBinder()
     private lateinit var serviceNotifier: ServiceNotifier
-    private lateinit var timerManager: TimerManager
+    private lateinit var intervalManager: IntervalManager
     private var timeListener: TimeUpdateListener? = null
 
     private val serviceScope = CoroutineScope(Dispatchers.Default)
@@ -24,7 +24,7 @@ class TimerService : Service(), TimerController {
     override fun onCreate() {
         super.onCreate()
         serviceNotifier = ServiceNotifier(this)
-        timerManager = TimerManager(this, serviceScope, object : TimeUpdateListener {
+        intervalManager = IntervalManager(this, serviceScope, object : TimeUpdateListener {
             override fun onTimeUpdate(remainingTime: Long) {
                 timeListener?.onTimeUpdate(remainingTime)
             }
@@ -42,7 +42,7 @@ class TimerService : Service(), TimerController {
         when (intent?.action) {
             ACTION_STOP -> stopSelf()
             else -> intent?.getLongExtra(EXTRA_DURATION, 0L)?.let {
-                if (!timerManager.isRunning()) timerManager.start(it)
+                if (!intervalManager.isRunning()) intervalManager.start(it)
             }
         }
         return START_STICKY
@@ -50,23 +50,23 @@ class TimerService : Service(), TimerController {
 
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)
-        timerManager.reset()
+        intervalManager.reset()
         super.onDestroy()
     }
 
-    override fun start(durationMillis: Long) = timerManager.start(durationMillis)
-    override fun pause() = timerManager.pause()
-    override fun resume() = timerManager.resume()
-    override fun reset() = timerManager.reset()
-    override fun getRemainingTime(): Long = timerManager.getRemainingTime()
-    override fun isPaused(): Boolean = timerManager.isPaused()
-    override fun isRunning(): Boolean = timerManager.isRunning()
+    override fun start(durationMillis: Long) = intervalManager.start(durationMillis)
+    override fun pause() = intervalManager.pause()
+    override fun resume() = intervalManager.resume()
+    override fun reset() = intervalManager.reset()
+    override fun getRemainingTime(): Long = intervalManager.getRemainingTime()
+    override fun isPaused(): Boolean = intervalManager.isPaused()
+    override fun isRunning(): Boolean = intervalManager.isRunning()
     override fun setTimeUpdateListener(listener: TimeUpdateListener?) {
         timeListener = listener
     }
 
-    override fun getCurrentRound(): Int = timerManager.getCurrentRound()
-    override fun isFocusInterval(): Boolean = timerManager.isFocusInterval()
+    override fun getCurrentRound(): Int = intervalManager.getCurrentRound()
+    override fun isFocusInterval(): Boolean = intervalManager.isFocusInterval()
 
     companion object {
         const val ACTION_STOP = "STOP"
