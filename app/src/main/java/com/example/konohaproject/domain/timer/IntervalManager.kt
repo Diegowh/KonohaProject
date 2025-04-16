@@ -2,22 +2,40 @@ package com.example.konohaproject.domain.timer
 
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class IntervalManager (
     private val context: Context,
-    scope: CoroutineScope,
-    private val listener: TimeUpdateListener
-) : TimerEngine.Listener {
+    private val scope: CoroutineScope
+) {
 
-    private val timer = TimerEngine(scope, this)
+    private val timer = TimerEngine(scope)
+
     private var currentRound = 0
     private var isFocusInterval = false
 
-    override fun onTimeUpdate(remaining: Long) {
-        listener.onTimeUpdate(remaining)
+    private val _eventFlow = MutableSharedFlow<TimerUIEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
+    init {
+        scope.launch {
+            timer.timeFlow.collect { remaining ->
+                _eventFlow.emit(TimerUIEvent.TimeUpdate(remaining))
+            }
+        }
+
+        scope.launch {
+            timer.finishFlow.collect {
+                handleIntervalFinished()
+            }
+        }
     }
 
-    override fun onIntervalFinished() {
+    private suspend fun handleIntervalFinished() {
+
         val intervalDuration: Long
         val totalRounds = TimerSettings.getTotalRounds(context)
         if (isFocusInterval) {
@@ -48,13 +66,16 @@ class IntervalManager (
                 }
             }
         }
-        listener.onIntervalFinished(currentRound, isFocusInterval)
+        _eventFlow.emit(TimerUIEvent.IntervalFinished(currentRound, isFocusInterval))
     }
 
     fun start(durationMillis: Long) {
         if (currentRound == 0) {
             currentRound++
-            listener.onIntervalFinished(currentRound, true)
+            isFocusInterval = true
+            scope.launch {
+                _eventFlow.emit(TimerUIEvent.IntervalFinished(currentRound, true))
+            }
         }
         timer.reset()
         timer.start(durationMillis)

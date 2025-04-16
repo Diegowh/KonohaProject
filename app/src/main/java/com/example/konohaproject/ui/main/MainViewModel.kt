@@ -9,11 +9,13 @@ import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.konohaproject.domain.timer.TimeUpdateListener
+import androidx.lifecycle.viewModelScope
 import com.example.konohaproject.domain.timer.TimerState
 import com.example.konohaproject.domain.timer.TimerService
 import com.example.konohaproject.domain.timer.TimerController
 import com.example.konohaproject.domain.timer.TimerSettings
+import com.example.konohaproject.domain.timer.TimerUIEvent
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Locale
 
@@ -23,7 +25,7 @@ data class CycleInfo(
     val nextDuration: Long
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application), TimeUpdateListener {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _timerText = MutableLiveData<String>()
     val timerText: LiveData<String> get() = _timerText
@@ -48,9 +50,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
             val binder = service as TimerService.TimerBinder
             val controller = binder.getController() as TimerService
             countdownController = WeakReference(controller)
-            controller.setTimeUpdateListener(this@MainViewModel)
-            updateUIWithCurrentState()
+
+            viewModelScope.launch {
+                controller.getTimerEvents().collect { event ->
+                    when (event) {
+                        is TimerUIEvent.TimeUpdate -> {
+                            val totalSeconds = (event.remainingMillis + 500) / 1000
+                            val minutes = totalSeconds / 60
+                            val seconds = totalSeconds % 60
+                            val text = String.format(Locale.US, "%02d:%02d", minutes, seconds)
+                            _timerText.postValue(text)
+                        }
+                        is TimerUIEvent.IntervalFinished -> {
+                            val totalRounds = TimerSettings.getTotalRounds(getApplication())
+                            val nextDuration = if (event.isFocusInterval) {
+                                TimerSettings.focusTimeMillis(getApplication())
+                            } else {
+                                if (event.currentRound == totalRounds) {
+                                    TimerSettings.longBreakTimeMillis(getApplication())
+                                } else {
+                                    TimerSettings.shortBreakTimeMillis(getApplication())
+                                }
+                            }
+                            _cycleInfo.postValue(
+                                CycleInfo(event.currentRound, event.isFocusInterval,
+                                    nextDuration))
+                            _currentRound.postValue(event.currentRound)
+                        }
+                    }
+                }
+            }
+            updateUIWithCurrentState(controller)
         }
+
         override fun onServiceDisconnected(name: ComponentName?) {
             countdownController = null
         }
@@ -69,25 +101,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
         _currentRound.value = 0
     }
 
-    private fun updateUIWithCurrentState() {
-        countdownController?.get()?.let { controller ->
-            when {
-                controller.isRunning() && !controller.isPaused() ->
-                    _timerState.postValue(TimerState.Running)
-                controller.isPaused() ->
-                    _timerState.postValue(TimerState.Paused)
-                else ->
-                    _timerState.postValue(TimerState.Stopped)
-            }
+    private fun updateUIWithCurrentState(controller: TimerService) {
+        when {
+            controller.isRunning() && !controller.isPaused() ->
+                _timerState.postValue(TimerState.Running)
+            controller.isPaused() ->
+                _timerState.postValue(TimerState.Paused)
+            else ->
+                _timerState.postValue(TimerState.Stopped)
         }
-    }
-
-    override fun onTimeUpdate(remainingTime: Long) {
-        val totalSeconds = (remainingTime + 500) / 1000
-        val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
-        val text = String.format(Locale.US, "%02d:%02d", minutes, seconds)
-        _timerText.postValue(text)
     }
 
     fun onPlayClicked() {
@@ -107,33 +129,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
     }
 
     fun onPauseClicked() {
-        countdownController?.get()?.pause()
-        _timerState.postValue(TimerState.Paused)
+        countdownController?.get()?.let { controller ->
+            controller.pause()
+            _timerState.postValue(TimerState.Paused)
+        }
     }
 
     fun onResetClicked() {
-        countdownController?.get()?.reset()
-        _timerState.postValue(TimerState.Stopped)
-        _timerText.postValue(TimerSettings.initialDisplayTime(getApplication(), true))
-        _currentRound.postValue(0)
-    }
-
-    override fun onIntervalFinished(currentRound: Int, isFocus: Boolean) {
-
-        // se calcula la duracion del siguiente ciclo en funcion del estado
-        val totalRounds = TimerSettings.getTotalRounds(getApplication())
-        val nextDuration = if (isFocus) {
-            TimerSettings.focusTimeMillis(getApplication())
-        } else {
-            if (currentRound == totalRounds) {
-                TimerSettings.longBreakTimeMillis(getApplication())
-            } else {
-                TimerSettings.shortBreakTimeMillis(getApplication())
-            }
+        countdownController?.get()?.let { controller ->
+            controller.reset()
+            _timerState.postValue(TimerState.Stopped)
+            _timerText.postValue(TimerSettings.initialDisplayTime(getApplication(), true))
+            _currentRound.postValue(0)
         }
-
-        _cycleInfo.postValue(CycleInfo(currentRound, isFocus, nextDuration))
-        _currentRound.postValue(currentRound)
     }
 
     override fun onCleared() {
