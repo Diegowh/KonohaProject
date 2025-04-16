@@ -1,6 +1,25 @@
 # KonohaProject
 [![Static Badge](https://img.shields.io/badge/CC_BY--NC--ND_4.0-blue?style=for-the-badge&color=gray)](https://github.com/Diegowh/KonohaProject/blob/main/LICENSE)
 
+## About
+KonohaProject is an Android app designed to help you stay focused on your daily routines. The app includes characters and color palettes inspired on the Naruto series.
+
+## Current Status
+The app is currently in early development, but we have plans for different features to make the app feel different from similar applications. 
+
+## Key features planned
+
+### Character progression system
+- Choose between different characters as your focus companion
+- Earn experience by using the app regularly
+- Unlock character evolutions, skins, and orther cosmetic items
+
+### Achievement System
+- Complete different challenges based on app usage
+- Earn rewards for consistent focus sessions
+- Display your achievements
+- Unlock special content
+
 ## License
 
 `Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International` (CC-BY-NC-ND 4.0)
