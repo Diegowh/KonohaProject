@@ -25,13 +25,16 @@ class SettingsViewModel : ViewModel() {
     }
 
     private fun setupFocusValues() {
-        var current = 5
-        while (current <= 60) {
+        var current = 1
+        while (current < 5) {
+            focusValues.add(current)
+            current += 1
+        }
+        while (current < 60) {
             focusValues.add(current)
             current += 5
         }
-        current = 75
-        while (current <= 90) {
+        while (current <= 120) {
             focusValues.add(current)
             current += 15
         }
@@ -39,11 +42,10 @@ class SettingsViewModel : ViewModel() {
 
     private fun setupShortBreakValues() {
         var current = 1
-        while (current <= 5) {
+        while (current < 5) {
             shortBreakValues.add(current)
             current += 1
         }
-        current = 10
         while (current <= 30) {
             shortBreakValues.add(current)
             current += 5
@@ -51,10 +53,18 @@ class SettingsViewModel : ViewModel() {
     }
 
     private fun setupLongBreakValues() {
-        var current = 5
-        while (current <= 40) {
+        var current = 1
+        while (current < 5) {
+            longBreakValues.add(current)
+            current += 1
+        }
+        while (current < 30) {
             longBreakValues.add(current)
             current += 5
+        }
+        while (current <= 60) {
+            longBreakValues.add(current)
+            current += 15
         }
     }
 
