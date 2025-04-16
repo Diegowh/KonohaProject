@@ -47,8 +47,6 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
                     binding.btnPlay.visibility = View.GONE
                     binding.btnReset.visibility = View.GONE
                     binding.btnPause.visibility = View.VISIBLE
-                    // Se inicia la animación con el tiempo de Focus.
-                    startProgressAnimation(TimerSettings.focusTimeMillis(this))
                 }
                 TimerState.Paused -> {
                     binding.btnPlay.visibility = View.VISIBLE
@@ -66,21 +64,21 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
             }
         }
 
-        viewModel.cycleInfo.observe(this) { cycleInfo ->
+        viewModel.interval.observe(this) { interval ->
 
             resetProgressAnimation()
-            startProgressAnimation(cycleInfo.nextDuration)
-            val backgroundColor = if (cycleInfo.isFocus) {
+            startProgressAnimation(interval.nextDuration)
+            val backgroundColor = if (interval.isFocus) {
                 ContextCompat.getColor(this, R.color.background_app_focus)
             } else {
                 ContextCompat.getColor(this, R.color.background_app_break)
             }
             binding.main.setBackgroundColor(backgroundColor)
 
-            if (cycleInfo.isFocus) {
-                updateRoundUI(cycleInfo.currentRound)
+            if (interval.isFocus) {
+                updateRoundUI(interval.currentRound)
 
-                if (cycleInfo.currentRound == 0) {
+                if (interval.currentRound == 0) {
                     viewModel.onResetClicked()
                 }
             }
@@ -89,6 +87,9 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
             updateRoundUI(currentRound)
         }
 
+        viewModel.resumedTime.observe(this) { remaining ->
+            startProgressAnimation(remaining)
+        }
 
         binding.btnPlay.setOnClickListener {
             viewModel.onPlayClicked()
@@ -97,6 +98,7 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
             viewModel.onPauseClicked()
         }
         binding.btnReset.setOnClickListener {
+            resetBackgroundColor()
             viewModel.onResetClicked()
         }
         binding.btnSettings.setOnClickListener {
@@ -107,6 +109,9 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
         }
     }
 
+    private fun resetBackgroundColor() {
+        binding.main.setBackgroundColor(ContextCompat.getColor(this, R.color.background_app_focus))
+    }
 
     private fun initRoundCounterViews() {
         val totalRounds = TimerSettings.getTotalRounds(this)
@@ -142,15 +147,8 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
 
     private fun startProgressAnimation(totalDurationMillis: Long) {
         progressAnimator?.cancel()
-
-        val remainingDuration = if (currentProgress > 0) {
-            totalDurationMillis * (10000 - currentProgress) / 10000
-        } else {
-            totalDurationMillis
-        }
-
         progressAnimator = ValueAnimator.ofInt(currentProgress, 10000).apply {
-            this.duration = remainingDuration
+            this.duration = totalDurationMillis
             interpolator = LinearInterpolator()
             addUpdateListener { animation ->
                 val progress = animation.animatedValue as Int
@@ -189,6 +187,7 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
         longBreak: Int,
         rounds: Int
     ) {
+        resetBackgroundColor()
         viewModel.onResetClicked()
         initRoundCounterViews()
     }

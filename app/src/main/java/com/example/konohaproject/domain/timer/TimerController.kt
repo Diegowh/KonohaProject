@@ -9,9 +9,8 @@ interface TimerController {
     fun getRemainingTime(): Long
     fun isPaused(): Boolean
     fun isRunning(): Boolean
-    fun setTimeUpdateListener(listener: TimeUpdateListener?)
-    fun getCurrentCycle(): Int
-    fun isFocusSession(): Boolean
+    fun getCurrentRound(): Int
+    fun isFocusInterval(): Boolean
 
 
 }

@@ -4,16 +4,17 @@ import android.os.SystemClock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-class TimerEngine(
-    private val scope: CoroutineScope,
-    private val listener: Listener
-) {
-    interface Listener {
-        fun onTimeUpdate(remaining: Long)
-        fun onCountdownFinished()
-    }
+class TimerEngine(private val scope: CoroutineScope) {
+
+    private val _timeFlow = MutableSharedFlow<Long>(replay = 1)
+    val timeFlow = _timeFlow.asSharedFlow()
+
+    private val _finishFlow = MutableSharedFlow<Unit>()
+    val finishFlow = _finishFlow.asSharedFlow()
 
     private var endTime: Long = 0L
     private var job: Job? = null
@@ -22,7 +23,7 @@ class TimerEngine(
 
     fun start(durationMillis: Long) {
         endTime = SystemClock.elapsedRealtime() + durationMillis
-        startCountdownLoop()
+        startTimerJob()
     }
 
     fun pause() {
@@ -37,7 +38,7 @@ class TimerEngine(
         if (isRunning() && isPaused) {
             isPaused = false
             endTime = SystemClock.elapsedRealtime() + remainingWhenPaused
-            startCountdownLoop()
+            startTimerJob()
         }
     }
 
@@ -57,16 +58,16 @@ class TimerEngine(
     fun isPaused(): Boolean = isPaused
     fun isRunning(): Boolean = endTime > 0L
 
-    private fun startCountdownLoop() {
+    private fun startTimerJob() {
         job?.cancel()
         job = scope.launch {
             while (isRunning() && !isPaused) {
                 val remaining = endTime - SystemClock.elapsedRealtime()
                 if (remaining <= 0) {
-                    listener.onCountdownFinished()
+                    _finishFlow.emit(Unit)
                     break
                 }
-                listener.onTimeUpdate(remaining)
+                _timeFlow.emit(remaining)
                 delay(1000)
             }
         }
