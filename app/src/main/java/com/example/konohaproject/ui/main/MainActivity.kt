@@ -47,8 +47,6 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
                     binding.btnPlay.visibility = View.GONE
                     binding.btnReset.visibility = View.GONE
                     binding.btnPause.visibility = View.VISIBLE
-                    // Se inicia la animación con el tiempo de Focus.
-//                    startProgressAnimation(TimerSettings.focusTimeMillis(this))
                 }
                 TimerState.Paused -> {
                     binding.btnPlay.visibility = View.VISIBLE
@@ -100,6 +98,7 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
             viewModel.onPauseClicked()
         }
         binding.btnReset.setOnClickListener {
+            resetBackgroundColor()
             viewModel.onResetClicked()
         }
         binding.btnSettings.setOnClickListener {
@@ -110,6 +109,9 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
         }
     }
 
+    private fun resetBackgroundColor() {
+        binding.main.setBackgroundColor(ContextCompat.getColor(this, R.color.background_app_focus))
+    }
 
     private fun initRoundCounterViews() {
         val totalRounds = TimerSettings.getTotalRounds(this)
@@ -185,6 +187,7 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
         longBreak: Int,
         rounds: Int
     ) {
+        resetBackgroundColor()
         viewModel.onResetClicked()
         initRoundCounterViews()
     }
