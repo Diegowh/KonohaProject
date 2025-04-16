@@ -39,6 +39,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _cycleInfo = MutableLiveData<CycleInfo>()
     val cycleInfo: LiveData<CycleInfo> get() = _cycleInfo
 
+    private val _resumedTime = MutableLiveData<Long>()
+    val resumedTime: LiveData<Long> get() = _resumedTime
+
     /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
     * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
     * memoria (cosa que tampoco llegue a comprobar, pero me avisaba el IDE)
@@ -116,7 +119,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         countdownController?.get()?.let { controller ->
             when {
                 controller.isPaused() -> {
+                    val remaining = controller.getRemainingTime()
                     controller.resume()
+                    _resumedTime.postValue(remaining)
                     _timerState.postValue(TimerState.Running)
                 }
                 !controller.isRunning() -> {
