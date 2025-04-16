@@ -1,7 +1,10 @@
 package com.example.konohaproject.ui.main
 
 import android.animation.ValueAnimator
+import android.content.Context
 import android.content.res.Resources
+import android.media.AudioManager
+import android.media.SoundPool
 import android.os.Bundle
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -9,12 +12,18 @@ import android.widget.LinearLayout
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.konohaproject.R
 import com.example.konohaproject.domain.timer.TimerState
 import com.example.konohaproject.domain.timer.TimerSettings
 import com.example.konohaproject.databinding.ActivityMainBinding
 import com.example.konohaproject.ui.components.ArcProgressDrawable
 import com.example.konohaproject.ui.settings.SettingsFragment
+import com.example.konohaproject.utils.SoundType
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
 
@@ -27,12 +36,16 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
     private var currentProgress: Int = 0
     private val roundViews = mutableListOf<View>()
 
+    private var soundPool: SoundPool? = null
+    private var soundId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        soundPool = SoundPool.Builder().setMaxStreams(2).build()
+        soundId = soundPool?.load(this, R.raw.bubble_tiny, 1) ?: 0
 
         initProgressArc()
         initRoundCounterViews()
@@ -91,6 +104,17 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
             startProgressAnimation(remaining)
         }
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.intervalSoundEvent.collect() { soundType ->
+                    when (soundType) {
+                        SoundType.INTERVAL_CHANGE -> playIntervalChangeSound()
+                        SoundType.BUTTON_CLICK -> TODO()
+                    }
+                }
+            }
+        }
+
         binding.btnPlay.setOnClickListener {
             viewModel.onPlayClicked()
         }
@@ -107,6 +131,13 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
             viewModel.onPauseClicked()
             SettingsFragment.newInstance().show(supportFragmentManager, "SettingsDialog")
         }
+    }
+
+    private fun playIntervalChangeSound() {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
+
+        soundPool?.play(soundId, volume, volume, 1, 0, 1.0f)
     }
 
     private fun resetBackgroundColor() {
@@ -197,7 +228,9 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        soundPool?.release()
+        soundPool = null
         _binding = null
+        super.onDestroy()
     }
 }

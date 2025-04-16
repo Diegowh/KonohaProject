@@ -14,6 +14,10 @@ import com.example.konohaproject.domain.timer.TimerState
 import com.example.konohaproject.domain.timer.TimerService
 import com.example.konohaproject.domain.timer.TimerSettings
 import com.example.konohaproject.domain.timer.TimerUIEvent
+import com.example.konohaproject.utils.SoundType
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -40,6 +44,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _resumedTime = MutableLiveData<Long>()
     val resumedTime: LiveData<Long> get() = _resumedTime
+
+    private val _intervalSoundEvent = MutableSharedFlow<SoundType>()
+    val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
 
     /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
     * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
@@ -78,6 +85,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                 Interval(event.currentRound, event.isFocusInterval,
                                     nextDuration))
                             _currentRound.postValue(event.currentRound)
+
+                            _intervalSoundEvent.emit(SoundType.INTERVAL_CHANGE)
+
                         }
                     }
                 }
