@@ -145,15 +145,8 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
 
     private fun startProgressAnimation(totalDurationMillis: Long) {
         progressAnimator?.cancel()
-
-        val remainingDuration = if (currentProgress > 0) {
-            totalDurationMillis * (10000 - currentProgress) / 10000
-        } else {
-            totalDurationMillis
-        }
-
         progressAnimator = ValueAnimator.ofInt(currentProgress, 10000).apply {
-            this.duration = remainingDuration
+            this.duration = totalDurationMillis
             interpolator = LinearInterpolator()
             addUpdateListener { animation ->
                 val progress = animation.animatedValue as Int
