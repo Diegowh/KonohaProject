@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
                     binding.btnReset.visibility = View.GONE
                     binding.btnPause.visibility = View.VISIBLE
                     // Se inicia la animación con el tiempo de Focus.
-                    startProgressAnimation(TimerSettings.focusTimeMillis(this))
+//                    startProgressAnimation(TimerSettings.focusTimeMillis(this))
                 }
                 TimerState.Paused -> {
                     binding.btnPlay.visibility = View.VISIBLE
@@ -89,6 +89,9 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
             updateRoundUI(currentRound)
         }
 
+        viewModel.resumedTime.observe(this) { remaining ->
+            startProgressAnimation(remaining)
+        }
 
         binding.btnPlay.setOnClickListener {
             viewModel.onPlayClicked()
