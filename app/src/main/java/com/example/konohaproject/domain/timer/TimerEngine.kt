@@ -12,7 +12,7 @@ class TimerEngine(
 ) {
     interface Listener {
         fun onTimeUpdate(remaining: Long)
-        fun onCountdownFinished()
+        fun onIntervalFinished()
     }
 
     private var endTime: Long = 0L
@@ -22,7 +22,7 @@ class TimerEngine(
 
     fun start(durationMillis: Long) {
         endTime = SystemClock.elapsedRealtime() + durationMillis
-        startCountdownLoop()
+        startTimerJob()
     }
 
     fun pause() {
@@ -37,7 +37,7 @@ class TimerEngine(
         if (isRunning() && isPaused) {
             isPaused = false
             endTime = SystemClock.elapsedRealtime() + remainingWhenPaused
-            startCountdownLoop()
+            startTimerJob()
         }
     }
 
@@ -57,13 +57,13 @@ class TimerEngine(
     fun isPaused(): Boolean = isPaused
     fun isRunning(): Boolean = endTime > 0L
 
-    private fun startCountdownLoop() {
+    private fun startTimerJob() {
         job?.cancel()
         job = scope.launch {
             while (isRunning() && !isPaused) {
                 val remaining = endTime - SystemClock.elapsedRealtime()
                 if (remaining <= 0) {
-                    listener.onCountdownFinished()
+                    listener.onIntervalFinished()
                     break
                 }
                 listener.onTimeUpdate(remaining)

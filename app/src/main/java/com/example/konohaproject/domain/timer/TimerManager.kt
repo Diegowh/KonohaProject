@@ -10,50 +10,51 @@ class TimerManager (
 ) : TimerEngine.Listener {
 
     private val timer = TimerEngine(scope, this)
-    private var currentCycle = 0
-    private var isFocusSession = false
+    private var currentRound = 0
+    private var isFocusInterval = false
 
     override fun onTimeUpdate(remaining: Long) {
         listener.onTimeUpdate(remaining)
     }
 
-    override fun onCountdownFinished() {
+    override fun onIntervalFinished() {
+        val intervalDuration: Long
         val totalRounds = TimerSettings.getTotalRounds(context)
-        if (isFocusSession) {
-            isFocusSession = false
-            val breakDuration = if (currentCycle == totalRounds) {
+        if (isFocusInterval) {
+            isFocusInterval = false
+            intervalDuration = if (currentRound == totalRounds) {
                 TimerSettings.longBreakTimeMillis(context)
             } else {
                 TimerSettings.shortBreakTimeMillis(context)
             }
-            start(breakDuration)
+            start(intervalDuration)
         } else {
-            isFocusSession = true
-            val focusDuration = TimerSettings.focusTimeMillis(context)
-            val isAutorun = TimerSettings.isAutorunEnabled(context)
-            val isLastRound = currentCycle >= totalRounds
+            isFocusInterval = true
+            intervalDuration = TimerSettings.focusTimeMillis(context)
+            val isAutorunEnabled = TimerSettings.isAutorunEnabled(context)
+            val isLastRound = currentRound >= totalRounds
 
             when {
                 !isLastRound -> {
-                    currentCycle++
-                    start(focusDuration)
+                    currentRound++
+                    start(intervalDuration)
                 }
-                isAutorun -> {
-                    currentCycle = 1
-                    start(focusDuration)
+                isAutorunEnabled -> {
+                    currentRound = 1
+                    start(intervalDuration)
                 }
                 else -> {
                     reset()
                 }
             }
         }
-        listener.onTimerFinished(currentCycle, isFocusSession)
+        listener.onIntervalFinished(currentRound, isFocusInterval)
     }
 
     fun start(durationMillis: Long) {
-        if (currentCycle == 0) {
-            currentCycle++
-            listener.onTimerFinished(currentCycle, true)
+        if (currentRound == 0) {
+            currentRound++
+            listener.onIntervalFinished(currentRound, true)
         }
         timer.reset()
         timer.start(durationMillis)
@@ -62,13 +63,13 @@ class TimerManager (
     fun pause() = timer.pause()
     fun resume() = timer.resume()
     fun reset() {
-        currentCycle = 0
+        currentRound = 0
         timer.reset()
     }
 
     fun getRemainingTime(): Long = timer.getRemainingTime()
     fun isPaused(): Boolean = timer.isPaused()
     fun isRunning(): Boolean = timer.isRunning()
-    fun getCurrentCycle(): Int = currentCycle
-    fun isFocusSession(): Boolean = isFocusSession
+    fun getCurrentRound(): Int = currentRound
+    fun isFocusInterval(): Boolean = isFocusInterval
 }

@@ -29,8 +29,8 @@ class TimerService : Service(), TimerController {
                 timeListener?.onTimeUpdate(remainingTime)
             }
 
-            override fun onTimerFinished(currentRound: Int, isFocus: Boolean) {
-                timeListener?.onTimerFinished(currentRound, isFocus)
+            override fun onIntervalFinished(currentRound: Int, isFocus: Boolean) {
+                timeListener?.onIntervalFinished(currentRound, isFocus)
             }
         })
     }
@@ -65,8 +65,8 @@ class TimerService : Service(), TimerController {
         timeListener = listener
     }
 
-    override fun getCurrentCycle(): Int = timerManager.getCurrentCycle()
-    override fun isFocusSession(): Boolean = timerManager.isFocusSession()
+    override fun getCurrentRound(): Int = timerManager.getCurrentRound()
+    override fun isFocusInterval(): Boolean = timerManager.isFocusInterval()
 
     companion object {
         const val ACTION_STOP = "STOP"

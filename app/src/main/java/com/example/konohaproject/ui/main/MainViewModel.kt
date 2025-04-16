@@ -118,7 +118,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), T
         _currentRound.postValue(0)
     }
 
-    override fun onTimerFinished(currentRound: Int, isFocus: Boolean) {
+    override fun onIntervalFinished(currentRound: Int, isFocus: Boolean) {
 
         // se calcula la duracion del siguiente ciclo en funcion del estado
         val totalRounds = TimerSettings.getTotalRounds(getApplication())
