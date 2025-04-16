@@ -37,3 +37,6 @@ Create a gamified time-management app inspired on the Naruto universe with a pro
 - Customizable focus/break cycles.
 - Include progress tracking and achievement stats.
 - The progression system will never use any gacha mechanics.
+
+### Sound effects
+bubble_tiny.wav by cdonahueucsd -- https://freesound.org/s/337131/ -- License: Attribution 4.0
