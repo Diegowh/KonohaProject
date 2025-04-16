@@ -12,14 +12,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.konohaproject.domain.timer.TimerState
 import com.example.konohaproject.domain.timer.TimerService
-import com.example.konohaproject.domain.timer.TimerController
 import com.example.konohaproject.domain.timer.TimerSettings
 import com.example.konohaproject.domain.timer.TimerUIEvent
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Locale
 
-data class CycleInfo(
+data class Interval(
     val currentRound: Int,
     val isFocus: Boolean,
     val nextDuration: Long
@@ -36,8 +35,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentRound = MutableLiveData<Int>()
     val currentRound: LiveData<Int> get() = _currentRound
 
-    private val _cycleInfo = MutableLiveData<CycleInfo>()
-    val cycleInfo: LiveData<CycleInfo> get() = _cycleInfo
+    private val _interval = MutableLiveData<Interval>()
+    val interval: LiveData<Interval> get() = _interval
 
     private val _resumedTime = MutableLiveData<Long>()
     val resumedTime: LiveData<Long> get() = _resumedTime
@@ -75,8 +74,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                     TimerSettings.shortBreakTimeMillis(getApplication())
                                 }
                             }
-                            _cycleInfo.postValue(
-                                CycleInfo(event.currentRound, event.isFocusInterval,
+                            _interval.postValue(
+                                Interval(event.currentRound, event.isFocusInterval,
                                     nextDuration))
                             _currentRound.postValue(event.currentRound)
                         }
@@ -120,6 +119,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             when {
                 controller.isPaused() -> {
                     val remaining = controller.getRemainingTime()
+
                     controller.resume()
                     _resumedTime.postValue(remaining)
                     _timerState.postValue(TimerState.Running)
