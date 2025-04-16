@@ -13,7 +13,6 @@ class TimerService : Service(), TimerController {
     private val binder = TimerBinder()
     private lateinit var serviceNotifier: ServiceNotifier
     private lateinit var intervalManager: IntervalManager
-    private var timeListener: TimeUpdateListener? = null
 
     private val serviceScope = CoroutineScope(Dispatchers.Default)
 
@@ -24,15 +23,7 @@ class TimerService : Service(), TimerController {
     override fun onCreate() {
         super.onCreate()
         serviceNotifier = ServiceNotifier(this)
-        intervalManager = IntervalManager(this, serviceScope, object : TimeUpdateListener {
-            override fun onTimeUpdate(remainingTime: Long) {
-                timeListener?.onTimeUpdate(remainingTime)
-            }
-
-            override fun onIntervalFinished(currentRound: Int, isFocus: Boolean) {
-                timeListener?.onIntervalFinished(currentRound, isFocus)
-            }
-        })
+        intervalManager = IntervalManager(this, serviceScope)
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
@@ -61,12 +52,10 @@ class TimerService : Service(), TimerController {
     override fun getRemainingTime(): Long = intervalManager.getRemainingTime()
     override fun isPaused(): Boolean = intervalManager.isPaused()
     override fun isRunning(): Boolean = intervalManager.isRunning()
-    override fun setTimeUpdateListener(listener: TimeUpdateListener?) {
-        timeListener = listener
-    }
-
     override fun getCurrentRound(): Int = intervalManager.getCurrentRound()
     override fun isFocusInterval(): Boolean = intervalManager.isFocusInterval()
+
+    fun getTimerEvents() = intervalManager.eventFlow
 
     companion object {
         const val ACTION_STOP = "STOP"
