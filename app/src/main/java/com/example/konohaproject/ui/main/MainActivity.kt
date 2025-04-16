@@ -1,4 +1,4 @@
-package com.example.konohaproject.view
+package com.example.konohaproject.ui.main
 
 import android.animation.ValueAnimator
 import android.content.res.Resources
@@ -10,10 +10,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.konohaproject.R
-import com.example.konohaproject.controller.ControlState
-import com.example.konohaproject.model.TimeConfig
+import com.example.konohaproject.domain.timer.TimerState
+import com.example.konohaproject.domain.timer.TimerSettings
 import com.example.konohaproject.databinding.ActivityMainBinding
-import com.example.konohaproject.viewmodel.MainViewModel
+import com.example.konohaproject.ui.components.ArcProgressDrawable
+import com.example.konohaproject.ui.settings.SettingsFragment
 
 class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
 
@@ -40,26 +41,26 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
             binding.txtTimer.text = timeText
         }
 
-        viewModel.controlState.observe(this) { state ->
+        viewModel.timerState.observe(this) { state ->
             when (state) {
-                ControlState.Running -> {
+                TimerState.Running -> {
                     binding.btnPlay.visibility = View.GONE
                     binding.btnReset.visibility = View.GONE
                     binding.btnPause.visibility = View.VISIBLE
                     // Se inicia la animación con el tiempo de Focus.
-                    startProgressAnimation(TimeConfig.focusTimeMillis(this))
+                    startProgressAnimation(TimerSettings.focusTimeMillis(this))
                 }
-                ControlState.Paused -> {
+                TimerState.Paused -> {
                     binding.btnPlay.visibility = View.VISIBLE
                     binding.btnReset.visibility = View.VISIBLE
                     binding.btnPause.visibility = View.GONE
                     pauseProgressAnimation()
                 }
-                ControlState.Stopped -> {
+                TimerState.Stopped -> {
                     binding.btnPlay.visibility = View.VISIBLE
                     binding.btnReset.visibility = View.VISIBLE
                     binding.btnPause.visibility = View.GONE
-                    binding.txtTimer.text = TimeConfig.initialDisplayTime(this, true)
+                    binding.txtTimer.text = TimerSettings.initialDisplayTime(this, true)
                     resetProgressAnimation()
                 }
             }
@@ -108,7 +109,7 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
 
 
     private fun initRoundCounterViews() {
-        val totalRounds = TimeConfig.getTotalRounds(this)
+        val totalRounds = TimerSettings.getTotalRounds(this)
         binding.roundCounterContainer.removeAllViews()
         roundViews.clear()
 

@@ -1,4 +1,4 @@
-package com.example.konohaproject.controller
+package com.example.konohaproject.domain.timer
 
 import android.os.SystemClock
 import kotlinx.coroutines.CoroutineScope
@@ -6,7 +6,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class CountdownTimer(
+class TimerEngine(
     private val scope: CoroutineScope,
     private val listener: Listener
 ) {

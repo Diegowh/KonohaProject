@@ -14,7 +14,7 @@
         android:theme="@style/Theme.KonohaProject"
         tools:targetApi="31">
         <activity
-            android:name=".view.MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".controller.CountdownService"
+            android:name=".domain.timer.TimerService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="shortService"/>

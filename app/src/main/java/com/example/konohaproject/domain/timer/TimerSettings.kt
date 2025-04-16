@@ -1,10 +1,10 @@
-package com.example.konohaproject.model
+package com.example.konohaproject.domain.timer
 
 import android.content.Context
 import android.content.SharedPreferences
 import java.util.Locale
 
-object TimeConfig {
+object TimerSettings {
     private const val PREFS_NAME = "timer_settings"
     private const val KEY_FOCUS = "focus_time"
     private const val KEY_SHORT_BREAK = "short_break"

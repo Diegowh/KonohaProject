@@ -1,5 +1,18 @@
 <resources>
     <string name="app_name">KonohaProject</string>
     <string name="minutes_format">%d min</string>
-    <string name="save">Guardar</string>
+    <string name="save">Save</string>
+    <string name="settings_description">Settings button</string>
+    <string name="character_selection_description">Character selection</string>
+    <string name="selected_character_description">Selected character</string>
+    <string name="pause_button_description">Pause button</string>
+    <string name="play_button_description">Play button</string>
+    <string name="reset_button_description">Reset button</string>
+    <string name="settings">Settings</string>
+    <string name="focus_time">Focus Time</string>
+    <string name="short_break">Short Break</string>
+    <string name="long_break">Long Break</string>
+    <string name="rounds">Rounds</string>
+    <string name="autorun">Autorun</string>
+    <string name="reset">Reset</string>
 </resources>

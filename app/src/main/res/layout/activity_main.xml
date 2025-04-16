@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_app_focus"
-    tools:context=".view.MainActivity">
+    tools:context=".ui.main.MainActivity">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,9 +20,10 @@
 
         <ImageButton
             android:id="@+id/btnSettings"
-            android:layout_width="46dp"
-            android:layout_height="46dp"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
             android:background="@drawable/round_button"
+            android:contentDescription="@string/settings_description"
             android:src="@drawable/ic_settings"
             android:backgroundTint="@color/background_app_focus"
             app:layout_constraintTop_toTopOf="parent"
@@ -32,10 +33,11 @@
             />
 
         <ImageButton
-            android:id="@+id/btnProfile"
-            android:layout_width="46dp"
-            android:layout_height="46dp"
+            android:id="@+id/btnCharacterSelect"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
             android:background="@drawable/round_button"
+            android:contentDescription="@string/character_selection_description"
             android:src="@drawable/ic_profile"
             android:backgroundTint="@color/background_app_focus"
             app:layout_constraintTop_toTopOf="parent"
@@ -74,6 +76,7 @@
             android:layout_width="280dp"
             android:layout_height="280dp"
             android:layout_marginTop="108dp"
+            android:contentDescription="@string/selected_character_description"
             android:src="@drawable/sakura_focus_crop"
             app:layout_constraintEnd_toEndOf="parent"
 
@@ -153,6 +156,7 @@
             android:layout_width="54dp"
             android:layout_height="54dp"
             android:background="@drawable/round_button"
+            android:contentDescription="@string/play_button_description"
             android:src="@drawable/ic_play"
             app:layout_constraintEnd_toStartOf="@+id/btnReset"
             app:layout_constraintTop_toTopOf="parent"
@@ -165,6 +169,7 @@
             android:layout_width="54dp"
             android:layout_height="54dp"
             android:background="@drawable/round_button"
+            android:contentDescription="@string/pause_button_description"
             android:src="@drawable/ic_pause"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -178,6 +183,7 @@
             android:layout_width="54dp"
             android:layout_height="54dp"
             android:background="@drawable/round_button"
+            android:contentDescription="@string/reset_button_description"
             android:src="@drawable/ic_reset"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/btnPlay"

@@ -1,8 +1,7 @@
-package com.example.konohaproject.controller
+package com.example.konohaproject.domain.timer
 
-import com.example.konohaproject.controller.CountdownService.TimeUpdateListener
+interface TimerController {
 
-interface CountdownController {
     fun start(durationMillis: Long)
     fun pause()
     fun resume()
@@ -13,6 +12,6 @@ interface CountdownController {
     fun setTimeUpdateListener(listener: TimeUpdateListener?)
     fun getCurrentCycle(): Int
     fun isFocusSession(): Boolean
-//    fun moveToNextSession()
+
 
 }
