@@ -66,21 +66,21 @@ class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
             }
         }
 
-        viewModel.cycleInfo.observe(this) { cycleInfo ->
+        viewModel.interval.observe(this) { interval ->
 
             resetProgressAnimation()
-            startProgressAnimation(cycleInfo.nextDuration)
-            val backgroundColor = if (cycleInfo.isFocus) {
+            startProgressAnimation(interval.nextDuration)
+            val backgroundColor = if (interval.isFocus) {
                 ContextCompat.getColor(this, R.color.background_app_focus)
             } else {
                 ContextCompat.getColor(this, R.color.background_app_break)
             }
             binding.main.setBackgroundColor(backgroundColor)
 
-            if (cycleInfo.isFocus) {
-                updateRoundUI(cycleInfo.currentRound)
+            if (interval.isFocus) {
+                updateRoundUI(interval.currentRound)
 
-                if (cycleInfo.currentRound == 0) {
+                if (interval.currentRound == 0) {
                     viewModel.onResetClicked()
                 }
             }
