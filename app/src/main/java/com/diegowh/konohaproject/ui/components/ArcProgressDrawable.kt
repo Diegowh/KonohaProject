@@ -1,10 +1,10 @@
-package com.example.konohaproject.ui.components
+package com.diegowh.konohaproject.ui.components
 
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import com.example.konohaproject.R
+import com.diegowh.konohaproject.R
 import kotlin.math.cos
 import kotlin.math.sin
 

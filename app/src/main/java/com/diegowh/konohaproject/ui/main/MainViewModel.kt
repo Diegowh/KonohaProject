@@ -1,4 +1,4 @@
-package com.example.konohaproject.ui.main
+package com.diegowh.konohaproject.ui.main
 
 import android.app.Application
 import android.content.ComponentName
@@ -10,11 +10,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.konohaproject.domain.timer.TimerState
-import com.example.konohaproject.domain.timer.TimerService
-import com.example.konohaproject.domain.timer.TimerSettings
-import com.example.konohaproject.domain.timer.TimerUIEvent
-import com.example.konohaproject.utils.SoundType
+import com.diegowh.konohaproject.domain.timer.TimerState
+import com.diegowh.konohaproject.domain.timer.TimerService
+import com.diegowh.konohaproject.domain.timer.TimerSettings
+import com.diegowh.konohaproject.domain.timer.TimerUIEvent
+import com.diegowh.konohaproject.utils.SoundType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

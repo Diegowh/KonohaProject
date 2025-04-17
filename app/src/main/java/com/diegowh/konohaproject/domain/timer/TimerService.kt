@@ -1,10 +1,10 @@
-package com.example.konohaproject.domain.timer
+package com.diegowh.konohaproject.domain.timer
 
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import com.example.konohaproject.utils.ServiceNotifier
+import com.diegowh.konohaproject.utils.ServiceNotifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 

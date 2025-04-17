@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.konohaproject"
+    namespace = "com.diegowh.konohaproject"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.konohaproject"
+        applicationId = "com.diegowh.konohaproject"
         minSdk = 26
         targetSdk = 35
         versionCode = 2

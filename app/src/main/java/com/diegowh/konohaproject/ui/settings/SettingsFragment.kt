@@ -1,4 +1,4 @@
-package com.example.konohaproject.ui.settings
+package com.diegowh.konohaproject.ui.settings
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.viewModels
-import com.example.konohaproject.R
-import com.example.konohaproject.databinding.FragmentSettingsListDialogBinding
+import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.databinding.FragmentSettingsListDialogBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 

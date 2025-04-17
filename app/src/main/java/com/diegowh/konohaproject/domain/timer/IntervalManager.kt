@@ -1,10 +1,9 @@
-package com.example.konohaproject.domain.timer
+package com.diegowh.konohaproject.domain.timer
 
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class IntervalManager (

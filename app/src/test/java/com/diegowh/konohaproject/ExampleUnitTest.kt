@@ -1,4 +1,4 @@
-package com.example.konohaproject
+package com.diegowh.konohaproject
 
 import org.junit.Test
 

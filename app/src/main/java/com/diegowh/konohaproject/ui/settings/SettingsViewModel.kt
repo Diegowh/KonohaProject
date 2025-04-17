@@ -1,8 +1,8 @@
-package com.example.konohaproject.ui.settings
+package com.diegowh.konohaproject.ui.settings
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.example.konohaproject.domain.timer.TimerSettings
+import com.diegowh.konohaproject.domain.timer.TimerSettings
 
 class SettingsViewModel : ViewModel() {
 

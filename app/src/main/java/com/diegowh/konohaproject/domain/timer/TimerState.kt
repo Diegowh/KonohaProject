@@ -1,4 +1,4 @@
-package com.example.konohaproject.domain.timer
+package com.diegowh.konohaproject.domain.timer
 
 sealed class TimerState {
     data object Running : TimerState()

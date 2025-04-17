@@ -1,4 +1,4 @@
-package com.example.konohaproject.ui.main
+package com.diegowh.konohaproject.ui.main
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -15,14 +15,13 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.konohaproject.R
-import com.example.konohaproject.domain.timer.TimerState
-import com.example.konohaproject.domain.timer.TimerSettings
-import com.example.konohaproject.databinding.ActivityMainBinding
-import com.example.konohaproject.ui.components.ArcProgressDrawable
-import com.example.konohaproject.ui.settings.SettingsFragment
-import com.example.konohaproject.utils.SoundType
-import kotlinx.coroutines.flow.collect
+import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.domain.timer.TimerState
+import com.diegowh.konohaproject.domain.timer.TimerSettings
+import com.diegowh.konohaproject.databinding.ActivityMainBinding
+import com.diegowh.konohaproject.ui.components.ArcProgressDrawable
+import com.diegowh.konohaproject.ui.settings.SettingsFragment
+import com.diegowh.konohaproject.utils.SoundType
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), SettingsFragment.SettingsListener {
