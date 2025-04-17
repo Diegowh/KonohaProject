@@ -37,6 +37,7 @@ class SettingsFragment : BottomSheetDialogFragment() {
         loadSavedPreferences()
         setupSeekBars()
         setupAutorunSwitch()
+        setupMuteSwitch()
         setupSaveButton()
         setupResetButton()
     }
@@ -80,6 +81,15 @@ class SettingsFragment : BottomSheetDialogFragment() {
             isChecked = viewModel.autorun
             setOnCheckedChangeListener { _, isChecked ->
                 viewModel.autorun = isChecked
+            }
+        }
+    }
+
+    private fun setupMuteSwitch() {
+        binding.btnMute.apply {
+            isChecked = viewModel.mute
+            setOnCheckedChangeListener { _, isChecked ->
+                viewModel.mute = isChecked
             }
         }
     }
@@ -153,10 +163,17 @@ class SettingsFragment : BottomSheetDialogFragment() {
                 updateRounds(it)
             }
 
-            defaults["autorun"]?.takeIf { it == 0 || it == 1 }?.let {
-                val autorunDefault: Boolean = (it == 1)
+            defaults["autorun"]?.let {
+                val autorunDefault= (it == 1)
                 viewModel.autorun = autorunDefault
                 binding.btnAutorun.isChecked = autorunDefault
+            }
+
+
+            defaults["mute"]?.let {
+                val muteDefault = (it == 1)
+                viewModel.mute = muteDefault
+                binding.btnMute.isChecked = muteDefault
             }
         }
     }

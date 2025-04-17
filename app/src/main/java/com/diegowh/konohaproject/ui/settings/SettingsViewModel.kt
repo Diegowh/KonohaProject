@@ -16,6 +16,7 @@ class SettingsViewModel : ViewModel() {
     var longBreakProgress: Int = 0
     var roundsProgress: Int = 0
     var autorun: Boolean = true
+    var mute: Boolean = false
 
     init {
         setupFocusValues()
@@ -82,7 +83,8 @@ class SettingsViewModel : ViewModel() {
             "shortBreak" to shortBreakValues.indexOf(TimerSettings.getDefaultShortBreak().toInt()),
             "longBreak" to longBreakValues.indexOf(TimerSettings.getDefaultLongBreak().toInt()),
             "rounds" to roundsValues.indexOf(TimerSettings.getDefaultRounds()),
-            "autorun" to if (TimerSettings.getDefaultAutorun()) 1 else 0 // quiero mantener el tipo del Map en String, Int
+            "autorun" to if (TimerSettings.getDefaultAutorun()) 1 else 0, // quiero mantener el tipo del Map en String, Int
+            "mute" to if(TimerSettings.getDefaultMute()) 1 else 0
         )
     }
 
@@ -100,6 +102,7 @@ class SettingsViewModel : ViewModel() {
         roundsProgress = roundsValues.indexOf(savedRounds).coerceAtLeast(0)
 
         autorun = TimerSettings.isAutorunEnabled(context)
+        mute = TimerSettings.isMuteEnabled(context)
 
     }
 
@@ -110,7 +113,8 @@ class SettingsViewModel : ViewModel() {
             shortBreak = shortBreakValues[shortBreakProgress].toLong(),
             longBreak = longBreakValues[longBreakProgress].toLong(),
             rounds = roundsValues[roundsProgress],
-            autorun = autorun
+            autorun = autorun,
+            mute = mute
         )
     }
 }
