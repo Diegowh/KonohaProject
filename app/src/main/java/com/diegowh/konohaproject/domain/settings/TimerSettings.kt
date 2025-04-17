@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.domain.timer
+package com.diegowh.konohaproject.domain.settings
 
 import android.content.Context
 import android.content.SharedPreferences
