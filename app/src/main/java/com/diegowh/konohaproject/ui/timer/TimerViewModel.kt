@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.ui.main
+package com.diegowh.konohaproject.ui.timer
 
 import android.app.Application
 import android.content.ComponentName
@@ -28,7 +28,7 @@ data class Interval(
     val nextDuration: Long
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class TimerViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _timerText = MutableLiveData<String>()
     val timerText: LiveData<String> get() = _timerText
@@ -83,7 +83,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             }
                             _interval.postValue(
                                 Interval(event.currentRound, event.isFocusInterval,
-                                    nextDuration))
+                                    nextDuration)
+                            )
                             _currentRound.postValue(event.currentRound)
 
                             _intervalSoundEvent.emit(SoundType.INTERVAL_CHANGE)
