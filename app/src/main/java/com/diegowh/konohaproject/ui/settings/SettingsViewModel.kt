@@ -78,14 +78,14 @@ class SettingsViewModel : ViewModel() {
         }
     }
 
-    fun getDefaultIndices(): Map<String, Int> {
-        return mapOf(
-            "focus" to focusValues.indexOf(TimerSettings.getDefaultFocus().toInt()),
-            "shortBreak" to shortBreakValues.indexOf(TimerSettings.getDefaultShortBreak().toInt()),
-            "longBreak" to longBreakValues.indexOf(TimerSettings.getDefaultLongBreak().toInt()),
-            "rounds" to roundsValues.indexOf(TimerSettings.getDefaultRounds()),
-            "autorun" to if (TimerSettings.getDefaultAutorun()) 1 else 0, // quiero mantener el tipo del Map en String, Int
-            "mute" to if(TimerSettings.getDefaultMute()) 1 else 0
+    fun getDefaultIndices(): DefaultSettings {
+        return DefaultSettings(
+            focusIdx = focusValues.indexOf(TimerSettings.getDefaultFocus().toInt()),
+            shortBreakIdx = shortBreakValues.indexOf(TimerSettings.getDefaultShortBreak().toInt()),
+            longBreakIdx = longBreakValues.indexOf(TimerSettings.getDefaultLongBreak().toInt()),
+            roundsIdx = roundsValues.indexOf(TimerSettings.getDefaultRounds()),
+            autorun = TimerSettings.getDefaultAutorun(),
+            mute = TimerSettings.getDefaultMute()
         )
     }
 

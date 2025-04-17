@@ -112,24 +112,37 @@ class SettingsFragment : BottomSheetDialogFragment() {
 
     private fun updateFocusTime(progress: Int) {
         val value = viewModel.focusValues[progress]
+        binding.seekBarFocusTime.progress = progress
         binding.txtFocusTime.text = getString(R.string.minutes_format, value)
     }
 
     private fun updateShortBreak(progress: Int) {
         val value = viewModel.shortBreakValues[progress]
+        binding.seekBarShortBreak.progress = progress
         binding.txtShortBreak.text = getString(R.string.minutes_format, value)
     }
 
     private fun updateLongBreak(progress: Int) {
         val value = viewModel.longBreakValues[progress]
+        binding.seekBarLongBreak.progress = progress
         binding.txtLongBreak.text = getString(R.string.minutes_format, value)
     }
 
     private fun updateRounds(progress: Int) {
         val value = viewModel.roundsValues[progress]
+        binding.seekBarRounds.progress = progress
         binding.txtRounds.text = String.format(Locale.US, "%d", value)
     }
 
+    private fun updateAutorun(state: Boolean) {
+        binding.btnAutorun.isChecked = state
+        viewModel.autorun = state
+    }
+
+    private fun updateMute(state: Boolean) {
+        binding.btnMute.isChecked = state
+        viewModel.mute = state
+    }
 
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
@@ -142,39 +155,13 @@ class SettingsFragment : BottomSheetDialogFragment() {
     private fun setupResetButton() {
         binding.btnReset.setOnClickListener {
             val defaults = viewModel.getDefaultIndices()
+            updateFocusTime(defaults.focusIdx)
+            updateShortBreak(defaults.shortBreakIdx)
+            updateLongBreak(defaults.longBreakIdx)
+            updateRounds(defaults.roundsIdx)
+            updateAutorun(defaults.autorun)
+            updateMute(defaults.mute)
 
-            defaults["focus"]?.takeIf { it != -1 }?.let {
-                binding.seekBarFocusTime.progress = it
-                updateFocusTime(it)
-            }
-
-            defaults["shortBreak"]?.takeIf { it != -1 }?.let {
-                binding.seekBarShortBreak.progress = it
-                updateShortBreak(it)
-            }
-
-            defaults["longBreak"]?.takeIf { it != -1 }?.let {
-                binding.seekBarLongBreak.progress = it
-                updateLongBreak(it)
-            }
-
-            defaults["rounds"]?.takeIf { it != -1 }?.let {
-                binding.seekBarRounds.progress = it
-                updateRounds(it)
-            }
-
-            defaults["autorun"]?.let {
-                val autorunDefault= (it == 1)
-                viewModel.autorun = autorunDefault
-                binding.btnAutorun.isChecked = autorunDefault
-            }
-
-
-            defaults["mute"]?.let {
-                val muteDefault = (it == 1)
-                viewModel.mute = muteDefault
-                binding.btnMute.isChecked = muteDefault
-            }
         }
     }
 
