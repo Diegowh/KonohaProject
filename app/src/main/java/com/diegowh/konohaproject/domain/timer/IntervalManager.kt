@@ -1,6 +1,7 @@
 package com.diegowh.konohaproject.domain.timer
 
 import android.content.Context
+import com.diegowh.konohaproject.domain.settings.TimerSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

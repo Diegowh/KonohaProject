@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.domain.timer
+package com.diegowh.konohaproject.domain.settings
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -11,6 +11,7 @@ object TimerSettings {
     private const val KEY_LONG_BREAK = "long_break"
     private const val KEY_ROUNDS = "total_rounds"
     private const val KEY_AUTO_RUN = "auto_run"
+    private const val KEY_MUTE = "mute"
 
 
     private const val DEFAULT_FOCUS = 25L
@@ -18,12 +19,14 @@ object TimerSettings {
     private const val DEFAULT_LONG_BREAK = 15L
     private const val DEFAULT_ROUNDS = 4
     private const val DEFAULT_AUTO_RUN = true
+    private const val DEFAULT_MUTE = false
 
     fun getDefaultFocus(): Long { return DEFAULT_FOCUS }
     fun getDefaultShortBreak(): Long { return DEFAULT_SHORT_BREAK }
     fun getDefaultLongBreak(): Long { return DEFAULT_LONG_BREAK }
     fun getDefaultRounds(): Int { return DEFAULT_ROUNDS }
     fun getDefaultAutorun(): Boolean { return DEFAULT_AUTO_RUN }
+    fun getDefaultMute(): Boolean { return DEFAULT_MUTE }
 
     fun getFocusMinutes(context: Context): Long {
         val prefs = getPrefs(context)
@@ -67,6 +70,9 @@ object TimerSettings {
         KEY_AUTO_RUN, DEFAULT_AUTO_RUN
     )
 
+    fun isMuteEnabled(context: Context): Boolean = getPrefs(context).getBoolean(
+        KEY_MUTE, DEFAULT_MUTE
+    )
 
 
     fun focusTimeMillis(context: Context) = minutesToMilliseconds(getFocusMinutes(context))
@@ -93,7 +99,8 @@ object TimerSettings {
         shortBreak: Long,
         longBreak: Long,
         rounds: Int,
-        autorun: Boolean
+        autorun: Boolean,
+        mute: Boolean
     ) {
         getPrefs(context).edit().apply {
             putLong(KEY_FOCUS, focus)
@@ -101,6 +108,7 @@ object TimerSettings {
             putLong(KEY_LONG_BREAK, longBreak)
             putInt(KEY_ROUNDS, rounds)
             putBoolean(KEY_AUTO_RUN, autorun)
+            putBoolean(KEY_MUTE, mute)
             apply()
         }
     }

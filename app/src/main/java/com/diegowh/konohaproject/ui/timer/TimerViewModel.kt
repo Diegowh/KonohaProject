@@ -12,7 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.domain.timer.TimerService
-import com.diegowh.konohaproject.domain.timer.TimerSettings
+import com.diegowh.konohaproject.domain.settings.TimerSettings
 import com.diegowh.konohaproject.domain.timer.TimerUIEvent
 import com.diegowh.konohaproject.utils.SoundType
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -87,7 +87,9 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                             )
                             _currentRound.postValue(event.currentRound)
 
-                            _intervalSoundEvent.emit(SoundType.INTERVAL_CHANGE)
+                            if (!TimerSettings.isMuteEnabled(getApplication())) {
+                                _intervalSoundEvent.emit(SoundType.INTERVAL_CHANGE)
+                            }
 
                         }
                     }
