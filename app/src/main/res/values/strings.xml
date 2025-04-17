@@ -15,4 +15,6 @@
     <string name="rounds">Rounds</string>
     <string name="autorun">Autorun</string>
     <string name="reset">Reset</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

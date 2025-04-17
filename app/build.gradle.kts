@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.konohaproject"
+    namespace = "com.diegowh.konohaproject"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.konohaproject"
+        applicationId = "com.diegowh.konohaproject"
         minSdk = 26
         targetSdk = 35
         versionCode = 2
@@ -48,6 +48,10 @@ dependencies {
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
