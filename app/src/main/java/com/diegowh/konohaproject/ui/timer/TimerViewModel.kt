@@ -10,12 +10,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.diegowh.konohaproject.domain.character.AnimationState
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.domain.timer.TimerService
 import com.diegowh.konohaproject.domain.settings.TimerSettings
 import com.diegowh.konohaproject.domain.timer.TimerUIEvent
-import com.diegowh.konohaproject.utils.SoundType
+import com.diegowh.konohaproject.utils.sound.SoundType
+import com.diegowh.konohaproject.utils.animation.AnimationAction
+import com.diegowh.konohaproject.utils.animation.AnimationState
+import com.diegowh.konohaproject.utils.timer.Interval
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -23,17 +25,9 @@ import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Locale
 
-sealed class AnimationAction {
-    data class Start(val fromFrame: Int? = null) : AnimationAction()
-    object Pause : AnimationAction()
-    object Stop  : AnimationAction()
-}
 
-data class Interval(
-    val currentRound: Int,
-    val isFocus: Boolean,
-    val nextDuration: Long
-)
+
+
 
 class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
