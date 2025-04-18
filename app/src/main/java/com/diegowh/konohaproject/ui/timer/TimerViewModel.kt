@@ -23,6 +23,12 @@ import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Locale
 
+sealed class AnimationAction {
+    data class Start(val fromFrame: Int? = null) : AnimationAction()
+    object Pause : AnimationAction()
+    object Stop  : AnimationAction()
+}
+
 data class Interval(
     val currentRound: Int,
     val isFocus: Boolean,
@@ -39,6 +45,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     private val _intervalSoundEvent = MutableSharedFlow<SoundType>()
     private val _totalRounds = MutableLiveData<Int>()
     private val _animationState = MutableLiveData<AnimationState>()
+    private val _animationAction = MutableLiveData<AnimationAction>()
 
     val timerText: LiveData<String> get() = _timerText
     val timerState: LiveData<TimerState> get() = _timerState
@@ -48,13 +55,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
     val totalRounds: LiveData<Int> get() = _totalRounds
     val animationState: LiveData<AnimationState> = _animationState
+    val animationAction: LiveData<AnimationAction> = _animationAction
 
     /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
     * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
     * memoria (cosa que tampoco llegue a comprobar, pero me avisaba el IDE)
     * De esta manera el colector de basura no tendra problemas para liberarlo si fuese necesario */
     private var countdownController: WeakReference<TimerService>? = null
-
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as TimerService.TimerBinder
@@ -80,6 +87,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
             updateUIWithCurrentState(controller)
+            _animationAction.postValue(AnimationAction.Stop)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -141,10 +149,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 controller.isPaused() -> {
                     controller.resume()
                     _resumedTime.postValue(controller.getRemainingTime())
+                    val lastFrame = _animationState.value?.currentFrame
+                    _animationAction.postValue(AnimationAction.Start(fromFrame = lastFrame))
                     _timerState.postValue(TimerState.Running)
                 }
                 !controller.isRunning() -> {
                     controller.start(TimerSettings.focusTimeMillis(getApplication()))
+                    _animationAction.postValue(AnimationAction.Start())
                     _timerState.postValue(TimerState.Running)
                 }
             }
@@ -154,6 +165,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     fun onPauseClicked() {
         countdownController?.get()?.let { controller ->
             controller.pause()
+            _animationAction.postValue(AnimationAction.Pause)
             _timerState.postValue(TimerState.Paused)
         }
     }
@@ -165,6 +177,8 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             _timerText.postValue(TimerSettings.initialDisplayTime(getApplication(), true))
             _currentRound.postValue(0)
             _totalRounds.postValue(TimerSettings.getTotalRounds(getApplication()))
+            _animationAction.postValue(AnimationAction.Stop)
+            _animationState.postValue(AnimationState(0, isPaused = false))
 
         }
     }

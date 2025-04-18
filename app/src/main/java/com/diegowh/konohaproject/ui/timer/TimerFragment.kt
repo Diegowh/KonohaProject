@@ -85,23 +85,13 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                         btnPlay.visibility = View.GONE
                         btnReset.visibility = View.GONE
                         btnPause.visibility = View.VISIBLE
-                        val savedState = viewModel.animationState.value
-                        if (savedState?.isPaused == true) {
-                            animator?.start(savedState.currentFrame)
-                        } else {
-                            animator?.start()
-                        }
                     }
                     TimerState.Paused -> {
                         btnPlay.visibility = View.VISIBLE
                         btnReset.visibility = View.VISIBLE
                         btnPause.visibility = View.GONE
                         pauseProgressAnimation()
-                        animator?.pause()
-                        viewModel.updateAnimationState(
-                            animator?.currentFrame ?: 0,
-                            isPaused = true
-                        )
+
                     }
                     TimerState.Stopped -> {
                         btnPlay.visibility = View.VISIBLE
@@ -109,8 +99,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                         btnPause.visibility = View.GONE
                         resetProgressAnimation()
                         resetBackgroundColor()
-                        animator?.stop()
-                        viewModel.updateAnimationState(0, isPaused = false)
                     }
                 }
             }
@@ -129,16 +117,32 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             if (interval.isFocus) updateRoundUI(interval.currentRound)
         }
 
+        viewModel.totalRounds.observe(viewLifecycleOwner) { initRoundCounterViews(it) }
         viewModel.currentRound.observe(viewLifecycleOwner) { updateRoundUI(it) }
 
         viewModel.resumedTime.observe(viewLifecycleOwner) { startProgressAnimation(it) }
-
-        viewModel.totalRounds.observe(viewLifecycleOwner) { initRoundCounterViews(it) }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.intervalSoundEvent.collect { type ->
                     if (type == SoundType.INTERVAL_CHANGE) soundPlayer.play(type)
+                }
+            }
+        }
+
+        viewModel.animationAction.observe(viewLifecycleOwner) { action ->
+            when (action) {
+                is AnimationAction.Start -> {
+                    action.fromFrame?.let { animator?.start(it) } ?: animator?.start()
+                }
+                AnimationAction.Pause -> {
+                    animator?.pause()
+
+                    val cf = animator?.currentFrame ?: 0
+                    viewModel.updateAnimationState(cf, isPaused = true)
+                }
+                AnimationAction.Stop -> {
+                    animator?.stop()
                 }
             }
         }
