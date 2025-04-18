@@ -1,10 +1,9 @@
-package com.diegowh.konohaproject.utils
+package com.diegowh.konohaproject.utils.service
 
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
 import androidx.core.app.NotificationCompat
 
 class ServiceNotifier(private val context: Context) {
@@ -28,7 +27,7 @@ class ServiceNotifier(private val context: Context) {
             description = "Notificación para el contador en segundo plano"
             setShowBadge(false)
         }
-        (context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
             .createNotificationChannel(channel)
     }
 

@@ -3,7 +3,7 @@ package com.diegowh.konohaproject.domain.sound
 import android.content.Context
 import android.media.AudioManager
 import android.media.SoundPool
-import com.diegowh.konohaproject.utils.SoundType
+import com.diegowh.konohaproject.utils.sound.SoundType
 
 class SoundPlayer(private val context: Context) {
 
