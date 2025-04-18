@@ -28,25 +28,24 @@ data class Interval(
     val nextDuration: Long
 )
 
-class TimerViewModel(application: Application) : AndroidViewModel(application) {
+class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _timerText = MutableLiveData<String>()
-    val timerText: LiveData<String> get() = _timerText
-
     private val _timerState = MutableLiveData<TimerState>()
-    val timerState: LiveData<TimerState> get() = _timerState
-
     private val _currentRound = MutableLiveData<Int>()
-    val currentRound: LiveData<Int> get() = _currentRound
-
     private val _interval = MutableLiveData<Interval>()
-    val interval: LiveData<Interval> get() = _interval
-
     private val _resumedTime = MutableLiveData<Long>()
-    val resumedTime: LiveData<Long> get() = _resumedTime
-
     private val _intervalSoundEvent = MutableSharedFlow<SoundType>()
+    private val _totalRounds = MutableLiveData<Int>()
+
+    val timerText: LiveData<String> get() = _timerText
+    val timerState: LiveData<TimerState> get() = _timerState
+    val currentRound: LiveData<Int> get() = _currentRound
+    val interval: LiveData<Interval> get() = _interval
+    val resumedTime: LiveData<Long> get() = _resumedTime
     val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
+    val totalRounds: LiveData<Int> get() = _totalRounds
+
 
     /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
     * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
@@ -64,33 +63,16 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
                 controller.getTimerEvents().collect { event ->
                     when (event) {
                         is TimerUIEvent.TimeUpdate -> {
-                            val totalSeconds = (event.remainingMillis + 500) / 1000
-                            val minutes = totalSeconds / 60
-                            val seconds = totalSeconds % 60
-                            val text = String.format(Locale.US, "%02d:%02d", minutes, seconds)
-                            _timerText.postValue(text)
+                            _timerText.postValue(formatTime(event.remainingMillis))
                         }
                         is TimerUIEvent.IntervalFinished -> {
-                            val totalRounds = TimerSettings.getTotalRounds(getApplication())
-                            val nextDuration = if (event.isFocusInterval) {
-                                TimerSettings.focusTimeMillis(getApplication())
-                            } else {
-                                if (event.currentRound == totalRounds) {
-                                    TimerSettings.longBreakTimeMillis(getApplication())
-                                } else {
-                                    TimerSettings.shortBreakTimeMillis(getApplication())
-                                }
-                            }
-                            _interval.postValue(
-                                Interval(event.currentRound, event.isFocusInterval,
-                                    nextDuration)
-                            )
+                            val nextDuration = calculateNextDuration(event.currentRound, event.isFocusInterval)
+                            _interval.postValue(Interval(event.currentRound, event.isFocusInterval, nextDuration))
                             _currentRound.postValue(event.currentRound)
 
                             if (!TimerSettings.isMuteEnabled(getApplication())) {
                                 _intervalSoundEvent.emit(SoundType.INTERVAL_CHANGE)
                             }
-
                         }
                     }
                 }
@@ -104,27 +86,47 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     init {
-        val intent = Intent(getApplication(), TimerService::class.java)
-        getApplication<Application>().bindService(
-            intent,
-            serviceConnection,
-            Context.BIND_AUTO_CREATE
-        )
+        Intent(getApplication(), TimerService::class.java).also { intent ->
+            getApplication<Application>().bindService(
+                intent,
+                serviceConnection,
+                Context.BIND_AUTO_CREATE
+            )
+        }
 
         _timerText.value = TimerSettings.initialDisplayTime(getApplication(), true)
         _timerState.value = TimerState.Stopped
         _currentRound.value = 0
+        _totalRounds.value = TimerSettings.getTotalRounds(getApplication())
+    }
+
+    private fun formatTime(remainingMillis: Long): String {
+        val totalSeconds = (remainingMillis + 500) / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format(Locale.US, "%02d:%02d", minutes, seconds)
+    }
+
+    private fun calculateNextDuration(currentRound: Int, wasFocus: Boolean): Long {
+        return if (wasFocus) {
+            TimerSettings.focusTimeMillis(getApplication())
+        } else {
+            if (currentRound == (_totalRounds.value ?: 0)) {
+                TimerSettings.longBreakTimeMillis(getApplication())
+            } else {
+                TimerSettings.shortBreakTimeMillis(getApplication())
+            }
+        }
     }
 
     private fun updateUIWithCurrentState(controller: TimerService) {
-        when {
-            controller.isRunning() && !controller.isPaused() ->
-                _timerState.postValue(TimerState.Running)
-            controller.isPaused() ->
-                _timerState.postValue(TimerState.Paused)
-            else ->
-                _timerState.postValue(TimerState.Stopped)
-        }
+        _timerState.postValue(
+            when {
+                controller.isRunning() && !controller.isPaused() -> TimerState.Running
+                controller.isPaused() -> TimerState.Paused
+                else -> TimerState.Stopped
+            }
+        )
     }
 
     fun onPlayClicked() {
@@ -132,7 +134,6 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
             when {
                 controller.isPaused() -> {
                     val remaining = controller.getRemainingTime()
-
                     controller.resume()
                     _resumedTime.postValue(remaining)
                     _timerState.postValue(TimerState.Running)

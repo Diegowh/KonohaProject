@@ -13,6 +13,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
@@ -28,13 +29,11 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: TimerViewModel by viewModels({ requireActivity() })
 
     private var progressAnimator: ValueAnimator? = null
     private var currentProgress: Int = 0
     private val roundViews = mutableListOf<View>()
-
     private var soundPool: SoundPool? = null
     private var soundId: Int = 0
 
@@ -45,16 +44,14 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
         requireActivity()
             .onBackPressedDispatcher
             .addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    // nadaa
-                }
+                override fun handleOnBackPressed() { /* nada */ }
             })
+
         soundPool = SoundPool.Builder().setMaxStreams(2).build().also {
             soundId = it.load(requireContext(), R.raw.bubble_tiny, 1)
         }
 
         initProgressArc()
-        initRoundCounterViews()
         observeViewModel()
         setupListeners()
     }
@@ -80,8 +77,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
                         btnPlay.visibility = View.VISIBLE
                         btnReset.visibility = View.VISIBLE
                         btnPause.visibility = View.GONE
-                        txtTimer.text = TimerSettings.initialDisplayTime(requireContext(), true)
                         resetProgressAnimation()
+                        resetBackgroundColor()
                     }
                 }
             }
@@ -93,7 +90,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
             binding.main.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    if (interval.isFocus) R.color.background_app_focus else R.color.background_app_break
+                    if (interval.isFocus) R.color.background_app_focus
+                    else R.color.background_app_break
                 )
             )
             if (interval.isFocus) updateRoundUI(interval.currentRound)
@@ -103,8 +101,12 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
 
         viewModel.resumedTime.observe(viewLifecycleOwner) { startProgressAnimation(it) }
 
+        viewModel.totalRounds.observe(viewLifecycleOwner) { total ->
+            initRoundCounterViews(total)
+        }
+
         lifecycleScope.launch {
-            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.intervalSoundEvent.collect { type ->
                     if (type == SoundType.INTERVAL_CHANGE) playIntervalChangeSound()
                 }
@@ -115,10 +117,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
     private fun setupListeners() {
         binding.btnPlay.setOnClickListener { viewModel.onPlayClicked() }
         binding.btnPause.setOnClickListener { viewModel.onPauseClicked() }
-        binding.btnReset.setOnClickListener {
-            resetBackgroundColor()
-            viewModel.onResetClicked()
-        }
+        binding.btnReset.setOnClickListener { viewModel.onResetClicked() }
         binding.btnSettings.setOnClickListener {
             binding.btnSettings.isEnabled = false
             viewModel.onPauseClicked()
@@ -138,8 +137,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
         )
     }
 
-    private fun initRoundCounterViews() {
-        val total = TimerSettings.getTotalRounds(requireContext())
+    private fun initRoundCounterViews(total: Int) {
         binding.roundCounterContainer.removeAllViews()
         roundViews.clear()
 
@@ -152,16 +150,14 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
                     if (idx < total - 1) marginEnd = margin
                 }
                 setBackgroundResource(R.drawable.round_button)
-                backgroundTintList = ContextCompat
-                    .getColorStateList(context, R.color.button_secondary)
+                backgroundTintList =
+                    ContextCompat.getColorStateList(context, R.color.button_secondary)
 
                 binding.roundCounterContainer.addView(this)
                 roundViews.add(this)
             }
         }
     }
-
-    private fun Int.dpToPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
     private fun initProgressArc() {
         binding.progressBar.apply {
@@ -192,6 +188,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
         binding.progressBar.progress = 0
     }
 
+    private fun Int.dpToPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
+
     private fun updateRoundUI(cycle: Int) {
         val active = ContextCompat.getColorStateList(requireContext(), R.color.button_primary)
         val inactive = ContextCompat.getColorStateList(requireContext(), R.color.button_secondary)
@@ -199,11 +197,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
     }
 
     override fun onSettingsChanged(
-        focusTime: Int, shortBreak: Int, longBreak: Int, rounds: Int
-    ) {
-        resetBackgroundColor()
+        focusTime: Int, shortBreak: Int, longBreak: Int, rounds: Int ) {
         viewModel.onResetClicked()
-        initRoundCounterViews()
     }
 
     override fun onDismiss() {
