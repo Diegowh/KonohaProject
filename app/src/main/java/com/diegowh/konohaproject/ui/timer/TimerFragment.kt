@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
+import com.diegowh.konohaproject.domain.character.CharacterAnimator
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.ui.components.ArcProgressDrawable
@@ -33,6 +34,15 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     private var currentProgress: Int = 0
     private val roundViews = mutableListOf<View>()
 
+    private var animator: CharacterAnimator? = null
+    private val animationFrames = listOf(
+        R.drawable.sakura_crop,
+        R.drawable.losiento1,
+        R.drawable.losiento2,
+        R.drawable.losiento3,
+        R.drawable.losiento4
+    )
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentTimerBinding.bind(view)
@@ -45,6 +55,13 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             loadSound(SoundType.INTERVAL_CHANGE, R.raw.bubble_tiny)
         }
 
+        animator = CharacterAnimator(
+            binding.imgCharacter,
+            animationFrames,
+            viewLifecycleOwner.lifecycleScope,
+            1f
+        )
+
         initProgressArc()
         observeViewModel()
         setupListeners()
@@ -53,6 +70,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     override fun onDestroyView() {
         super.onDestroyView()
         soundPlayer.release()
+        animator?.stop()
+        animator = null
         _binding = null
     }
 
@@ -72,6 +91,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                         btnReset.visibility = View.VISIBLE
                         btnPause.visibility = View.GONE
                         pauseProgressAnimation()
+
                     }
                     TimerState.Stopped -> {
                         btnPlay.visibility = View.VISIBLE
@@ -97,16 +117,32 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             if (interval.isFocus) updateRoundUI(interval.currentRound)
         }
 
+        viewModel.totalRounds.observe(viewLifecycleOwner) { initRoundCounterViews(it) }
         viewModel.currentRound.observe(viewLifecycleOwner) { updateRoundUI(it) }
 
         viewModel.resumedTime.observe(viewLifecycleOwner) { startProgressAnimation(it) }
-
-        viewModel.totalRounds.observe(viewLifecycleOwner) { initRoundCounterViews(it) }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.intervalSoundEvent.collect { type ->
                     if (type == SoundType.INTERVAL_CHANGE) soundPlayer.play(type)
+                }
+            }
+        }
+
+        viewModel.animationAction.observe(viewLifecycleOwner) { action ->
+            when (action) {
+                is AnimationAction.Start -> {
+                    action.fromFrame?.let { animator?.start(it) } ?: animator?.start()
+                }
+                AnimationAction.Pause -> {
+                    animator?.pause()
+
+                    val cf = animator?.currentFrame ?: 0
+                    viewModel.updateAnimationState(cf, isPaused = true)
+                }
+                AnimationAction.Stop -> {
+                    animator?.stop()
                 }
             }
         }
