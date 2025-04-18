@@ -22,7 +22,7 @@ import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import com.diegowh.konohaproject.utils.SoundType
 import kotlinx.coroutines.launch
 
-class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.SettingsListener {
+class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
@@ -101,9 +101,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
 
         viewModel.resumedTime.observe(viewLifecycleOwner) { startProgressAnimation(it) }
 
-        viewModel.totalRounds.observe(viewLifecycleOwner) { total ->
-            initRoundCounterViews(total)
-        }
+        viewModel.totalRounds.observe(viewLifecycleOwner) { initRoundCounterViews(it) }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -121,7 +119,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
         binding.btnSettings.setOnClickListener {
             binding.btnSettings.isEnabled = false
             viewModel.onPauseClicked()
-            SettingsFragment.newInstance().show(childFragmentManager, "SettingsDialog")
+            SettingsFragment().show(childFragmentManager, "SettingsDialog")
         }
     }
 
@@ -191,9 +189,9 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
         roundViews.forEachIndexed { i, v -> v.backgroundTintList = if (i < cycle) active else inactive }
     }
 
-    override fun onSettingsChanged(
-        focusTime: Int, shortBreak: Int, longBreak: Int, rounds: Int ) {
+    override fun onSettingsChanged() {
         viewModel.onResetClicked()
+        resetBackgroundColor()
     }
 
     override fun onDismiss() {
