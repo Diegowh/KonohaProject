@@ -158,6 +158,8 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             _timerState.postValue(TimerState.Stopped)
             _timerText.postValue(TimerSettings.initialDisplayTime(getApplication(), true))
             _currentRound.postValue(0)
+            _totalRounds.postValue(TimerSettings.getTotalRounds(getApplication()))
+
         }
     }
 
