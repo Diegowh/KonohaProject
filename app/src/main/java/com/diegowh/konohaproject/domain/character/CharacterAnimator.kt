@@ -1,11 +1,13 @@
 package com.diegowh.konohaproject.domain.character
 
+import android.os.SystemClock
 import android.widget.ImageView
 import androidx.lifecycle.LifecycleCoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 data class AnimationState(val currentFrame: Int, val isPaused: Boolean)
 
@@ -24,12 +26,14 @@ class CharacterAnimator(
     fun start(startFrame: Int = 0) {
         stop()
         currentFrame = startFrame
+        val framePeriod = (1000f / fps).toLong()
         animationJob = scope.launch {
             while (isActive) {
-                if (!isPaused) {
-                    updateFrame()
-                }
-                delay((1000 / fps).toLong())
+                val frameStart = SystemClock.elapsedRealtime()
+                if (!isPaused) updateFrame()
+
+                val workTime = SystemClock.elapsedRealtime() - frameStart
+                delay(max(0, framePeriod - workTime))
             }
         }
     }
@@ -44,10 +48,6 @@ class CharacterAnimator(
 
     fun pause() {
         isPaused = true
-    }
-
-    fun resume() {
-        isPaused = false
     }
 
     fun setFps(newFps: Float) {

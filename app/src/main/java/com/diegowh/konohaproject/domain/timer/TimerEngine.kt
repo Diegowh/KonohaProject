@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 class TimerEngine(private val scope: CoroutineScope) {
 
@@ -61,6 +62,7 @@ class TimerEngine(private val scope: CoroutineScope) {
     private fun startTimerJob() {
         job?.cancel()
         job = scope.launch {
+            var nextEmit = SystemClock.elapsedRealtime()
             while (isRunning() && !isPaused) {
                 val remaining = endTime - SystemClock.elapsedRealtime()
                 if (remaining <= 0) {
@@ -68,7 +70,9 @@ class TimerEngine(private val scope: CoroutineScope) {
                     break
                 }
                 _timeFlow.emit(remaining)
-                delay(1000)
+                nextEmit += 1000L
+                val wait = nextEmit - SystemClock.elapsedRealtime()
+                delay(max(0, wait))
             }
         }
     }
