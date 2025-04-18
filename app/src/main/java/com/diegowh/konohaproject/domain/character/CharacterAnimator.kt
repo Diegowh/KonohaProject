@@ -51,10 +51,12 @@ class CharacterAnimator(
     }
 
     fun setFps(newFps: Float) {
+        val wasPaused = isPaused
+        val frameToShow = currentFrame
         fps = newFps
-        if (animationJob?.isActive == true) {
-            start()
-        }
+        animationJob?.takeIf { it.isActive }?.cancel()
+        start(frameToShow)
+        if (wasPaused) pause()
     }
 
     private fun updateFrame() {

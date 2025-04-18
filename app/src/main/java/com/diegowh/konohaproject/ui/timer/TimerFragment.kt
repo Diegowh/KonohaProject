@@ -59,7 +59,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             binding.imgCharacter,
             animationFrames,
             viewLifecycleOwner.lifecycleScope,
-            1f
         )
 
         initProgressArc()

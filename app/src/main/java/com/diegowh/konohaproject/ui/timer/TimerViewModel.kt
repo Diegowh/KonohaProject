@@ -25,8 +25,8 @@ import java.util.Locale
 
 sealed class AnimationAction {
     data class Start(val fromFrame: Int? = null) : AnimationAction()
-    object Pause : AnimationAction()
-    object Stop  : AnimationAction()
+    data object Pause : AnimationAction()
+    data object Stop  : AnimationAction()
 }
 
 data class Interval(
