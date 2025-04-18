@@ -2,194 +2,154 @@ package com.diegowh.konohaproject.ui.settings
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.SeekBar
-import androidx.fragment.app.viewModels
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentSettingsListDialogBinding
+import com.diegowh.konohaproject.domain.settings.TimerSettings
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 
-class SettingsFragment : BottomSheetDialogFragment() {
+class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_list_dialog) {
 
     private var _binding: FragmentSettingsListDialogBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: SettingsViewModel by viewModels()
+    private var listener: Listener? = null
 
-    interface SettingsListener {
-        fun onSettingsChanged(focusTime: Int, shortBreak: Int, longBreak: Int, rounds: Int)
-        fun onDismiss();
-    }
+    private val focusOptions = getFocusValues()
+    private val shortBreakOptions = getShortBreakValues()
+    private val longBreakOptions = getLongBreakValues()
+    private val roundsOptions = getRoundValues()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentSettingsListDialogBinding.inflate(inflater, container, false)
-        return binding.root
+    private var selectedFocus: Int = 0
+    private var selectedShortBreak: Int = 0
+    private var selectedLongBreak: Int = 0
+    private var selectedRounds: Int = 2
+    private var autorunEnabled: Boolean = true
+    private var muteEnabled: Boolean = false
+
+    interface Listener {
+        fun onSettingsChanged()
+        fun onDismiss()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadSavedPreferences()
-        setupSeekBars()
-        setupAutorunSwitch()
-        setupMuteSwitch()
-        setupSaveButton()
-        setupResetButton()
+        _binding = FragmentSettingsListDialogBinding.bind(view)
+        listener = parentFragment as? Listener ?: activity as? Listener
+        loadPreferences()
+        initUi()
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
-    private fun setupSeekBars() {
-        with(binding) {
-            seekBarFocusTime.apply {
-                max = viewModel.focusValues.size - 1
-                progress = viewModel.focusProgress
-                setOnSeekBarChangeListener(createSeekBarListener(::updateFocusTime))
-            }
+    private fun loadPreferences() {
 
-            seekBarShortBreak.apply {
-                max = viewModel.shortBreakValues.size - 1
-                progress = viewModel.shortBreakProgress
-                setOnSeekBarChangeListener(createSeekBarListener(::updateShortBreak))
-            }
-
-            seekBarLongBreak.apply {
-                max = viewModel.longBreakValues.size - 1
-                progress = viewModel.longBreakProgress
-                setOnSeekBarChangeListener(createSeekBarListener(::updateLongBreak))
-            }
-
-            seekBarRounds.apply {
-                max = viewModel.roundsValues.size - 1
-                progress = viewModel.roundsProgress
-                setOnSeekBarChangeListener(createSeekBarListener(::updateRounds))
-            }
-        }
+        selectedFocus = TimerSettings.getFocusMinutes(requireContext()).toInt()
+        selectedShortBreak = TimerSettings.getShortBreakMinutes(requireContext()).toInt()
+        selectedLongBreak = TimerSettings.getLongBreakMinutes(requireContext()).toInt()
+        selectedRounds = TimerSettings.getTotalRounds(requireContext())
+        autorunEnabled = TimerSettings.isAutorunEnabled(requireContext())
+        muteEnabled = TimerSettings.isMuteEnabled(requireContext())
     }
 
-    private fun setupAutorunSwitch() {
-        binding.btnAutorun.apply {
-            isChecked = viewModel.autorun
-            setOnCheckedChangeListener { _, isChecked ->
-                viewModel.autorun = isChecked
-            }
-        }
+    private fun initUi() = with(binding) {
+
+        seekBarFocusTime.max = focusOptions.size - 1
+        seekBarFocusTime.setOnSeekBarChangeListener(changeListener { p ->
+            txtFocusTime.text = getString(R.string.minutes_format, focusOptions[p])
+            selectedFocus = focusOptions[p]
+        })
+
+        seekBarShortBreak.max = shortBreakOptions.size - 1
+        seekBarShortBreak.setOnSeekBarChangeListener(changeListener { p ->
+            txtShortBreak.text = getString(R.string.minutes_format, shortBreakOptions[p])
+            selectedShortBreak = shortBreakOptions[p]
+        })
+
+        seekBarLongBreak.max = longBreakOptions.size - 1
+         seekBarLongBreak.setOnSeekBarChangeListener(changeListener { p ->
+            txtLongBreak.text = getString(R.string.minutes_format, longBreakOptions[p])
+            selectedLongBreak = longBreakOptions[p]
+        })
+
+        seekBarRounds.max = roundsOptions.size - 1
+         seekBarRounds.setOnSeekBarChangeListener(changeListener { p ->
+            txtRounds.text = String.format(Locale.US, "%d", roundsOptions[p])
+            selectedRounds = roundsOptions[p]
+        })
+
+        btnAutorun.setOnCheckedChangeListener { _, checked -> autorunEnabled = checked }
+        btnMute.setOnCheckedChangeListener { _, checked -> muteEnabled = checked }
+
+        btnSave.setOnClickListener { handleSave() }
+        btnReset.setOnClickListener { handleReset() }
+        updateUi()
     }
 
-    private fun setupMuteSwitch() {
-        binding.btnMute.apply {
-            isChecked = viewModel.mute
-            setOnCheckedChangeListener { _, isChecked ->
-                viewModel.mute = isChecked
-            }
-        }
-    }
+    private fun updateUi() = with(binding) {
+        seekBarFocusTime.progress = focusOptions.indexOf(selectedFocus).coerceAtLeast(0)
+        seekBarShortBreak.progress = shortBreakOptions.indexOf(selectedShortBreak).coerceAtLeast(0)
+        seekBarLongBreak.progress = longBreakOptions.indexOf(selectedLongBreak).coerceAtLeast(0)
+        seekBarRounds.progress = roundsOptions.indexOf(selectedRounds).coerceAtLeast(0)
 
-    private fun createSeekBarListener(updateFunction: (Int) -> Unit): SeekBar.OnSeekBarChangeListener {
-        return object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                when (seekBar) {
-                    binding.seekBarFocusTime -> viewModel.focusProgress = progress
-                    binding.seekBarShortBreak -> viewModel.shortBreakProgress = progress
-                    binding.seekBarLongBreak -> viewModel.longBreakProgress = progress
-                    binding.seekBarRounds -> viewModel.roundsProgress = progress
-                }
-                updateFunction(progress)
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        }
-    }
+        txtFocusTime.text = getString(R.string.minutes_format, selectedFocus)
+        txtShortBreak.text = getString(R.string.minutes_format, selectedShortBreak)
+        txtLongBreak.text = getString(R.string.minutes_format, selectedLongBreak)
+        txtRounds.text = String.format(Locale.US, "%d", selectedRounds)
 
-    private fun updateFocusTime(progress: Int) {
-        val value = viewModel.focusValues[progress]
-        binding.seekBarFocusTime.progress = progress
-        binding.txtFocusTime.text = getString(R.string.minutes_format, value)
-    }
-
-    private fun updateShortBreak(progress: Int) {
-        val value = viewModel.shortBreakValues[progress]
-        binding.seekBarShortBreak.progress = progress
-        binding.txtShortBreak.text = getString(R.string.minutes_format, value)
-    }
-
-    private fun updateLongBreak(progress: Int) {
-        val value = viewModel.longBreakValues[progress]
-        binding.seekBarLongBreak.progress = progress
-        binding.txtLongBreak.text = getString(R.string.minutes_format, value)
-    }
-
-    private fun updateRounds(progress: Int) {
-        val value = viewModel.roundsValues[progress]
-        binding.seekBarRounds.progress = progress
-        binding.txtRounds.text = String.format(Locale.US, "%d", value)
-    }
-
-    private fun updateAutorun(state: Boolean) {
-        binding.btnAutorun.isChecked = state
-        viewModel.autorun = state
-    }
-
-    private fun updateMute(state: Boolean) {
-        binding.btnMute.isChecked = state
-        viewModel.mute = state
-    }
-
-    private fun setupSaveButton() {
-        binding.btnSave.setOnClickListener {
-            viewModel.savePreferences(requireContext())
-            notifySettingsChanged()
-            dismiss()
-        }
-    }
-
-    private fun setupResetButton() {
-        binding.btnReset.setOnClickListener {
-            val defaults = viewModel.getDefaultIndices()
-            updateFocusTime(defaults.focusIdx)
-            updateShortBreak(defaults.shortBreakIdx)
-            updateLongBreak(defaults.longBreakIdx)
-            updateRounds(defaults.roundsIdx)
-            updateAutorun(defaults.autorun)
-            updateMute(defaults.mute)
-
-        }
-    }
-
-    private fun loadSavedPreferences() {
-        viewModel.loadSavedPreferences(requireContext())
-        updateFocusTime(viewModel.focusProgress)
-        updateShortBreak(viewModel.shortBreakProgress)
-        updateLongBreak(viewModel.longBreakProgress)
-        updateRounds(viewModel.roundsProgress)
-    }
-
-    private fun notifySettingsChanged() {
-        val listener = parentFragment as? SettingsListener ?: activity as? SettingsListener
-        listener?.onSettingsChanged(
-            viewModel.focusValues[viewModel.focusProgress],
-            viewModel.shortBreakValues[viewModel.shortBreakProgress],
-            viewModel.longBreakValues[viewModel.longBreakProgress],
-            viewModel.roundsValues[viewModel.roundsProgress]
-        )
+        btnAutorun.isChecked = autorunEnabled
+        btnMute.isChecked = muteEnabled
     }
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        val listener = parentFragment as? SettingsListener ?: activity as? SettingsListener
-        listener?.onDismiss()
+        (parentFragment as? Listener ?: activity as? Listener)?.onDismiss()
     }
 
-    companion object {
-        fun newInstance(): SettingsFragment = SettingsFragment()
+    private fun getFocusValues(): List<Int> =
+        (1..5).toList() +
+        (10..60 step 5).toList() +
+        (75..120 step 15).toList()
+
+    private fun getShortBreakValues(): List<Int> =
+        (1..5).toList() + (10..30 step 5).toList()
+
+    private fun getLongBreakValues(): List<Int> =
+        (1..5).toList() + (10..45 step 5).toList() + 60
+
+    private fun getRoundValues(): List<Int> =
+        (2..6).toList()
+
+    private fun changeListener(onChange: (Int) -> Unit) = object :
+        SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+            if (fromUser) onChange(progress)
+        }
+        override fun onStartTrackingTouch(seekBar: SeekBar) {}
+        override fun onStopTrackingTouch(seekBar: SeekBar) {}
+    }
+
+    private fun handleSave() {
+        TimerSettings.updateSettings(
+            requireContext(),
+            focus = selectedFocus.toLong(),
+            shortBreak = selectedShortBreak.toLong(),
+            longBreak = selectedLongBreak.toLong(),
+            rounds = selectedRounds,
+            autorun = autorunEnabled,
+            mute = muteEnabled
+        )
+        listener?.onSettingsChanged()
+        dismiss()
+    }
+
+    private fun handleReset() {
+        TimerSettings.resetToDefaults(requireContext())
+        loadPreferences()
+        updateUi()
     }
 }
