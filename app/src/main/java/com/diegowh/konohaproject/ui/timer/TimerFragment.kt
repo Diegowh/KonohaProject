@@ -50,6 +50,12 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
         setupListeners()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        soundPlayer.release()
+        _binding = null
+    }
+
     private fun observeViewModel() {
         viewModel.timerText.observe(viewLifecycleOwner) { binding.txtTimer.text = it }
 
@@ -192,11 +198,5 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
 
     override fun onDismiss() {
         binding.btnSettings.isEnabled = true
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        soundPlayer.release()
-        _binding = null
     }
 }
