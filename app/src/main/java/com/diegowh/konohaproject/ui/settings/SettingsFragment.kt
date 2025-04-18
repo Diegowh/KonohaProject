@@ -12,7 +12,7 @@ import com.diegowh.konohaproject.databinding.FragmentSettingsListDialogBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 
-class SettingsFragment : BottomSheetDialogFragment() {
+class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_list_dialog) {
 
     private var _binding: FragmentSettingsListDialogBinding? = null
     private val binding get() = _binding!!
@@ -23,17 +23,9 @@ class SettingsFragment : BottomSheetDialogFragment() {
         fun onDismiss();
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentSettingsListDialogBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentSettingsListDialogBinding.bind(view)
         loadSavedPreferences()
         setupSeekBars()
         setupAutorunSwitch()
