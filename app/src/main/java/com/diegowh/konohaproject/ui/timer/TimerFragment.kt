@@ -2,6 +2,7 @@ package com.diegowh.konohaproject.ui.timer
 
 import android.animation.ValueAnimator
 import android.content.res.Resources
+import android.graphics.drawable.AnimationDrawable
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -15,12 +16,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
-import com.diegowh.konohaproject.domain.character.CharacterAnimator
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.ui.components.ArcProgressDrawable
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
-import com.diegowh.konohaproject.utils.SoundType
+import com.diegowh.konohaproject.utils.sound.SoundType
+import com.diegowh.konohaproject.utils.animation.AnimationAction
 import kotlinx.coroutines.launch
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
@@ -34,14 +35,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     private var currentProgress: Int = 0
     private val roundViews = mutableListOf<View>()
 
-    private var animator: CharacterAnimator? = null
-    private val animationFrames = listOf(
-        R.drawable.sakura_crop,
-        R.drawable.losiento1,
-        R.drawable.losiento2,
-        R.drawable.losiento3,
-        R.drawable.losiento4
-    )
+    private lateinit var charAnim: AnimationDrawable
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,22 +49,22 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             loadSound(SoundType.INTERVAL_CHANGE, R.raw.bubble_tiny)
         }
 
-        animator = CharacterAnimator(
-            binding.imgCharacter,
-            animationFrames,
-            viewLifecycleOwner.lifecycleScope,
-        )
+        binding.imgCharacter.post {
+            charAnim = binding.imgCharacter.drawable as AnimationDrawable
+            charAnim.isOneShot = false
+        }
 
         initProgressArc()
         observeViewModel()
         setupListeners()
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         soundPlayer.release()
-        animator?.stop()
-        animator = null
+//        animator?.stop()
+//        animator = null
         _binding = null
     }
 
@@ -132,19 +126,28 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         viewModel.animationAction.observe(viewLifecycleOwner) { action ->
             when (action) {
                 is AnimationAction.Start -> {
-                    action.fromFrame?.let { animator?.start(it) } ?: animator?.start()
+                    action.fromFrame?.let { charAnim.selectDrawable(it) }
+                    charAnim.start()
                 }
                 AnimationAction.Pause -> {
-                    animator?.pause()
-
-                    val cf = animator?.currentFrame ?: 0
+                    val cf = getCurrentFrameIndex(charAnim)
+                    charAnim.stop()
                     viewModel.updateAnimationState(cf, isPaused = true)
                 }
                 AnimationAction.Stop -> {
-                    animator?.stop()
+                    charAnim.stop()
+                    charAnim.selectDrawable(0)
                 }
             }
         }
+    }
+
+    private fun getCurrentFrameIndex(anim: AnimationDrawable): Int {
+        val current = anim.current
+        for (i in 0 until anim.numberOfFrames) {
+            if (anim.getFrame(i) == current) return i
+        }
+        return 0
     }
 
     private fun setupListeners() {
