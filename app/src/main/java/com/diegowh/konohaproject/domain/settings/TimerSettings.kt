@@ -112,4 +112,18 @@ object TimerSettings {
             apply()
         }
     }
+
+    fun resetToDefaults(context: Context) {
+        updateSettings(
+            context,
+            DEFAULT_FOCUS,
+            DEFAULT_SHORT_BREAK,
+            DEFAULT_LONG_BREAK,
+            DEFAULT_ROUNDS,
+            DEFAULT_AUTO_RUN,
+            DEFAULT_MUTE
+        )
+    }
+
+
 }
