@@ -1,24 +1,21 @@
 package com.diegowh.konohaproject.ui.timer
 
 import android.animation.ValueAnimator
-import android.content.Context
 import android.content.res.Resources
-import android.media.AudioManager
-import android.media.SoundPool
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.LinearLayout
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
-import com.diegowh.konohaproject.domain.settings.TimerSettings
+import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.ui.components.ArcProgressDrawable
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
@@ -30,25 +27,22 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
     private val viewModel: TimerViewModel by viewModels({ requireActivity() })
+    private lateinit var soundPlayer: SoundPlayer
 
     private var progressAnimator: ValueAnimator? = null
     private var currentProgress: Int = 0
     private val roundViews = mutableListOf<View>()
-    private var soundPool: SoundPool? = null
-    private var soundId: Int = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentTimerBinding.bind(view)
 
-        requireActivity()
-            .onBackPressedDispatcher
-            .addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() { /* nada */ }
-            })
+        requireActivity().onBackPressedDispatcher
+            .addCallback(viewLifecycleOwner) { /* nada */ }
 
-        soundPool = SoundPool.Builder().setMaxStreams(2).build().also {
-            soundId = it.load(requireContext(), R.raw.bubble_tiny, 1)
+
+        soundPlayer = SoundPlayer(requireContext()).apply {
+            loadSound(SoundType.INTERVAL_CHANGE, R.raw.bubble_tiny)
         }
 
         initProgressArc()
@@ -108,7 +102,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.intervalSoundEvent.collect { type ->
-                    if (type == SoundType.INTERVAL_CHANGE) playIntervalChangeSound()
+                    if (type == SoundType.INTERVAL_CHANGE) soundPlayer.play(type)
                 }
             }
         }
@@ -125,11 +119,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
         }
     }
 
-    private fun playIntervalChangeSound() {
-        val vol = (requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager)
-            .getStreamVolume(AudioManager.STREAM_MUSIC).toFloat()
-        soundPool?.play(soundId, vol, vol, 1, 0, 1.0f)
-    }
 
     private fun resetBackgroundColor() {
         binding.main.setBackgroundColor(
@@ -207,8 +196,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Settin
 
     override fun onDestroyView() {
         super.onDestroyView()
-        soundPool?.release()
-        soundPool = null
+        soundPlayer.release()
         _binding = null
     }
 }
