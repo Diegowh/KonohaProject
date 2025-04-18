@@ -133,14 +133,12 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         countdownController?.get()?.let { controller ->
             when {
                 controller.isPaused() -> {
-                    val remaining = controller.getRemainingTime()
                     controller.resume()
-                    _resumedTime.postValue(remaining)
+                    _resumedTime.postValue(controller.getRemainingTime())
                     _timerState.postValue(TimerState.Running)
                 }
                 !controller.isRunning() -> {
-                    val duration = TimerSettings.focusTimeMillis(getApplication())
-                    controller.start(duration)
+                    controller.start(TimerSettings.focusTimeMillis(getApplication()))
                     _timerState.postValue(TimerState.Running)
                 }
             }
