@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.diegowh.konohaproject.domain.character.AnimationState
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.domain.timer.TimerService
 import com.diegowh.konohaproject.domain.settings.TimerSettings
@@ -37,6 +38,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     private val _resumedTime = MutableLiveData<Long>()
     private val _intervalSoundEvent = MutableSharedFlow<SoundType>()
     private val _totalRounds = MutableLiveData<Int>()
+    private val _animationState = MutableLiveData<AnimationState>()
 
     val timerText: LiveData<String> get() = _timerText
     val timerState: LiveData<TimerState> get() = _timerState
@@ -45,7 +47,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     val resumedTime: LiveData<Long> get() = _resumedTime
     val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
     val totalRounds: LiveData<Int> get() = _totalRounds
-
+    val animationState: LiveData<AnimationState> = _animationState
 
     /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
     * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
@@ -129,6 +131,10 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         )
     }
 
+    fun updateAnimationState(frame: Int, isPaused: Boolean) {
+        _animationState.postValue(AnimationState(frame, isPaused))
+    }
+
     fun onPlayClicked() {
         countdownController?.get()?.let { controller ->
             when {
@@ -167,4 +173,5 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         super.onCleared()
         getApplication<Application>().unbindService(serviceConnection)
     }
+
 }
