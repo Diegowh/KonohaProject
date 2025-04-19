@@ -49,7 +49,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/containerTimer"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="72dp"
         app:layout_constraintBottom_toTopOf="@+id/footer"
@@ -58,30 +58,29 @@
         app:layout_constraintHorizontal_bias="0.49"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="360dp"
-            android:layout_height="360dp"
-            android:layout_marginTop="4dp"
-            android:indeterminateOnly="false"
-            android:max="100"
-            android:progress="75"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+<!--        <ProgressBar-->
+<!--            android:id="@+id/progressBar"-->
+<!--            android:layout_width="360dp"-->
+<!--            android:layout_height="360dp"-->
+<!--            android:layout_marginTop="4dp"-->
+<!--            android:indeterminateOnly="false"-->
+<!--            android:max="100"-->
+<!--            android:progress="75"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintHorizontal_bias="0.0"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
 
         <ImageView
             android:id="@+id/imgCharacter"
-            android:layout_width="280dp"
-            android:layout_height="280dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             android:layout_marginTop="108dp"
             android:scaleType="fitCenter"
             android:adjustViewBounds="false"
             android:contentDescription="@string/selected_character_description"
             android:src="@drawable/character_animation"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.357"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
