@@ -44,59 +44,93 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         requireActivity().onBackPressedDispatcher
             .addCallback(viewLifecycleOwner) { /* nada */ }
 
-
-        soundPlayer = SoundPlayer(requireContext()).apply {
-            loadSound(SoundType.INTERVAL_CHANGE, R.raw.bubble_tiny)
-        }
-
-        binding.imgCharacter.post {
-            charAnim = binding.imgCharacter.drawable as AnimationDrawable
-            charAnim.isOneShot = false
-        }
-
-        initProgressArc()
-        observeViewModel()
-        setupListeners()
+        initSoundPlayer()
+        initAnimator()
+        initComponents()
 
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         soundPlayer.release()
-//        animator?.stop()
-//        animator = null
         _binding = null
     }
 
+    private fun initSoundPlayer() {
+        soundPlayer = SoundPlayer(requireContext()).apply {
+            loadSound(SoundType.INTERVAL_CHANGE, R.raw.bubble_tiny)
+        }
+    }
+
+    private fun initAnimator() {
+        binding.imgCharacter.post {
+            charAnim = binding.imgCharacter.drawable as AnimationDrawable
+            charAnim.isOneShot = false
+        }
+    }
+
+    private fun initComponents() {
+        initProgressArc()
+        observeViewModel()
+        setupListeners()
+    }
+
     private fun observeViewModel() {
-        viewModel.timerText.observe(viewLifecycleOwner) { binding.txtTimer.text = it }
+        observeTimerText()
+        observeTimerState()
+        observeIntervalChange()
+        observeRoundCounters()
+        observeResumedTime()
+        observeSoundEvents()
+        observeAnimationActions()
+    }
 
-        viewModel.timerState.observe(viewLifecycleOwner) { state ->
-            with(binding) {
-                when (state) {
-                    TimerState.Running -> {
-                        btnPlay.visibility = View.GONE
-                        btnReset.visibility = View.GONE
-                        btnPause.visibility = View.VISIBLE
-                    }
-                    TimerState.Paused -> {
-                        btnPlay.visibility = View.VISIBLE
-                        btnReset.visibility = View.VISIBLE
-                        btnPause.visibility = View.GONE
-                        pauseProgressAnimation()
+    private fun observeAnimationActions() {
+        viewModel.animationAction.observe(viewLifecycleOwner) { action ->
+            when (action) {
+                is AnimationAction.Start -> { handleAnimationStart(action) }
+                AnimationAction.Pause -> { handleAnimationPause() }
+                AnimationAction.Stop -> { handleAnimationStop() }
+            }
+        }
+    }
 
-                    }
-                    TimerState.Stopped -> {
-                        btnPlay.visibility = View.VISIBLE
-                        btnReset.visibility = View.VISIBLE
-                        btnPause.visibility = View.GONE
-                        resetProgressAnimation()
-                        resetBackgroundColor()
-                    }
+    private fun handleAnimationStop() {
+        charAnim.stop()
+        charAnim.selectDrawable(0)
+    }
+
+    private fun handleAnimationPause() {
+        val cf = getCurrentFrameIndex(charAnim)
+        charAnim.stop()
+        viewModel.updateAnimationState(cf, isPaused = true)
+    }
+
+    private fun handleAnimationStart(action: AnimationAction.Start) {
+        action.fromFrame?.let { charAnim.selectDrawable(it) }
+        charAnim.start()
+    }
+
+    private fun observeSoundEvents() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.intervalSoundEvent.collect { type ->
+                    if (type == SoundType.INTERVAL_CHANGE) soundPlayer.play(type)
                 }
             }
         }
+    }
 
+    private fun observeResumedTime() {
+        viewModel.resumedTime.observe(viewLifecycleOwner) { startProgressAnimation(it) }
+    }
+
+    private fun observeRoundCounters() {
+        viewModel.totalRounds.observe(viewLifecycleOwner) { initRoundCounterViews(it) }
+        viewModel.currentRound.observe(viewLifecycleOwner) { updateRoundUI(it) }
+    }
+
+    private fun observeIntervalChange() {
         viewModel.interval.observe(viewLifecycleOwner) { interval ->
             resetProgressAnimation()
             startProgressAnimation(interval.nextDuration)
@@ -109,43 +143,49 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             )
             if (interval.isFocus) updateRoundUI(interval.currentRound)
         }
+    }
 
-        viewModel.totalRounds.observe(viewLifecycleOwner) { initRoundCounterViews(it) }
-        viewModel.currentRound.observe(viewLifecycleOwner) { updateRoundUI(it) }
+    private fun observeTimerText() {
+        viewModel.timerText.observe(viewLifecycleOwner) { binding.txtTimer.text = it }
+    }
 
-        viewModel.resumedTime.observe(viewLifecycleOwner) { startProgressAnimation(it) }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.intervalSoundEvent.collect { type ->
-                    if (type == SoundType.INTERVAL_CHANGE) soundPlayer.play(type)
-                }
+    private fun observeTimerState() {
+        viewModel.timerState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                TimerState.Running -> showRunningState()
+                TimerState.Paused -> showPausedState()
+                TimerState.Stopped -> showStoppedState()
             }
         }
+    }
 
-        viewModel.animationAction.observe(viewLifecycleOwner) { action ->
-            when (action) {
-                is AnimationAction.Start -> {
-                    action.fromFrame?.let { charAnim.selectDrawable(it) }
-                    charAnim.start()
-                }
-                AnimationAction.Pause -> {
-                    val cf = getCurrentFrameIndex(charAnim)
-                    charAnim.stop()
-                    viewModel.updateAnimationState(cf, isPaused = true)
-                }
-                AnimationAction.Stop -> {
-                    charAnim.stop()
-                    charAnim.selectDrawable(0)
-                }
-            }
-        }
+    private fun showRunningState() = with(binding) {
+        btnPlay.visibility = View.GONE
+        btnReset.visibility = View.GONE
+        btnPause.visibility = View.VISIBLE
+    }
+
+    private fun showPausedState() = with(binding) {
+        btnPlay.visibility = View.VISIBLE
+        btnReset.visibility = View.VISIBLE
+        btnPause.visibility = View.GONE
+        pauseProgressAnimation()
+    }
+
+    private fun showStoppedState() = with(binding) {
+        btnPlay.visibility = View.VISIBLE
+        btnReset.visibility = View.VISIBLE
+        btnPause.visibility = View.GONE
+        resetProgressAnimation()
+        resetBackgroundColor()
     }
 
     private fun getCurrentFrameIndex(anim: AnimationDrawable): Int {
         val current = anim.current
         for (i in 0 until anim.numberOfFrames) {
-            if (anim.getFrame(i) == current) return i
+            if (anim.getFrame(i) == current) {
+                return i
+            }
         }
         return 0
     }
@@ -172,8 +212,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         binding.roundCounterContainer.removeAllViews()
         roundViews.clear()
 
-        val size = 12.dpToPx()
-        val margin = 12.dpToPx()
+        val size = 31 //31px son 12dp pero asi me ahorraba tener una funcion para transformar a px
+        val margin = 31
 
         repeat(total) { idx ->
             View(requireContext()).apply {
@@ -218,8 +258,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         currentProgress = 0
         binding.progressBar.progress = 0
     }
-
-    private fun Int.dpToPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
     private fun updateRoundUI(cycle: Int) {
         val active = ContextCompat.getColorStateList(requireContext(), R.color.button_primary)
