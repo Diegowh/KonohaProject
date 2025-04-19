@@ -22,6 +22,7 @@ import com.diegowh.konohaproject.ui.components.ArcProgressDrawable
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.animation.AnimationAction
+import com.diegowh.konohaproject.utils.timer.IntervalType
 import kotlinx.coroutines.launch
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
@@ -70,7 +71,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun initComponents() {
-        initProgressArc()
+//        initProgressArc()
         observeViewModel()
         setupListeners()
     }
@@ -122,7 +123,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun observeResumedTime() {
-        viewModel.resumedTime.observe(viewLifecycleOwner) { startProgressAnimation(it) }
+//        viewModel.resumedTime.observe(viewLifecycleOwner) { startProgressAnimation(it) }
     }
 
     private fun observeRoundCounters() {
@@ -132,16 +133,17 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
     private fun observeIntervalChange() {
         viewModel.interval.observe(viewLifecycleOwner) { interval ->
-            resetProgressAnimation()
-            startProgressAnimation(interval.nextDuration)
+//            resetProgressAnimation()
+//            startProgressAnimation(interval.nextDuration)
+            val isFocus = (interval.type == IntervalType.FOCUS)
             binding.main.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    if (interval.isFocus) R.color.background_app_focus
+                    if (isFocus) R.color.background_app_focus
                     else R.color.background_app_break
                 )
             )
-            if (interval.isFocus) updateRoundUI(interval.currentRound)
+            if (isFocus) updateRoundUI(interval.currentRound)
         }
     }
 
@@ -169,14 +171,14 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         btnPlay.visibility = View.VISIBLE
         btnReset.visibility = View.VISIBLE
         btnPause.visibility = View.GONE
-        pauseProgressAnimation()
+//        pauseProgressAnimation()
     }
 
     private fun showStoppedState() = with(binding) {
         btnPlay.visibility = View.VISIBLE
         btnReset.visibility = View.VISIBLE
         btnPause.visibility = View.GONE
-        resetProgressAnimation()
+//        resetProgressAnimation()
         resetBackgroundColor()
     }
 
@@ -230,34 +232,34 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         }
     }
 
-    private fun initProgressArc() {
-        binding.progressBar.apply {
-            progressDrawable = ArcProgressDrawable(context = requireContext())
-            max = 10_000
-            progress = 0
-        }
-    }
+//    private fun initProgressArc() {
+//        binding.progressBar.apply {
+//            progressDrawable = ArcProgressDrawable(context = requireContext())
+//            max = 10_000
+//            progress = 0
+//        }
+//    }
 
-    private fun startProgressAnimation(duration: Long) {
-        progressAnimator?.cancel()
-        progressAnimator = ValueAnimator.ofInt(currentProgress, 10_000).apply {
-            this.duration = duration
-            interpolator = LinearInterpolator()
-            addUpdateListener { anim -> binding.progressBar.progress = anim.animatedValue as Int }
-            start()
-        }
-    }
+//    private fun startProgressAnimation(duration: Long) {
+//        progressAnimator?.cancel()
+//        progressAnimator = ValueAnimator.ofInt(currentProgress, 10_000).apply {
+//            this.duration = duration
+//            interpolator = LinearInterpolator()
+//            addUpdateListener { anim -> binding.progressBar.progress = anim.animatedValue as Int }
+//            start()
+//        }
+//    }
 
-    private fun pauseProgressAnimation() = progressAnimator?.run {
-        currentProgress = animatedValue as Int
-        cancel()
-    }
+//    private fun pauseProgressAnimation() = progressAnimator?.run {
+//        currentProgress = animatedValue as Int
+//        cancel()
+//    }
 
-    private fun resetProgressAnimation() {
-        progressAnimator?.cancel()
-        currentProgress = 0
-        binding.progressBar.progress = 0
-    }
+//    private fun resetProgressAnimation() {
+//        progressAnimator?.cancel()
+//        currentProgress = 0
+//        binding.progressBar.progress = 0
+//    }
 
     private fun updateRoundUI(cycle: Int) {
         val active = ContextCompat.getColorStateList(requireContext(), R.color.button_primary)

@@ -18,16 +18,13 @@ import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.animation.AnimationAction
 import com.diegowh.konohaproject.utils.animation.AnimationState
 import com.diegowh.konohaproject.utils.timer.Interval
+import com.diegowh.konohaproject.utils.timer.IntervalType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Locale
-
-
-
-
 
 class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -48,7 +45,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     val resumedTime: LiveData<Long> get() = _resumedTime
     val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
     val totalRounds: LiveData<Int> get() = _totalRounds
-    val animationState: LiveData<AnimationState> = _animationState
+//    val animationState: LiveData<AnimationState> = _animationState
     val animationAction: LiveData<AnimationAction> = _animationAction
 
     /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
@@ -69,13 +66,17 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                             _timerText.postValue(formatTime(event.remainingMillis))
                         }
                         is TimerUIEvent.IntervalFinished -> {
-                            val nextDuration = calculateNextDuration(event.currentRound, event.isFocusInterval)
-                            _interval.postValue(Interval(event.currentRound, event.isFocusInterval, nextDuration))
+                            val nextDuration = calculateNextDuration(event.nextInterval)
+                            _interval.postValue(Interval(event.currentRound, event.nextInterval, nextDuration))
                             _currentRound.postValue(event.currentRound)
 
                             if (!TimerSettings.isMuteEnabled(getApplication())) {
                                 _intervalSoundEvent.emit(SoundType.INTERVAL_CHANGE)
                             }
+                        }
+                        TimerUIEvent.SessionFinished -> {
+                            _animationAction.postValue(AnimationAction.Stop)
+                            handleReset(controller)
                         }
                     }
                 }
@@ -111,16 +112,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         return String.format(Locale.US, "%02d:%02d", minutes, seconds)
     }
 
-    private fun calculateNextDuration(currentRound: Int, wasFocus: Boolean): Long {
-        return if (wasFocus) {
-            TimerSettings.focusTimeMillis(getApplication())
-        } else {
-            if (currentRound == (_totalRounds.value ?: 0)) {
-                TimerSettings.longBreakTimeMillis(getApplication())
-            } else {
-                TimerSettings.shortBreakTimeMillis(getApplication())
-            }
+    private fun calculateNextDuration(intervalType: IntervalType): Long {
+        val duration = when (intervalType) {
+            IntervalType.FOCUS -> TimerSettings.focusTimeMillis(getApplication())
+            IntervalType.SHORT_BREAK -> TimerSettings.shortBreakTimeMillis(getApplication())
+            IntervalType.LONG_BREAK -> TimerSettings.longBreakTimeMillis(getApplication())
         }
+        return duration
     }
 
     private fun updateUIWithCurrentState(controller: TimerService) {
@@ -151,6 +149,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                     controller.start(TimerSettings.focusTimeMillis(getApplication()))
                     _animationAction.postValue(AnimationAction.Start())
                     _timerState.postValue(TimerState.Running)
+                    _currentRound.postValue(1)
                 }
             }
         }
@@ -166,15 +165,18 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     fun onResetClicked() {
         countdownController?.get()?.let { controller ->
-            controller.reset()
-            _timerState.postValue(TimerState.Stopped)
-            _timerText.postValue(TimerSettings.initialDisplayTime(getApplication(), true))
-            _currentRound.postValue(0)
-            _totalRounds.postValue(TimerSettings.getTotalRounds(getApplication()))
-            _animationAction.postValue(AnimationAction.Stop)
-            _animationState.postValue(AnimationState(0, isPaused = false))
-
+            handleReset(controller)
         }
+    }
+
+    private fun handleReset(controller: TimerService) {
+        controller.reset()
+        _timerState.postValue(TimerState.Stopped)
+        _timerText.postValue(TimerSettings.initialDisplayTime(getApplication(), true))
+        _currentRound.postValue(0)
+        _totalRounds.postValue(TimerSettings.getTotalRounds(getApplication()))
+        _animationAction.postValue(AnimationAction.Stop)
+        _animationState.postValue(AnimationState(0, isPaused = false))
     }
 
     override fun onCleared() {
