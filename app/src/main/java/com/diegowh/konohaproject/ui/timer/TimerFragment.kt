@@ -1,13 +1,11 @@
 package com.diegowh.konohaproject.ui.timer
 
 import android.animation.ValueAnimator
-import android.content.res.Resources
 import android.graphics.drawable.AnimationDrawable
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.view.animation.LinearInterpolator
 import android.widget.LinearLayout
 import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
@@ -18,7 +16,6 @@ import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
-import com.diegowh.konohaproject.ui.components.ArcProgressDrawable
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.animation.AnimationAction

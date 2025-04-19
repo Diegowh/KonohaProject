@@ -10,9 +10,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.diegowh.konohaproject.domain.main.App
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.domain.timer.TimerService
-import com.diegowh.konohaproject.domain.settings.TimerSettings
+import com.diegowh.konohaproject.domain.timer.SettingsProvider
 import com.diegowh.konohaproject.domain.timer.TimerUIEvent
 import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.animation.AnimationAction
@@ -48,6 +49,9 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 //    val animationState: LiveData<AnimationState> = _animationState
     val animationAction: LiveData<AnimationAction> = _animationAction
 
+    private val settings: SettingsProvider =
+        (getApplication() as App).settingsProvider
+
     /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
     * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
     * memoria (cosa que tampoco llegue a comprobar, pero me avisaba el IDE)
@@ -70,7 +74,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                             _interval.postValue(Interval(event.currentRound, event.nextInterval, nextDuration))
                             _currentRound.postValue(event.currentRound)
 
-                            if (!TimerSettings.isMuteEnabled(getApplication())) {
+                            if (!settings.isMuteEnabled()) {
                                 _intervalSoundEvent.emit(SoundType.INTERVAL_CHANGE)
                             }
                         }
@@ -99,10 +103,10 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
 
-        _timerText.value = TimerSettings.initialDisplayTime(getApplication(), true)
+        _timerText.value = settings.initialDisplayTime(true)
         _timerState.value = TimerState.Stopped
         _currentRound.value = 0
-        _totalRounds.value = TimerSettings.getTotalRounds(getApplication())
+        _totalRounds.value = settings.totalRounds()
     }
 
     private fun formatTime(remainingMillis: Long): String {
@@ -114,9 +118,9 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun calculateNextDuration(intervalType: IntervalType): Long {
         val duration = when (intervalType) {
-            IntervalType.FOCUS -> TimerSettings.focusTimeMillis(getApplication())
-            IntervalType.SHORT_BREAK -> TimerSettings.shortBreakTimeMillis(getApplication())
-            IntervalType.LONG_BREAK -> TimerSettings.longBreakTimeMillis(getApplication())
+            IntervalType.FOCUS -> settings.focusTimeMillis()
+            IntervalType.SHORT_BREAK -> settings.shortBreakTimeMillis()
+            IntervalType.LONG_BREAK -> settings.longBreakTimeMillis()
         }
         return duration
     }
@@ -146,7 +150,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                     _timerState.postValue(TimerState.Running)
                 }
                 !controller.isRunning() -> {
-                    controller.start(TimerSettings.focusTimeMillis(getApplication()))
+                    controller.start(settings.focusTimeMillis())
                     _animationAction.postValue(AnimationAction.Start())
                     _timerState.postValue(TimerState.Running)
                     _currentRound.postValue(1)
@@ -172,9 +176,9 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     private fun handleReset(controller: TimerService) {
         controller.reset()
         _timerState.postValue(TimerState.Stopped)
-        _timerText.postValue(TimerSettings.initialDisplayTime(getApplication(), true))
+        _timerText.postValue(settings.initialDisplayTime(true))
         _currentRound.postValue(0)
-        _totalRounds.postValue(TimerSettings.getTotalRounds(getApplication()))
+        _totalRounds.postValue(settings.totalRounds())
         _animationAction.postValue(AnimationAction.Stop)
         _animationState.postValue(AnimationState(0, isPaused = false))
     }

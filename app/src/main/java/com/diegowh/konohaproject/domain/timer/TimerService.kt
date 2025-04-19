@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import com.diegowh.konohaproject.domain.main.App
 import com.diegowh.konohaproject.utils.service.ServiceNotifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,9 @@ class TimerService : Service(), TimerController {
     private val binder = TimerBinder()
     private lateinit var serviceNotifier: ServiceNotifier
     private lateinit var sessionManager: SessionManager
+
+    private val settingsProvider: SettingsProvider
+        get() = (application as App).settingsProvider
 
     private val serviceScope = CoroutineScope(Dispatchers.Default)
 
@@ -24,7 +28,7 @@ class TimerService : Service(), TimerController {
         super.onCreate()
         serviceNotifier = ServiceNotifier(this)
         val engine = TimerEngine(serviceScope)
-        val settingsProvider = TimerSettingsProvider(this)
+
         sessionManager = SessionManager(engine, settingsProvider, serviceScope)
     }
 
