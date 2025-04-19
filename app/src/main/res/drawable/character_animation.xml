@@ -3,18 +3,18 @@
 
     <item
         android:drawable="@drawable/sakura_crop"
-        android:duration="50"/>
+        android:duration="@integer/frame_duration"/>
     <item
         android:drawable="@drawable/losiento1"
-        android:duration="50"/>
+        android:duration="@integer/frame_duration"/>
     <item
         android:drawable="@drawable/losiento2"
-        android:duration="50"/>
+        android:duration="@integer/frame_duration"/>
     <item
         android:drawable="@drawable/losiento3"
-        android:duration="50"/>
+        android:duration="@integer/frame_duration"/>
     <item
         android:drawable="@drawable/losiento4"
-        android:duration="50"/>
+        android:duration="@integer/frame_duration"/>
 
 </animation-list>

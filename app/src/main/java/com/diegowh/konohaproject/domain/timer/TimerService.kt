@@ -12,7 +12,7 @@ class TimerService : Service(), TimerController {
 
     private val binder = TimerBinder()
     private lateinit var serviceNotifier: ServiceNotifier
-    private lateinit var intervalManager: IntervalManager
+    private lateinit var sessionManager: SessionManager
 
     private val serviceScope = CoroutineScope(Dispatchers.Default)
 
@@ -23,7 +23,9 @@ class TimerService : Service(), TimerController {
     override fun onCreate() {
         super.onCreate()
         serviceNotifier = ServiceNotifier(this)
-        intervalManager = IntervalManager(this, serviceScope)
+        val engine = TimerEngine(serviceScope)
+        val settingsProvider = TimerSettingsProvider(this)
+        sessionManager = SessionManager(engine, settingsProvider, serviceScope)
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
@@ -33,7 +35,7 @@ class TimerService : Service(), TimerController {
         when (intent?.action) {
             ACTION_STOP -> stopSelf()
             else -> intent?.getLongExtra(EXTRA_DURATION, 0L)?.let {
-                if (!intervalManager.isRunning()) intervalManager.start(it)
+                if (!sessionManager.isRunning()) sessionManager.start(it)
             }
         }
         return START_STICKY
@@ -41,21 +43,21 @@ class TimerService : Service(), TimerController {
 
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)
-        intervalManager.reset()
+        sessionManager.reset()
         super.onDestroy()
     }
 
-    override fun start(durationMillis: Long) = intervalManager.start(durationMillis)
-    override fun pause() = intervalManager.pause()
-    override fun resume() = intervalManager.resume()
-    override fun reset() = intervalManager.reset()
-    override fun getRemainingTime(): Long = intervalManager.getRemainingTime()
-    override fun isPaused(): Boolean = intervalManager.isPaused()
-    override fun isRunning(): Boolean = intervalManager.isRunning()
-    override fun getCurrentRound(): Int = intervalManager.getCurrentRound()
-    override fun isFocusInterval(): Boolean = intervalManager.isFocusInterval()
+    override fun start(durationMillis: Long) = sessionManager.start(durationMillis)
+    override fun pause() = sessionManager.pause()
+    override fun resume() = sessionManager.resume()
+    override fun reset() = sessionManager.reset()
+    override fun getRemainingTime(): Long = sessionManager.getRemainingTime()
+    override fun isPaused(): Boolean = sessionManager.isPaused()
+    override fun isRunning(): Boolean = sessionManager.isRunning()
+    override fun getCurrentRound(): Int = sessionManager.getCurrentRound()
+    override fun isFocusInterval(): Boolean = sessionManager.isFocusInterval()
 
-    fun getTimerEvents() = intervalManager.eventFlow
+    fun getTimerEvents() = sessionManager.eventFlow
 
     companion object {
         const val ACTION_STOP = "STOP"
