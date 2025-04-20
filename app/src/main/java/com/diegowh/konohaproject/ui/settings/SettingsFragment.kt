@@ -6,7 +6,8 @@ import android.view.View
 import android.widget.SeekBar
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentSettingsListDialogBinding
-import com.diegowh.konohaproject.domain.settings.TimerSettings
+import com.diegowh.konohaproject.domain.main.App
+import com.diegowh.konohaproject.domain.settings.SettingsProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 
@@ -28,6 +29,8 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
     private var autorunEnabled: Boolean = true
     private var muteEnabled: Boolean = false
 
+    private lateinit var settings: SettingsProvider
+
     interface Listener {
         fun onSettingsChanged()
         fun onDismiss()
@@ -36,6 +39,7 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSettingsListDialogBinding.bind(view)
+        settings = (requireActivity().application as App).settingsProvider
         listener = parentFragment as? Listener ?: activity as? Listener
         loadPreferences()
         initUi()
@@ -47,13 +51,12 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
     }
 
     private fun loadPreferences() {
-
-        selectedFocus = TimerSettings.getFocusMinutes(requireContext()).toInt()
-        selectedShortBreak = TimerSettings.getShortBreakMinutes(requireContext()).toInt()
-        selectedLongBreak = TimerSettings.getLongBreakMinutes(requireContext()).toInt()
-        selectedRounds = TimerSettings.getTotalRounds(requireContext())
-        autorunEnabled = TimerSettings.isAutorunEnabled(requireContext())
-        muteEnabled = TimerSettings.isMuteEnabled(requireContext())
+        selectedFocus = settings.focusMinutes().toInt()
+        selectedShortBreak = settings.shortBreakMinutes().toInt()
+        selectedLongBreak = settings.longBreakMinutes().toInt()
+        selectedRounds = settings.totalRounds()
+        autorunEnabled = settings.isAutorunEnabled()
+        muteEnabled = settings.isMuteEnabled()
     }
 
     private fun initUi() = with(binding) {
@@ -71,13 +74,13 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
         })
 
         seekBarLongBreak.max = longBreakOptions.size - 1
-         seekBarLongBreak.setOnSeekBarChangeListener(changeListener { p ->
+        seekBarLongBreak.setOnSeekBarChangeListener(changeListener { p ->
             txtLongBreak.text = getString(R.string.minutes_format, longBreakOptions[p])
             selectedLongBreak = longBreakOptions[p]
         })
 
         seekBarRounds.max = roundsOptions.size - 1
-         seekBarRounds.setOnSeekBarChangeListener(changeListener { p ->
+        seekBarRounds.setOnSeekBarChangeListener(changeListener { p ->
             txtRounds.text = String.format(Locale.US, "%d", roundsOptions[p])
             selectedRounds = roundsOptions[p]
         })
@@ -112,8 +115,8 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
 
     private fun getFocusValues(): List<Int> =
         (1..5).toList() +
-        (10..60 step 5).toList() +
-        (75..120 step 15).toList()
+                (10..60 step 5).toList() +
+                (75..120 step 15).toList()
 
     private fun getShortBreakValues(): List<Int> =
         (1..5).toList() + (10..30 step 5).toList()
@@ -129,13 +132,13 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
             if (fromUser) onChange(progress)
         }
+
         override fun onStartTrackingTouch(seekBar: SeekBar) {}
         override fun onStopTrackingTouch(seekBar: SeekBar) {}
     }
 
     private fun handleSave() {
-        TimerSettings.updateSettings(
-            requireContext(),
+        settings.updateSettings(
             focus = selectedFocus.toLong(),
             shortBreak = selectedShortBreak.toLong(),
             longBreak = selectedLongBreak.toLong(),
@@ -148,7 +151,7 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
     }
 
     private fun handleReset() {
-        TimerSettings.resetToDefaults(requireContext())
+        settings.resetToDefaults()
         loadPreferences()
         updateUi()
     }

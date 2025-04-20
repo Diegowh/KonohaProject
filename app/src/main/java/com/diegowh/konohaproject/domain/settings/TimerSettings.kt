@@ -21,12 +21,29 @@ object TimerSettings {
     private const val DEFAULT_AUTO_RUN = true
     private const val DEFAULT_MUTE = false
 
-    fun getDefaultFocus(): Long { return DEFAULT_FOCUS }
-    fun getDefaultShortBreak(): Long { return DEFAULT_SHORT_BREAK }
-    fun getDefaultLongBreak(): Long { return DEFAULT_LONG_BREAK }
-    fun getDefaultRounds(): Int { return DEFAULT_ROUNDS }
-    fun getDefaultAutorun(): Boolean { return DEFAULT_AUTO_RUN }
-    fun getDefaultMute(): Boolean { return DEFAULT_MUTE }
+    fun getDefaultFocus(): Long {
+        return DEFAULT_FOCUS
+    }
+
+    fun getDefaultShortBreak(): Long {
+        return DEFAULT_SHORT_BREAK
+    }
+
+    fun getDefaultLongBreak(): Long {
+        return DEFAULT_LONG_BREAK
+    }
+
+    fun getDefaultRounds(): Int {
+        return DEFAULT_ROUNDS
+    }
+
+    fun getDefaultAutorun(): Boolean {
+        return DEFAULT_AUTO_RUN
+    }
+
+    fun getDefaultMute(): Boolean {
+        return DEFAULT_MUTE
+    }
 
     fun getFocusMinutes(context: Context): Long {
         val prefs = getPrefs(context)
@@ -65,6 +82,7 @@ object TimerSettings {
             longValue
         }
     }
+
     fun getTotalRounds(context: Context): Int = getPrefs(context).getInt(KEY_ROUNDS, DEFAULT_ROUNDS)
     fun isAutorunEnabled(context: Context): Boolean = getPrefs(context).getBoolean(
         KEY_AUTO_RUN, DEFAULT_AUTO_RUN
@@ -76,7 +94,9 @@ object TimerSettings {
 
 
     fun focusTimeMillis(context: Context) = minutesToMilliseconds(getFocusMinutes(context))
-    fun shortBreakTimeMillis(context: Context) = minutesToMilliseconds(getShortBreakMinutes(context))
+    fun shortBreakTimeMillis(context: Context) =
+        minutesToMilliseconds(getShortBreakMinutes(context))
+
     fun longBreakTimeMillis(context: Context) = minutesToMilliseconds(getLongBreakMinutes(context))
 
 

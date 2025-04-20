@@ -4,6 +4,8 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import com.diegowh.konohaproject.domain.main.App
+import com.diegowh.konohaproject.domain.settings.SettingsProvider
 import com.diegowh.konohaproject.utils.service.ServiceNotifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,9 +16,12 @@ class TimerService : Service(), TimerController {
     private lateinit var serviceNotifier: ServiceNotifier
     private lateinit var sessionManager: SessionManager
 
+    private val settingsProvider: SettingsProvider
+        get() = (application as App).settingsProvider
+
     private val serviceScope = CoroutineScope(Dispatchers.Default)
 
-    inner class TimerBinder: Binder() {
+    inner class TimerBinder : Binder() {
         fun getController(): TimerController = this@TimerService
     }
 
@@ -24,7 +29,7 @@ class TimerService : Service(), TimerController {
         super.onCreate()
         serviceNotifier = ServiceNotifier(this)
         val engine = TimerEngine(serviceScope)
-        val settingsProvider = TimerSettingsProvider(this)
+
         sessionManager = SessionManager(engine, settingsProvider, serviceScope)
     }
 
@@ -55,7 +60,7 @@ class TimerService : Service(), TimerController {
     override fun isPaused(): Boolean = sessionManager.isPaused()
     override fun isRunning(): Boolean = sessionManager.isRunning()
     override fun getCurrentRound(): Int = sessionManager.getCurrentRound()
-    override fun isFocusInterval(): Boolean = sessionManager.isFocusInterval()
+//    override fun isFocusInterval(): Boolean = sessionManager.isFocusInterval()
 
     fun getTimerEvents() = sessionManager.eventFlow
 
