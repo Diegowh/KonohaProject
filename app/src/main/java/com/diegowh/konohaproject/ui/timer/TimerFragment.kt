@@ -15,6 +15,7 @@ import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
+import com.diegowh.konohaproject.ui.character.CharacterSelectorFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import com.diegowh.konohaproject.utils.animation.AnimationAction
 import com.diegowh.konohaproject.utils.sound.SoundType
@@ -171,6 +172,9 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             binding.btnSettings.isEnabled = false
             viewModel.onPauseClicked()
             SettingsFragment().show(childFragmentManager, "SettingsDialog")
+        }
+        binding.btnCharacterSelect.setOnClickListener {
+            CharacterSelectorFragment().show(childFragmentManager, "CharacterSelector")
         }
     }
 

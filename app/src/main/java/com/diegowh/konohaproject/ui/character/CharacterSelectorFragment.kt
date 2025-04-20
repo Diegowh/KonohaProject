@@ -2,16 +2,13 @@ package com.diegowh.konohaproject.ui.character
 
 import android.os.Bundle
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentCharacterSelectorBinding
 
-class CharacterSelectorBottomSheet : BottomSheetDialogFragment() {
+class CharacterSelectorFragment : BottomSheetDialogFragment(R.layout.fragment_character_selector) {
 
     private var _binding: FragmentCharacterSelectorBinding? = null
     private val binding get() = _binding!!
@@ -33,6 +30,18 @@ class CharacterSelectorBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val characters = listOf(
+            Character(1, R.drawable.guy_miniatura, "Guy 1"),
+            Character(2, R.drawable.guy_miniatura, "Guy 2"),
+            Character(3, R.drawable.guy_miniatura, "Guy 3"),
+            Character(3, R.drawable.guy_miniatura, "Guy 4")
+        )
+
+        binding.charactersRecycler.adapter = CharactersAdapter(characters) { character ->
+            println(character.name)
+            dismiss()
+        }
     }
 
 
