@@ -94,7 +94,10 @@ class SessionManager (
 
     fun pause() = engine.pause()
     fun resume() = engine.resume()
-    fun reset() = engine.reset()
+    fun reset() {
+        engine.reset()
+        currentRound = 0
+    }
 
     fun getRemainingTime(): Long = engine.getRemainingTime()
     fun isPaused(): Boolean = engine.isPaused()
