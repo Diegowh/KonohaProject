@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.domain.timer
+package com.diegowh.konohaproject.domain.settings
 
 interface SettingsProvider {
     fun totalRounds(): Int

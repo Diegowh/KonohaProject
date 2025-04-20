@@ -13,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.diegowh.konohaproject.domain.main.App
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.domain.timer.TimerService
-import com.diegowh.konohaproject.domain.timer.SettingsProvider
+import com.diegowh.konohaproject.domain.settings.SettingsProvider
 import com.diegowh.konohaproject.domain.timer.TimerUIEvent
 import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.animation.AnimationAction

@@ -7,8 +7,7 @@ import android.widget.SeekBar
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentSettingsListDialogBinding
 import com.diegowh.konohaproject.domain.main.App
-import com.diegowh.konohaproject.domain.settings.TimerSettings
-import com.diegowh.konohaproject.domain.timer.SettingsProvider
+import com.diegowh.konohaproject.domain.settings.SettingsProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 

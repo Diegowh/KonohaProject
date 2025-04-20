@@ -1,7 +1,6 @@
-package com.diegowh.konohaproject.domain.timer
+package com.diegowh.konohaproject.domain.settings
 
 import android.content.Context
-import com.diegowh.konohaproject.domain.settings.TimerSettings
 
 class TimerSettingsProvider(private val context: Context) : SettingsProvider {
     override fun totalRounds(): Int = TimerSettings.getTotalRounds(context)
