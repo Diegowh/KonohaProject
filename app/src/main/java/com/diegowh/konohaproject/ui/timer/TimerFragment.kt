@@ -229,35 +229,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         }
     }
 
-//    private fun initProgressArc() {
-//        binding.progressBar.apply {
-//            progressDrawable = ArcProgressDrawable(context = requireContext())
-//            max = 10_000
-//            progress = 0
-//        }
-//    }
-
-//    private fun startProgressAnimation(duration: Long) {
-//        progressAnimator?.cancel()
-//        progressAnimator = ValueAnimator.ofInt(currentProgress, 10_000).apply {
-//            this.duration = duration
-//            interpolator = LinearInterpolator()
-//            addUpdateListener { anim -> binding.progressBar.progress = anim.animatedValue as Int }
-//            start()
-//        }
-//    }
-
-//    private fun pauseProgressAnimation() = progressAnimator?.run {
-//        currentProgress = animatedValue as Int
-//        cancel()
-//    }
-
-//    private fun resetProgressAnimation() {
-//        progressAnimator?.cancel()
-//        currentProgress = 0
-//        binding.progressBar.progress = 0
-//    }
-
     private fun updateRoundUI(cycle: Int) {
         val active = ContextCompat.getColorStateList(requireContext(), R.color.button_primary)
         val inactive = ContextCompat.getColorStateList(requireContext(), R.color.button_secondary)

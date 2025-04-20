@@ -14,10 +14,6 @@ class SessionManager (
     private val scope: CoroutineScope
 ) {
 
-//    private var currentRound = 0
-//    private var isFocusInterval = false
-//    private var actualInterval: IntervalType = IntervalType.FOCUS
-
     private var currentSession = SessionState()
     private val _eventFlow = MutableSharedFlow<TimerUIEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -106,5 +102,4 @@ class SessionManager (
     fun isPaused(): Boolean = engine.isPaused()
     fun isRunning(): Boolean = engine.isRunning()
     fun getCurrentRound(): Int = currentSession.round
-//    fun isFocusInterval(): Boolean = isFocusInterval
 }
