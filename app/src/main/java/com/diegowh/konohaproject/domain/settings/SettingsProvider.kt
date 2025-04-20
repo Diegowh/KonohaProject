@@ -16,6 +16,7 @@ interface SettingsProvider {
         autorun: Boolean,
         mute: Boolean
     )
+
     fun resetToDefaults()
     fun focusMinutes(): Long
     fun shortBreakMinutes(): Long

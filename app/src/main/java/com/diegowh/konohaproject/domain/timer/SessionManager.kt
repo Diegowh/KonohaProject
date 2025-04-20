@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-class SessionManager (
+class SessionManager(
     private val engine: TimerEngine,
     private val settings: SettingsProvider,
     private val scope: CoroutineScope
@@ -60,13 +60,25 @@ class SessionManager (
                 !isLastRound -> {
                     currentSession.round++
                     start(focusTime)
-                    _eventFlow.emit(TimerUIEvent.IntervalFinished(currentSession.round, nextInterval))
+                    _eventFlow.emit(
+                        TimerUIEvent.IntervalFinished(
+                            currentSession.round,
+                            nextInterval
+                        )
+                    )
                 }
+
                 isAutorun -> {
                     currentSession.round = 1
                     start(focusTime)
-                    _eventFlow.emit(TimerUIEvent.IntervalFinished(currentSession.round, nextInterval))
+                    _eventFlow.emit(
+                        TimerUIEvent.IntervalFinished(
+                            currentSession.round,
+                            nextInterval
+                        )
+                    )
                 }
+
                 else -> {
                     currentSession.round = 0
                     reset()
@@ -82,8 +94,10 @@ class SessionManager (
             currentSession.round++
             currentSession.intervalType = IntervalType.FOCUS
             scope.launch {
-                _eventFlow.emit(TimerUIEvent.IntervalFinished(
-                    currentSession.round, currentSession.intervalType)
+                _eventFlow.emit(
+                    TimerUIEvent.IntervalFinished(
+                        currentSession.round, currentSession.intervalType
+                    )
                 )
             }
         }

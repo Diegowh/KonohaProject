@@ -1,13 +1,13 @@
 package com.diegowh.konohaproject.ui.timer
 
 import android.graphics.drawable.AnimationDrawable
-import androidx.fragment.app.viewModels
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -16,8 +16,8 @@ import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
-import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.animation.AnimationAction
+import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.timer.IntervalType
 import kotlinx.coroutines.launch
 

@@ -9,5 +9,5 @@ data class AnimationState(
 sealed class AnimationAction {
     data object Start : AnimationAction()
     data object Pause : AnimationAction()
-    data object Stop  : AnimationAction()
+    data object Stop : AnimationAction()
 }

@@ -21,7 +21,7 @@ class TimerService : Service(), TimerController {
 
     private val serviceScope = CoroutineScope(Dispatchers.Default)
 
-    inner class TimerBinder: Binder() {
+    inner class TimerBinder : Binder() {
         fun getController(): TimerController = this@TimerService
     }
 

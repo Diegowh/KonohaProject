@@ -7,6 +7,7 @@ sealed class TimerUIEvent {
     data class IntervalFinished(
         val currentRound: Int,
         val nextInterval: IntervalType
-    ) :TimerUIEvent()
-    data object SessionFinished: TimerUIEvent()
+    ) : TimerUIEvent()
+
+    data object SessionFinished : TimerUIEvent()
 }

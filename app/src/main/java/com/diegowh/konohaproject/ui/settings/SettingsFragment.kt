@@ -74,13 +74,13 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
         })
 
         seekBarLongBreak.max = longBreakOptions.size - 1
-         seekBarLongBreak.setOnSeekBarChangeListener(changeListener { p ->
+        seekBarLongBreak.setOnSeekBarChangeListener(changeListener { p ->
             txtLongBreak.text = getString(R.string.minutes_format, longBreakOptions[p])
             selectedLongBreak = longBreakOptions[p]
         })
 
         seekBarRounds.max = roundsOptions.size - 1
-         seekBarRounds.setOnSeekBarChangeListener(changeListener { p ->
+        seekBarRounds.setOnSeekBarChangeListener(changeListener { p ->
             txtRounds.text = String.format(Locale.US, "%d", roundsOptions[p])
             selectedRounds = roundsOptions[p]
         })
@@ -115,8 +115,8 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
 
     private fun getFocusValues(): List<Int> =
         (1..5).toList() +
-        (10..60 step 5).toList() +
-        (75..120 step 15).toList()
+                (10..60 step 5).toList() +
+                (75..120 step 15).toList()
 
     private fun getShortBreakValues(): List<Int> =
         (1..5).toList() + (10..30 step 5).toList()
@@ -132,6 +132,7 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings_li
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
             if (fromUser) onChange(progress)
         }
+
         override fun onStartTrackingTouch(seekBar: SeekBar) {}
         override fun onStopTrackingTouch(seekBar: SeekBar) {}
     }

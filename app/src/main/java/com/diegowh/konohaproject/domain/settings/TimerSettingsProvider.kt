@@ -11,6 +11,7 @@ class TimerSettingsProvider(private val context: Context) : SettingsProvider {
     override fun isMuteEnabled(): Boolean = TimerSettings.isMuteEnabled(context)
     override fun initialDisplayTime(isFocus: Boolean): String =
         TimerSettings.initialDisplayTime(context, isFocus)
+
     override fun updateSettings(
         focus: Long,
         shortBreak: Long,
@@ -29,7 +30,11 @@ class TimerSettingsProvider(private val context: Context) : SettingsProvider {
             mute
         )
     }
-    override fun resetToDefaults() { TimerSettings.resetToDefaults(context) }
+
+    override fun resetToDefaults() {
+        TimerSettings.resetToDefaults(context)
+    }
+
     override fun focusMinutes(): Long = TimerSettings.getFocusMinutes(context)
     override fun shortBreakMinutes(): Long = TimerSettings.getShortBreakMinutes(context)
     override fun longBreakMinutes(): Long = TimerSettings.getLongBreakMinutes(context)

@@ -7,17 +7,15 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.diegowh.konohaproject.domain.main.App
-import com.diegowh.konohaproject.domain.timer.TimerState
-import com.diegowh.konohaproject.domain.timer.TimerService
 import com.diegowh.konohaproject.domain.settings.SettingsProvider
+import com.diegowh.konohaproject.domain.timer.TimerService
+import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.domain.timer.TimerUIEvent
-import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.animation.AnimationAction
 import com.diegowh.konohaproject.utils.animation.AnimationState
+import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.timer.Interval
 import com.diegowh.konohaproject.utils.timer.IntervalType
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -57,25 +55,37 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 controller.getTimerEvents().collect { event ->
                     when (event) {
                         is TimerUIEvent.TimeUpdate -> {
-                            _uiState.update { it.copy(
-                                timerText = formatTime(event.remainingMillis)
-                            ) }
+                            _uiState.update {
+                                it.copy(
+                                    timerText = formatTime(event.remainingMillis)
+                                )
+                            }
                         }
+
                         is TimerUIEvent.IntervalFinished -> {
                             val nextDuration = calculateNextDuration(event.nextInterval)
-                            _uiState.update { it.copy(
-                                interval = Interval(event.currentRound, event.nextInterval, nextDuration),
-                                currentRound = event.currentRound
-                            ) }
+                            _uiState.update {
+                                it.copy(
+                                    interval = Interval(
+                                        event.currentRound,
+                                        event.nextInterval,
+                                        nextDuration
+                                    ),
+                                    currentRound = event.currentRound
+                                )
+                            }
 
                             if (!settings.isMuteEnabled()) {
                                 _intervalSoundEvent.emit(SoundType.INTERVAL_CHANGE)
                             }
                         }
+
                         TimerUIEvent.SessionFinished -> {
-                            _uiState.update { it.copy(
-                                animationAction = AnimationAction.Stop
-                            ) }
+                            _uiState.update {
+                                it.copy(
+                                    animationAction = AnimationAction.Stop
+                                )
+                            }
                             handleReset(controller)
                         }
                     }
@@ -84,6 +94,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             updateUIWithCurrentState(controller)
             _uiState.update { it.copy(animationAction = AnimationAction.Stop) }
         }
+
         override fun onServiceDisconnected(name: ComponentName?) {
             countdownController = null
         }
@@ -131,11 +142,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun updateUIWithCurrentState(controller: TimerService) {
         _uiState.update {
-            it.copy(state = when {
-                controller.isRunning() && !controller.isPaused() -> TimerState.Running
-                controller.isPaused() -> TimerState.Paused
-                else -> TimerState.Stopped
-            })
+            it.copy(
+                state = when {
+                    controller.isRunning() && !controller.isPaused() -> TimerState.Running
+                    controller.isPaused() -> TimerState.Paused
+                    else -> TimerState.Stopped
+                }
+            )
         }
     }
 
@@ -156,6 +169,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                         )
                     }
                 }
+
                 !controller.isRunning() -> {
                     controller.start(settings.focusTimeMillis())
                     _uiState.update {
