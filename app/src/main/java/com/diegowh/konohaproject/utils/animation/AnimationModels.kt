@@ -7,7 +7,7 @@ data class AnimationState(
 
 
 sealed class AnimationAction {
-    data class Start(val fromFrame: Int? = null) : AnimationAction()
+    data object Start : AnimationAction()
     data object Pause : AnimationAction()
     data object Stop  : AnimationAction()
 }
