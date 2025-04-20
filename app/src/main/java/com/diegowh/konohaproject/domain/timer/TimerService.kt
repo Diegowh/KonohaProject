@@ -60,7 +60,7 @@ class TimerService : Service(), TimerController {
     override fun isPaused(): Boolean = sessionManager.isPaused()
     override fun isRunning(): Boolean = sessionManager.isRunning()
     override fun getCurrentRound(): Int = sessionManager.getCurrentRound()
-    override fun isFocusInterval(): Boolean = sessionManager.isFocusInterval()
+//    override fun isFocusInterval(): Boolean = sessionManager.isFocusInterval()
 
     fun getTimerEvents() = sessionManager.eventFlow
 

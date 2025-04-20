@@ -14,10 +14,11 @@ class SessionManager (
     private val scope: CoroutineScope
 ) {
 
-    private var currentRound = 0
-    private var isFocusInterval = false
-    private var actualInterval: IntervalType = IntervalType.FOCUS
+//    private var currentRound = 0
+//    private var isFocusInterval = false
+//    private var actualInterval: IntervalType = IntervalType.FOCUS
 
+    private var currentSession = SessionState()
     private val _eventFlow = MutableSharedFlow<TimerUIEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
@@ -40,38 +41,38 @@ class SessionManager (
         val nextInterval: IntervalType
         val totalRounds = settings.totalRounds()
         val isAutorun = settings.isAutorunEnabled()
-        val isLastRound = currentRound == totalRounds
+        val isLastRound = currentSession.round == totalRounds
 
-        if (actualInterval == IntervalType.FOCUS) {
+        if (currentSession.intervalType == IntervalType.FOCUS) {
             val breakTime: Long
             if (isLastRound) {
-                actualInterval = IntervalType.LONG_BREAK
+                currentSession.intervalType = IntervalType.LONG_BREAK
                 nextInterval = IntervalType.LONG_BREAK
                 breakTime = settings.longBreakTimeMillis()
             } else {
-                actualInterval = IntervalType.SHORT_BREAK
+                currentSession.intervalType = IntervalType.SHORT_BREAK
                 nextInterval = IntervalType.SHORT_BREAK
                 breakTime = settings.shortBreakTimeMillis()
             }
             start(breakTime)
-            _eventFlow.emit(TimerUIEvent.IntervalFinished(currentRound, nextInterval))
+            _eventFlow.emit(TimerUIEvent.IntervalFinished(currentSession.round, nextInterval))
         } else {
-            actualInterval = IntervalType.FOCUS
+            currentSession.intervalType = IntervalType.FOCUS
             nextInterval = IntervalType.FOCUS
             val focusTime = settings.focusTimeMillis()
             when {
                 !isLastRound -> {
-                    currentRound++
+                    currentSession.round++
                     start(focusTime)
-                    _eventFlow.emit(TimerUIEvent.IntervalFinished(currentRound, nextInterval))
+                    _eventFlow.emit(TimerUIEvent.IntervalFinished(currentSession.round, nextInterval))
                 }
                 isAutorun -> {
-                    currentRound = 1
+                    currentSession.round = 1
                     start(focusTime)
-                    _eventFlow.emit(TimerUIEvent.IntervalFinished(currentRound, nextInterval))
+                    _eventFlow.emit(TimerUIEvent.IntervalFinished(currentSession.round, nextInterval))
                 }
                 else -> {
-                    currentRound = 0
+                    currentSession.round = 0
                     reset()
                     _eventFlow.emit(TimerUIEvent.SessionFinished)
                     return
@@ -81,11 +82,13 @@ class SessionManager (
     }
 
     fun start(durationMillis: Long) {
-        if (currentRound == 0) {
-            currentRound++
-            isFocusInterval = true
+        if (currentSession.round == 0) {
+            currentSession.round++
+            currentSession.intervalType = IntervalType.FOCUS
             scope.launch {
-                _eventFlow.emit(TimerUIEvent.IntervalFinished(currentRound, actualInterval))
+                _eventFlow.emit(TimerUIEvent.IntervalFinished(
+                    currentSession.round, currentSession.intervalType)
+                )
             }
         }
         engine.reset()
@@ -96,12 +99,12 @@ class SessionManager (
     fun resume() = engine.resume()
     fun reset() {
         engine.reset()
-        currentRound = 0
+        currentSession.round = 0
     }
 
     fun getRemainingTime(): Long = engine.getRemainingTime()
     fun isPaused(): Boolean = engine.isPaused()
     fun isRunning(): Boolean = engine.isRunning()
-    fun getCurrentRound(): Int = currentRound
-    fun isFocusInterval(): Boolean = isFocusInterval
+    fun getCurrentRound(): Int = currentSession.round
+//    fun isFocusInterval(): Boolean = isFocusInterval
 }
