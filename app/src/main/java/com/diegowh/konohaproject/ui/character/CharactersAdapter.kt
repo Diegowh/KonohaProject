@@ -25,7 +25,7 @@ class CharactersAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val character = characters[position]
-        holder.icon.setImageResource(character.iconResId)
+        holder.icon.setImageResource(character.iconRes)
         holder.itemView.setOnClickListener { onItemClick(character) }
     }
 

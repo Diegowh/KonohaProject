@@ -26,6 +26,6 @@
         app:spanCount="4"
         tools:listitem="@layout/item_character"
         tools:itemCount="4"
-        tools:background="@color/background_app_break"/>
+        tools:background="@color/sakura_break_primary"/>
 
 </LinearLayout>

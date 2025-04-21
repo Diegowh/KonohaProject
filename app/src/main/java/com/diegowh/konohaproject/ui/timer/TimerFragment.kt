@@ -20,6 +20,7 @@ import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import com.diegowh.konohaproject.utils.animation.AnimationAction
 import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.timer.IntervalType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
@@ -121,8 +122,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             binding.main.setBackgroundColor(
                 ContextCompat.getColor(
                     requireContext(),
-                    if (isFocus) R.color.background_app_focus
-                    else R.color.background_app_break
+                    if (isFocus) R.color.sakura_focus_primary
+                    else R.color.sakura_break_primary
                 )
             )
         }
@@ -180,7 +181,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
     private fun resetBackgroundColor() {
         binding.main.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.background_app_focus)
+            ContextCompat.getColor(requireContext(), R.color.sakura_focus_primary)
         )
     }
 
@@ -198,7 +199,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                 }
                 setBackgroundResource(R.drawable.round_button)
                 backgroundTintList =
-                    ContextCompat.getColorStateList(context, R.color.button_secondary)
+                    ContextCompat.getColorStateList(context, R.color.sakura_focus_secondary)
 
                 binding.roundCounterContainer.addView(this)
                 roundViews.add(this)
@@ -207,8 +208,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun updateRoundUI(cycle: Int) {
-        val active = ContextCompat.getColorStateList(requireContext(), R.color.button_primary)
-        val inactive = ContextCompat.getColorStateList(requireContext(), R.color.button_secondary)
+        val active = ContextCompat.getColorStateList(requireContext(), R.color.sakura_focus_tertiary)
+        val inactive = ContextCompat.getColorStateList(requireContext(), R.color.sakura_focus_secondary)
         roundViews.forEachIndexed { i, v ->
             v.backgroundTintList = if (i < cycle) active else inactive
         }

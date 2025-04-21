@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="test_sakura_focus_frames">
+        <item>@drawable/sakura_crop</item>
+        <item>@drawable/losiento1</item>
+        <item>@drawable/losiento2</item>
+        <item>@drawable/losiento3</item>
+        <item>@drawable/losiento4</item>
+    </array>
+
+    <array name="test_sakura_break_frames">
+        <item>@drawable/sakura_crop</item>
+        <item>@drawable/losiento1</item>
+        <item>@drawable/losiento2</item>
+        <item>@drawable/losiento3</item>
+        <item>@drawable/losiento4</item>
+    </array>
+
+
+    <integer-array name="test_sakura_focus_palette">
+        <item>@color/sakura_focus_primary</item>
+        <item>@color/sakura_focus_secondary</item>
+        <item>@color/sakura_focus_tertiary</item>
+        <item>@color/sakura_focus_text</item>
+    </integer-array>
+
+    <integer-array name="test_sakura_break_palette">
+        <item>@color/sakura_break_primary</item>
+        <item>@color/sakura_break_secondary</item>
+        <item>@color/sakura_break_tertiary</item>
+        <item>@color/sakura_break_text</item>
+    </integer-array>
+</resources>

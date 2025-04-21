@@ -17,9 +17,16 @@
 <!--    <color name="background_focus">#0E0B20</color>-->
 <!--    <color name="background_break">#0A2012</color>-->
 
-    <color name="background_app_focus">#EC92AB</color>
-    <color name="background_app_break">#CA4465</color>
-    <color name="button_primary">#3E6E5F</color>
-    <color name="button_secondary">#B3EFDC</color>
+<!--    Sakura-->
+    <color name="sakura_focus_primary">#EC92AB</color>
+    <color name="sakura_focus_secondary">#B3EFDC</color>
+    <color name="sakura_focus_tertiary">#3E6E5F</color>
+    <color name="sakura_focus_text">#ffffff</color>
+
+    <color name="sakura_break_primary">#CA4465</color>
+    <color name="sakura_break_secondary">#B3EFDC</color>
+    <color name="sakura_break_tertiary">#3E6E5F</color>
+    <color name="sakura_break_text">#ffffff</color>
+
 
 </resources>
