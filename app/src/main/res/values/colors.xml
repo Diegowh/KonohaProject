@@ -28,5 +28,14 @@
     <color name="sakura_break_tertiary">#3E6E5F</color>
     <color name="sakura_break_text">#ffffff</color>
 
+    <!--    Guy-->
+    <color name="guy_focus_primary">#3F6F4C</color>
+    <color name="guy_focus_secondary">#EAC49D</color>
+    <color name="guy_focus_tertiary">#DC9B51</color>
+    <color name="guy_focus_text">#ffffff</color>
 
+    <color name="guy_break_primary">#82976C</color>
+    <color name="guy_break_secondary">#EAC49D</color>
+    <color name="guy_break_tertiary">#DC9B51</color>
+    <color name="guy_break_text">#ffffff</color>
 </resources>

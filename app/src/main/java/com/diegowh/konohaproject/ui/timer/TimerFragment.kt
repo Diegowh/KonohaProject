@@ -15,12 +15,11 @@ import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
-import com.diegowh.konohaproject.ui.character.CharacterSelectorFragment
+import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import com.diegowh.konohaproject.utils.animation.AnimationAction
 import com.diegowh.konohaproject.utils.sound.SoundType
 import com.diegowh.konohaproject.utils.timer.IntervalType
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
@@ -175,7 +174,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             SettingsFragment().show(childFragmentManager, "SettingsDialog")
         }
         binding.btnCharacterSelect.setOnClickListener {
-            CharacterSelectorFragment().show(childFragmentManager, "CharacterSelector")
+            CharacterSelectionFragment().show(childFragmentManager, "CharacterSelector")
         }
     }
 
