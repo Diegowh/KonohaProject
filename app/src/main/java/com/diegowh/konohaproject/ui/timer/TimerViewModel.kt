@@ -8,6 +8,7 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.diegowh.konohaproject.domain.character.CharacterSelectionEvent
 import com.diegowh.konohaproject.domain.main.App
 import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
 import com.diegowh.konohaproject.domain.timer.TimerService
@@ -199,6 +200,14 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     fun onResetClicked() {
         countdownController?.get()?.let { controller ->
             handleReset(controller)
+        }
+    }
+
+    fun onEvent(event: CharacterSelectionEvent) {
+        when (event) {
+            is CharacterSelectionEvent.SelectCharacter -> {
+                println("Personaje seleccionado: ${event.character.name}")
+            }
         }
     }
 

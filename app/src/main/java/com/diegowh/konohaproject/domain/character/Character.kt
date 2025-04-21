@@ -1,9 +1,12 @@
 package com.diegowh.konohaproject.domain.character
+
 import androidx.annotation.ArrayRes
+import androidx.annotation.DrawableRes
 
-
-data class CharacterDetail(
-    val metadata: CharacterMetadata,
+data class Character(
+    val id: Int,
+    val name: String,
+    @DrawableRes val iconRes: Int,
     @ArrayRes val focusFrames: Int,
     @ArrayRes val breakFrames: Int,
     @ArrayRes val focusPalette: Int,

@@ -1,7 +1,6 @@
 package com.diegowh.konohaproject.domain.character
 
 import com.diegowh.konohaproject.R
-import com.diegowh.konohaproject.ui.character.Character
 
 object CharacterDataSource {
 

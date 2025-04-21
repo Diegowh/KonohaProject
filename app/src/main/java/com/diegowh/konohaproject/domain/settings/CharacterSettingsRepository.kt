@@ -1,9 +1,11 @@
 package com.diegowh.konohaproject.domain.settings
 
-import com.diegowh.konohaproject.domain.character.CharacterDetail
+import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.character.CharacterMetadata
 
 interface CharacterSettingsRepository {
-    fun getAllMetada(): List<CharacterMetadata>
-    fun getDetailById(id: Int): CharacterDetail
+    fun getAllMetadata(): List<CharacterMetadata>
+    fun getById(id: Int): Character
+    fun getSelectedCharacterId(): Int
+    fun setSelectedCharacterId(id: Int)
 }

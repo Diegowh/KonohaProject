@@ -4,46 +4,55 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentCharacterSelectionBinding
 import com.diegowh.konohaproject.domain.character.CharacterDataSource
+import com.diegowh.konohaproject.domain.character.CharacterSelectionEvent
+import com.diegowh.konohaproject.ui.timer.TimerViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
-class CharacterSelectionFragment : BottomSheetDialogFragment(R.layout.fragment_character_selection) {
+class CharacterSelectionFragment :
+    BottomSheetDialogFragment(R.layout.fragment_character_selection) {
 
     private var _binding: FragmentCharacterSelectionBinding? = null
     private val binding get() = _binding!!
+
+    private val _eventFlow = MutableSharedFlow<CharacterSelectionEvent>()
+    val eventFlow: SharedFlow<CharacterSelectionEvent> = _eventFlow.asSharedFlow()
+
+    private val timerViewModel: TimerViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentCharacterSelectionBinding.inflate(
             inflater,
             container,
             false
         )
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Esto tengo que moverlo a un viewmodel o controlador que se encargue no solo de la seleccion
-        // del personaje sino de contener todos los datos del personaje para utilizarlos en el resto
-        // de la app
-        val characters = CharacterDataSource.getAll()
-        binding.charactersRecycler.adapter = CharactersAdapter(characters) { character ->
-            println(character.name)
-            setCharacterTheme(character)
+        val metadatas = CharacterDataSource.getAllMetadata()
+        val characters = metadatas.map { meta ->
+            CharacterDataSource.getById(meta.id)
         }
-    }
 
-    private fun setCharacterTheme(character: Character) {
+        binding.charactersRecycler.adapter =
+            CharactersAdapter(characters) { character ->
 
+                timerViewModel.onEvent(CharacterSelectionEvent.SelectCharacter(character))
+//                dismiss()
+            }
     }
 
     override fun onDestroyView() {

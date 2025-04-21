@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.domain.character.Character
 
 class CharactersAdapter(
     private val characters: List<Character>,
