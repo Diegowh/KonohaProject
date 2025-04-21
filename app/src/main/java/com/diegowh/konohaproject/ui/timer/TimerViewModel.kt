@@ -9,7 +9,7 @@ import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.diegowh.konohaproject.domain.main.App
-import com.diegowh.konohaproject.domain.settings.SettingsProvider
+import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
 import com.diegowh.konohaproject.domain.timer.TimerService
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.domain.timer.TimerUIEvent
@@ -37,8 +37,8 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     val uiState: StateFlow<TimerUIState> = _uiState.asStateFlow()
     val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
 
-    private val settings: SettingsProvider =
-        (getApplication() as App).settingsProvider
+    private val settings: TimerSettingsRepository =
+        (getApplication() as App).timerSettings
 
     /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
     * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
@@ -117,7 +117,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun initState() {
         _uiState.value = TimerUIState(
-            timerText = settings.initialDisplayTime(true),
+            timerText = settings.initialDisplayTime(),
             state = TimerState.Stopped,
             currentRound = 0,
             totalRounds = settings.totalRounds()
@@ -205,7 +205,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     private fun handleReset(controller: TimerService) {
         controller.reset()
         _uiState.value = TimerUIState(
-            timerText = settings.initialDisplayTime(true),
+            timerText = settings.initialDisplayTime(),
             state = TimerState.Stopped,
             currentRound = 0,
             totalRounds = settings.totalRounds(),

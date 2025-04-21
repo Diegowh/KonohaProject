@@ -7,7 +7,7 @@ import android.widget.SeekBar
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentSettingsBinding
 import com.diegowh.konohaproject.domain.main.App
-import com.diegowh.konohaproject.domain.settings.SettingsProvider
+import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 
@@ -29,7 +29,7 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
     private var autorunEnabled: Boolean = true
     private var muteEnabled: Boolean = false
 
-    private lateinit var settings: SettingsProvider
+    private lateinit var settings: TimerSettingsRepository
 
     interface Listener {
         fun onSettingsChanged()
@@ -39,7 +39,7 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSettingsBinding.bind(view)
-        settings = (requireActivity().application as App).settingsProvider
+        settings = (requireActivity().application as App).timerSettings
         listener = parentFragment as? Listener ?: activity as? Listener
         loadPreferences()
         initUi()

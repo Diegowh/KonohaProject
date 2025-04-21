@@ -1,7 +1,7 @@
 package com.diegowh.konohaproject.domain.timer
 
 
-import com.diegowh.konohaproject.domain.settings.SettingsProvider
+import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
 import com.diegowh.konohaproject.utils.timer.IntervalType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 class SessionManager(
     private val engine: TimerEngine,
-    private val settings: SettingsProvider,
+    private val settings: TimerSettingsRepository,
     private val scope: CoroutineScope
 ) {
 
