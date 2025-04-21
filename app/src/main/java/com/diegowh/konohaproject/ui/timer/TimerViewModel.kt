@@ -8,6 +8,8 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.character.CharacterSelectionEvent
 import com.diegowh.konohaproject.domain.main.App
 import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
@@ -37,6 +39,20 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     val uiState: StateFlow<TimerUIState> = _uiState.asStateFlow()
     val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
+
+    // TODO: Borrar esto de aqui cuando implemente la carga de las prefs y el default
+    private val defaultCharacter = Character(
+        1,
+        "Sakura",
+        R.drawable.sakura_miniatura,
+        R.array.test_sakura_focus_frames,
+        R.array.test_sakura_break_frames,
+        R.array.test_sakura_focus_palette,
+        R.array.test_sakura_break_palette
+    )
+
+    private val _selectedCharacter = MutableStateFlow(defaultCharacter)
+    val selectedCharacter: StateFlow<Character> = _selectedCharacter
 
     private val settings: TimerSettingsRepository =
         (getApplication() as App).timerSettings
@@ -203,10 +219,14 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun onEvent(event: CharacterSelectionEvent) {
+    fun onCharSelectEvent(event: CharacterSelectionEvent) {
         when (event) {
-            is CharacterSelectionEvent.SelectCharacter -> {
+            is CharacterSelectionEvent.CharacterSelected -> {
                 println("Personaje seleccionado: ${event.character.name}")
+                _selectedCharacter.value = event.character
+                _uiState.update { old ->
+                    old.copy(selectedCharacter = event.character)
+                }
             }
         }
     }

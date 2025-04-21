@@ -53,16 +53,16 @@
 
 
     <integer-array name="test_guy_focus_palette">
-        <item>@color/sakura_focus_primary</item>
-        <item>@color/sakura_focus_secondary</item>
-        <item>@color/sakura_focus_tertiary</item>
-        <item>@color/sakura_focus_text</item>
+        <item>@color/guy_focus_primary</item>
+        <item>@color/guy_focus_secondary</item>
+        <item>@color/guy_focus_tertiary</item>
+        <item>@color/guy_focus_text</item>
     </integer-array>
 
     <integer-array name="test_guy_break_palette">
-        <item>@color/sakura_break_primary</item>
-        <item>@color/sakura_break_secondary</item>
-        <item>@color/sakura_break_tertiary</item>
-        <item>@color/sakura_break_text</item>
+        <item>@color/guy_break_primary</item>
+        <item>@color/guy_break_secondary</item>
+        <item>@color/guy_break_tertiary</item>
+        <item>@color/guy_break_text</item>
     </integer-array>
 </resources>

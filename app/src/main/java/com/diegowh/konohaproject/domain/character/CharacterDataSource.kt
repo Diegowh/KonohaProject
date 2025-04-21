@@ -18,10 +18,10 @@ object CharacterDataSource {
             2,
             "Guy 1",
             R.drawable.guy_miniatura,
-            R.array.test_sakura_focus_frames,
-            R.array.test_sakura_break_frames,
-            R.array.test_sakura_focus_palette,
-            R.array.test_sakura_break_palette
+            R.array.test_guy_focus_frames,
+            R.array.test_guy_break_frames,
+            R.array.test_guy_focus_palette,
+            R.array.test_guy_break_palette
         ),
         Character(
             3,

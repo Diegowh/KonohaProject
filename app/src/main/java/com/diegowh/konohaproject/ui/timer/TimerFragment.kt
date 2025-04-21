@@ -1,5 +1,6 @@
 package com.diegowh.konohaproject.ui.timer
 
+import android.content.res.TypedArray
 import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.view.View
@@ -13,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
+import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
@@ -42,6 +44,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
         initSoundPlayer()
         initAnimator()
+        updateCharacterUI(viewModel.selectedCharacter.value)
+
         initComponents()
 
     }
@@ -74,14 +78,57 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                viewModel.uiState.collect { state ->
-                    updateMainUI(state)
-                    handleAnimationLogic(state)
+                launch {
+                    viewModel.selectedCharacter.collect { character ->
+                        println("YEPAAAAAAA")
+                        updateCharacterUI(character)
+                    }
+                }
+                launch {
+                    viewModel.uiState.collect { state ->
+                        updateMainUI(state)
+                        handleAnimationLogic(state)
+                    }
                 }
             }
         }
         observeSoundEvents()
     }
+
+    private lateinit var focusColors: IntArray
+    private lateinit var breakColors: IntArray
+    private lateinit var focusFrames: TypedArray
+    private lateinit var breakFrames: TypedArray
+
+    private fun updateCharacterUI(character: Character) {
+        val framesArray = resources.obtainTypedArray(character.focusFrames)
+        val frameDuration = resources.getInteger(R.integer.frame_duration)
+
+        val anim = AnimationDrawable().apply {
+            isOneShot = false
+            for (i in 0 until framesArray.length()) {
+                val resId = framesArray.getResourceId(i, 0)
+                val drawable = ContextCompat.getDrawable(requireContext(), resId)
+                if (drawable != null) {
+                    addFrame(drawable, frameDuration)
+                }
+            }
+        }
+        framesArray.recycle()
+
+        binding.imgCharacter.setImageDrawable(anim)
+        println("APLICADO ESTILO DE: ${character.name}!!")
+        charAnim = anim
+
+
+        focusColors = resources.getIntArray(character.focusPalette)
+        breakColors = resources.getIntArray(character.breakPalette)
+        focusFrames = resources.obtainTypedArray(character.focusFrames)
+        breakFrames = resources.obtainTypedArray(character.breakFrames)
+
+        binding.main.setBackgroundColor(focusColors.first())
+    }
+
 
     private fun updateMainUI(state: TimerUIState) {
         binding.txtTimer.text = state.timerText
@@ -109,7 +156,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                     btnPlay.visibility = View.VISIBLE
                     btnReset.visibility = View.VISIBLE
                     btnPause.visibility = View.GONE
-                    resetBackgroundColor()
+//                    resetBackgroundColor()
                 }
             }
         }
@@ -117,14 +164,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
     private fun updateBackgroundAndRounds(state: TimerUIState) {
         state.interval?.let { interval ->
-            val isFocus = interval.type == IntervalType.FOCUS
-            binding.main.setBackgroundColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    if (isFocus) R.color.sakura_focus_primary
-                    else R.color.sakura_break_primary
-                )
-            )
+            val palette = if (interval.type == IntervalType.FOCUS) focusColors else breakColors
+            binding.main.setBackgroundColor(palette.first())
         }
     }
 
