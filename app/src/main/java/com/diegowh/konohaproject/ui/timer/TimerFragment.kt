@@ -1,6 +1,7 @@
 package com.diegowh.konohaproject.ui.timer
 
 import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -23,6 +24,7 @@ import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
 
@@ -45,9 +47,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         initSoundPlayer()
         initAnimator()
         updateCharacterUI(viewModel.selectedCharacter.value)
-
         initComponents()
-
     }
 
     override fun onDestroyView() {
@@ -112,6 +112,30 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
         // TODO: Utilizar un sistema para no acceder a los diferentes colores por index
         binding.main.setBackgroundColor(currentTheme.focusPalette[0])
+
+        fun View.applyButtonColors(bgColor: Int, borderColor: Int) {
+            ((background as? GradientDrawable)?.mutate() as? GradientDrawable)
+                ?.apply {
+                    setColor(bgColor)
+                    val strokeDp = 4f
+                    val metrics = context.resources.displayMetrics
+                    val strokePx = (strokeDp * metrics.density).roundToInt()
+
+                    setStroke(strokePx, borderColor)
+                }
+        }
+
+        val buttons = listOf(
+            binding.btnPlay,
+            binding.btnPause,
+            binding.btnReset,
+            binding.btnSettings,
+            binding.btnCharacterSelect
+        )
+        buttons.forEach { btn ->
+            btn.applyButtonColors(currentTheme.focusPalette[1], currentTheme.focusPalette[2])
+        }
+
     }
 
 
@@ -208,9 +232,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun resetBackgroundColor() {
-        binding.main.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.sakura_focus_primary)
-        )
+        binding.main.setBackgroundColor(currentTheme.focusPalette[0])
     }
 
     private fun initRoundCounterViews(total: Int) {

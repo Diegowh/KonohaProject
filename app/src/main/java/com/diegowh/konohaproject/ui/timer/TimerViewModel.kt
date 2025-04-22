@@ -8,19 +8,19 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.diegowh.konohaproject.R
-import com.diegowh.konohaproject.domain.character.Character
-import com.diegowh.konohaproject.domain.character.CharacterSelectionEvent
 import com.diegowh.konohaproject.app.App
-import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
-import com.diegowh.konohaproject.domain.timer.TimerService
-import com.diegowh.konohaproject.domain.timer.TimerState
-import com.diegowh.konohaproject.domain.timer.TimerUIEvent
 import com.diegowh.konohaproject.core.animation.AnimationAction
 import com.diegowh.konohaproject.core.animation.AnimationState
 import com.diegowh.konohaproject.core.sound.SoundType
 import com.diegowh.konohaproject.core.timer.Interval
 import com.diegowh.konohaproject.core.timer.IntervalType
+import com.diegowh.konohaproject.domain.character.Character
+import com.diegowh.konohaproject.domain.character.CharacterSelectionEvent
+import com.diegowh.konohaproject.domain.settings.CharacterSettingsRepository
+import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
+import com.diegowh.konohaproject.domain.timer.TimerService
+import com.diegowh.konohaproject.domain.timer.TimerState
+import com.diegowh.konohaproject.domain.timer.TimerUIEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -40,18 +40,15 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     val uiState: StateFlow<TimerUIState> = _uiState.asStateFlow()
     val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
 
-    // TODO: Borrar esto de aqui cuando implemente la carga de las prefs y el default
-    private val defaultCharacter = Character(
-        1,
-        "Sakura",
-        R.drawable.sakura_miniatura,
-        R.array.test_sakura_focus_frames,
-        R.array.test_sakura_break_frames,
-        R.array.test_sakura_focus_palette,
-        R.array.test_sakura_break_palette
+    private val characterSettings: CharacterSettingsRepository =
+        (getApplication() as App).characterSettings
+
+    private val _selectedCharacter = MutableStateFlow(
+        characterSettings.getById(
+            characterSettings.getSelectedCharacterId()
+        )
     )
 
-    private val _selectedCharacter = MutableStateFlow(defaultCharacter)
     val selectedCharacter: StateFlow<Character> = _selectedCharacter
 
     private val settings: TimerSettingsRepository =
@@ -120,6 +117,11 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     init {
         bindService()
         initState()
+
+        // carga del personaje guardado
+        val saved = characterSettings.getSelectedCharacterId()
+        val char = characterSettings.getById(saved)
+        _uiState.update { it.copy(selectedCharacter = char) }
     }
 
     private fun bindService() {
@@ -227,6 +229,8 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 _uiState.update { old ->
                     old.copy(selectedCharacter = event.character)
                 }
+
+                characterSettings.setSelectedCharacterId(event.character.id)
             }
         }
     }
