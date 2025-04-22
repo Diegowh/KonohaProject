@@ -1,6 +1,5 @@
 package com.diegowh.konohaproject.ui.timer
 
-import android.content.res.TypedArray
 import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.view.View
@@ -13,16 +12,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.core.animation.AnimationAction
+import com.diegowh.konohaproject.core.sound.SoundType
+import com.diegowh.konohaproject.core.timer.IntervalType
+import com.diegowh.konohaproject.core.ui.CharacterTheme
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
-import com.diegowh.konohaproject.core.animation.AnimationAction
-import com.diegowh.konohaproject.core.sound.SoundType
-import com.diegowh.konohaproject.core.timer.IntervalType
-import com.diegowh.konohaproject.core.ui.CharacterTheme
 import kotlinx.coroutines.launch
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
@@ -96,10 +95,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         observeSoundEvents()
     }
 
-    private lateinit var focusColors: IntArray
-    private lateinit var breakColors: IntArray
-    private lateinit var focusFrames: TypedArray
-    private lateinit var breakFrames: TypedArray
 
     private fun updateCharacterUI(character: Character) {
         currentTheme = ThemeManager.loadTheme(requireContext(), character)
@@ -117,8 +112,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
         // TODO: Utilizar un sistema para no acceder a los diferentes colores por index
         binding.main.setBackgroundColor(currentTheme.focusPalette[0])
-//        binding.btnSettings.setBackgroundColor(currentTheme.focusPalette[0])
-//        binding.btnCharacterSelect.setBackgroundColor(currentTheme.focusPalette[0])
     }
 
 
@@ -148,7 +141,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                     btnPlay.visibility = View.VISIBLE
                     btnReset.visibility = View.VISIBLE
                     btnPause.visibility = View.GONE
-//                    resetBackgroundColor()
                 }
             }
         }
@@ -244,8 +236,10 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun updateRoundUI(cycle: Int) {
-        val active = ContextCompat.getColorStateList(requireContext(), R.color.sakura_focus_tertiary)
-        val inactive = ContextCompat.getColorStateList(requireContext(), R.color.sakura_focus_secondary)
+        val active =
+            ContextCompat.getColorStateList(requireContext(), R.color.sakura_focus_tertiary)
+        val inactive =
+            ContextCompat.getColorStateList(requireContext(), R.color.sakura_focus_secondary)
         roundViews.forEachIndexed { i, v ->
             v.backgroundTintList = if (i < cycle) active else inactive
         }
