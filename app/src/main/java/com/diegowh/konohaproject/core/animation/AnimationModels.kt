@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.utils.animation
+package com.diegowh.konohaproject.core.animation
 
 data class AnimationState(
     val currentFrame: Int,

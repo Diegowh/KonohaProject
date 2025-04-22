@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.ui.components
+package com.diegowh.konohaproject.core.ui
 
 import android.content.Context
 import android.graphics.Canvas

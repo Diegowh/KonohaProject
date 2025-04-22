@@ -4,9 +4,9 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import com.diegowh.konohaproject.domain.main.App
+import com.diegowh.konohaproject.app.App
 import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
-import com.diegowh.konohaproject.utils.service.ServiceNotifier
+import com.diegowh.konohaproject.core.service.ServiceNotifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 

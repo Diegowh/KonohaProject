@@ -3,11 +3,11 @@ package com.diegowh.konohaproject.ui.timer
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.timer.TimerState
-import com.diegowh.konohaproject.utils.animation.AnimationAction
-import com.diegowh.konohaproject.utils.animation.AnimationState
+import com.diegowh.konohaproject.core.animation.AnimationAction
+import com.diegowh.konohaproject.core.animation.AnimationState
 
 
-import com.diegowh.konohaproject.utils.timer.Interval
+import com.diegowh.konohaproject.core.timer.Interval
 
 data class TimerUIState(
     val timerText: String = "",

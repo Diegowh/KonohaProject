@@ -19,9 +19,9 @@ import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
-import com.diegowh.konohaproject.utils.animation.AnimationAction
-import com.diegowh.konohaproject.utils.sound.SoundType
-import com.diegowh.konohaproject.utils.timer.IntervalType
+import com.diegowh.konohaproject.core.animation.AnimationAction
+import com.diegowh.konohaproject.core.sound.SoundType
+import com.diegowh.konohaproject.core.timer.IntervalType
 import kotlinx.coroutines.launch
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {

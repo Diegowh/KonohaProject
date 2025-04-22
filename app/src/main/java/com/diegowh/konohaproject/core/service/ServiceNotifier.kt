@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.utils.service
+package com.diegowh.konohaproject.core.service
 
 import android.app.Notification
 import android.app.NotificationChannel

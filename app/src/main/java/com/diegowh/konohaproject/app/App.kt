@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.domain.main
+package com.diegowh.konohaproject.app
 
 import android.app.Application
 import com.diegowh.konohaproject.domain.settings.TimerPrefsRepository

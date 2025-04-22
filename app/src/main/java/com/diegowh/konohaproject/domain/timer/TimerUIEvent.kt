@@ -1,6 +1,6 @@
 package com.diegowh.konohaproject.domain.timer
 
-import com.diegowh.konohaproject.utils.timer.IntervalType
+import com.diegowh.konohaproject.core.timer.IntervalType
 
 sealed class TimerUIEvent {
     data class TimeUpdate(val remainingMillis: Long) : TimerUIEvent()
