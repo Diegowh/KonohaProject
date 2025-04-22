@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+<!--    Sakura-->
+    <array name="test_sakura_focus_frames">
+        <item>@drawable/sakura_crop</item>
+        <item>@drawable/losiento1</item>
+        <item>@drawable/losiento2</item>
+        <item>@drawable/losiento3</item>
+        <item>@drawable/losiento4</item>
+    </array>
+
+    <array name="test_sakura_break_frames">
+        <item>@drawable/sakura_crop</item>
+        <item>@drawable/losiento1</item>
+        <item>@drawable/losiento2</item>
+        <item>@drawable/losiento3</item>
+        <item>@drawable/losiento4</item>
+    </array>
+
+
+    <integer-array name="test_sakura_focus_palette">
+        <item>@color/sakura_focus_primary</item>
+        <item>@color/sakura_focus_secondary</item>
+        <item>@color/sakura_focus_tertiary</item>
+        <item>@color/sakura_focus_text</item>
+    </integer-array>
+
+    <integer-array name="test_sakura_break_palette">
+        <item>@color/sakura_break_primary</item>
+        <item>@color/sakura_break_secondary</item>
+        <item>@color/sakura_break_tertiary</item>
+        <item>@color/sakura_break_text</item>
+    </integer-array>
+
+<!--    Guy -->
+
+    <array name="test_guy_focus_frames">
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+    </array>
+
+    <array name="test_guy_break_frames">
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+    </array>
+
+
+    <integer-array name="test_guy_focus_palette">
+        <item>@color/guy_focus_primary</item>
+        <item>@color/guy_focus_secondary</item>
+        <item>@color/guy_focus_tertiary</item>
+        <item>@color/guy_focus_text</item>
+    </integer-array>
+
+    <integer-array name="test_guy_break_palette">
+        <item>@color/guy_break_primary</item>
+        <item>@color/guy_break_secondary</item>
+        <item>@color/guy_break_tertiary</item>
+        <item>@color/guy_break_text</item>
+    </integer-array>
+
+<!--    Naruto -->
+    <array name="test_naruto_focus_frames">
+        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_miniatura</item>
+    </array>
+
+    <array name="test_naruto_break_frames">
+        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_miniatura</item>
+    </array>
+
+    <integer-array name="test_naruto_focus_palette">
+        <item>@color/naruto_focus_primary</item>
+        <item>@color/naruto_focus_secondary</item>
+        <item>@color/naruto_focus_tertiary</item>
+        <item>@color/naruto_focus_text</item>
+    </integer-array>
+
+    <integer-array name="test_naruto_break_palette">
+        <item>@color/naruto_break_primary</item>
+        <item>@color/naruto_break_secondary</item>
+        <item>@color/naruto_break_tertiary</item>
+        <item>@color/naruto_break_text</item>
+    </integer-array>
+
+<!--    Kakashi-->
+    <array name="test_kakashi_focus_frames">
+        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_miniatura</item>
+    </array>
+
+    <array name="test_kakashi_break_frames">
+        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_miniatura</item>
+    </array>
+
+    <integer-array name="test_kakashi_focus_palette">
+        <item>@color/kakashi_focus_primary</item>
+        <item>@color/kakashi_focus_secondary</item>
+        <item>@color/kakashi_focus_tertiary</item>
+        <item>@color/kakashi_focus_text</item>
+    </integer-array>
+
+    <integer-array name="test_kakashi_break_palette">
+        <item>@color/kakashi_break_primary</item>
+        <item>@color/kakashi_break_secondary</item>
+        <item>@color/kakashi_break_tertiary</item>
+        <item>@color/kakashi_break_text</item>
+    </integer-array>
+
+</resources>

@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.utils.sound
+package com.diegowh.konohaproject.core.sound
 
 enum class SoundType {
     INTERVAL_CHANGE,

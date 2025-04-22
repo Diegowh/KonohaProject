@@ -6,7 +6,7 @@
             android:shape="ring"
             android:thicknessRatio="100"
             android:useLevel="false">
-            <solid android:color="@color/button_primary"/>
+            <solid android:color="@color/sakura_focus_tertiary"/>
         </shape>
     </item>
 
@@ -19,8 +19,8 @@
                 android:useLevel="true"
                 android:angle="270">
                 <gradient
-                    android:endColor="@color/button_primary"
-                    android:startColor="@color/button_secondary"
+                    android:endColor="@color/sakura_focus_tertiary"
+                    android:startColor="@color/sakura_focus_secondary"
                     android:type="sweep"/>
             </shape>
         </rotate>

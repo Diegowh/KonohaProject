@@ -8,16 +8,19 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.diegowh.konohaproject.domain.main.App
-import com.diegowh.konohaproject.domain.settings.SettingsProvider
+import com.diegowh.konohaproject.app.App
+import com.diegowh.konohaproject.core.animation.AnimationAction
+import com.diegowh.konohaproject.core.animation.AnimationState
+import com.diegowh.konohaproject.core.sound.SoundType
+import com.diegowh.konohaproject.core.timer.Interval
+import com.diegowh.konohaproject.core.timer.IntervalType
+import com.diegowh.konohaproject.domain.character.Character
+import com.diegowh.konohaproject.domain.character.CharacterSelectionEvent
+import com.diegowh.konohaproject.domain.settings.CharacterSettingsRepository
+import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
 import com.diegowh.konohaproject.domain.timer.TimerService
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.domain.timer.TimerUIEvent
-import com.diegowh.konohaproject.utils.animation.AnimationAction
-import com.diegowh.konohaproject.utils.animation.AnimationState
-import com.diegowh.konohaproject.utils.sound.SoundType
-import com.diegowh.konohaproject.utils.timer.Interval
-import com.diegowh.konohaproject.utils.timer.IntervalType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -37,8 +40,19 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     val uiState: StateFlow<TimerUIState> = _uiState.asStateFlow()
     val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
 
-    private val settings: SettingsProvider =
-        (getApplication() as App).settingsProvider
+    private val characterSettings: CharacterSettingsRepository =
+        (getApplication() as App).characterSettings
+
+    private val _selectedCharacter = MutableStateFlow(
+        characterSettings.getById(
+            characterSettings.getSelectedCharacterId()
+        )
+    )
+
+    val selectedCharacter: StateFlow<Character> = _selectedCharacter
+
+    private val settings: TimerSettingsRepository =
+        (getApplication() as App).timerSettings
 
     /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
     * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
@@ -103,6 +117,11 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     init {
         bindService()
         initState()
+
+        // carga del personaje guardado
+        val saved = characterSettings.getSelectedCharacterId()
+        val char = characterSettings.getById(saved)
+        _uiState.update { it.copy(selectedCharacter = char) }
     }
 
     private fun bindService() {
@@ -117,7 +136,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun initState() {
         _uiState.value = TimerUIState(
-            timerText = settings.initialDisplayTime(true),
+            timerText = settings.initialDisplayTime(),
             state = TimerState.Stopped,
             currentRound = 0,
             totalRounds = settings.totalRounds()
@@ -202,10 +221,24 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun onCharSelectEvent(event: CharacterSelectionEvent) {
+        when (event) {
+            is CharacterSelectionEvent.CharacterSelected -> {
+                println("Personaje seleccionado: ${event.character.name}")
+                _selectedCharacter.value = event.character
+                _uiState.update { old ->
+                    old.copy(selectedCharacter = event.character)
+                }
+
+                characterSettings.setSelectedCharacterId(event.character.id)
+            }
+        }
+    }
+
     private fun handleReset(controller: TimerService) {
         controller.reset()
         _uiState.value = TimerUIState(
-            timerText = settings.initialDisplayTime(true),
+            timerText = settings.initialDisplayTime(),
             state = TimerState.Stopped,
             currentRound = 0,
             totalRounds = settings.totalRounds(),
