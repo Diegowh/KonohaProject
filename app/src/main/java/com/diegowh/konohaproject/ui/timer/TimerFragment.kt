@@ -112,12 +112,17 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
 
     private fun applyCurrentTheme(state: TimerUIState) {
-        binding.main.setBackgroundColor(currentTheme.focusPalette[0])
-        updateButtonColors()
+        val palette = when {
+            state.state == TimerState.Stopped -> currentTheme.focusPalette
+            state.interval?.type == IntervalType.FOCUS -> currentTheme.focusPalette
+            else -> currentTheme.breakPalette
+        }
+        binding.main.setBackgroundColor(palette.first())
+        updateButtonColors(palette)
         updateRoundCounters(state.totalRounds, state.currentRound)
     }
 
-    private fun updateButtonColors() {
+    private fun updateButtonColors(palette: IntArray) {
         fun View.applyButtonColors(bgColor: Int, borderColor: Int) {
             ((background as? GradientDrawable)?.mutate() as? GradientDrawable)?.apply {
                 setColor(bgColor)
@@ -132,14 +137,14 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             binding.btnSettings,
             binding.btnCharacterSelect
         ).forEach { btn ->
-            btn.applyButtonColors(currentTheme.focusPalette[1], currentTheme.focusPalette[2])
+            btn.applyButtonColors(palette[1], palette[2])
         }
     }
 
     private fun updateMainUI(state: TimerUIState) {
         binding.txtTimer.text = state.timerText
         updateButtonVisibility(state.state)
-        updateBackgroundAndRounds(state)
+        applyIntervalStyle(state)
     }
 
     private fun updateButtonVisibility(timerState: TimerState) {
@@ -166,7 +171,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         }
     }
 
-    private fun updateBackgroundAndRounds(state: TimerUIState) {
+    private fun applyIntervalStyle(state: TimerUIState) {
         state.interval?.let { interval ->
             val palette = if (interval.type == IntervalType.FOCUS)
                 currentTheme.focusPalette
@@ -174,6 +179,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                 currentTheme.breakPalette
 
             binding.main.setBackgroundColor(palette.first())
+//            updateCharacterFrames(interval.type)
         }
     }
 
@@ -267,6 +273,26 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                 setColor(if (i < cycle) activeColor else inactiveColor)
             }
         }
+    }
+
+    private fun updateCharacterFrames(type: IntervalType?) {
+        val framesList = when (type) {
+            IntervalType.FOCUS -> currentTheme.focusFrames
+            IntervalType.SHORT_BREAK,
+            IntervalType.LONG_BREAK -> currentTheme.breakFrames
+
+            else -> currentTheme.focusFrames
+        }
+
+        val newAnim = AnimationDrawable().apply {
+            isOneShot = false
+            framesList.forEach { frame ->
+                addFrame(frame, currentTheme.frameDuration)
+            }
+        }
+
+        binding.imgCharacter.setImageDrawable(newAnim)
+        charAnim = newAnim
     }
 
     override fun onSettingsChanged() {
