@@ -22,6 +22,7 @@ import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import com.diegowh.konohaproject.core.animation.AnimationAction
 import com.diegowh.konohaproject.core.sound.SoundType
 import com.diegowh.konohaproject.core.timer.IntervalType
+import com.diegowh.konohaproject.core.ui.CharacterTheme
 import kotlinx.coroutines.launch
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
@@ -30,9 +31,9 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     private val binding get() = _binding!!
     private val viewModel: TimerViewModel by viewModels({ requireActivity() })
     private lateinit var soundPlayer: SoundPlayer
-
     private val roundViews = mutableListOf<View>()
 
+    private lateinit var currentTheme: CharacterTheme
     private lateinit var charAnim: AnimationDrawable
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -101,32 +102,23 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     private lateinit var breakFrames: TypedArray
 
     private fun updateCharacterUI(character: Character) {
-        val framesArray = resources.obtainTypedArray(character.focusFrames)
-        val frameDuration = resources.getInteger(R.integer.frame_duration)
+        currentTheme = ThemeManager.loadTheme(requireContext(), character)
 
         val anim = AnimationDrawable().apply {
             isOneShot = false
-            for (i in 0 until framesArray.length()) {
-                val resId = framesArray.getResourceId(i, 0)
-                val drawable = ContextCompat.getDrawable(requireContext(), resId)
-                if (drawable != null) {
-                    addFrame(drawable, frameDuration)
-                }
+            currentTheme.focusFrames.forEach { frame ->
+                addFrame(frame, currentTheme.frameDuration)
             }
         }
-        framesArray.recycle()
-
         binding.imgCharacter.setImageDrawable(anim)
         println("APLICADO ESTILO DE: ${character.name}!!")
         charAnim = anim
 
 
-        focusColors = resources.getIntArray(character.focusPalette)
-        breakColors = resources.getIntArray(character.breakPalette)
-        focusFrames = resources.obtainTypedArray(character.focusFrames)
-        breakFrames = resources.obtainTypedArray(character.breakFrames)
-
-        binding.main.setBackgroundColor(focusColors.first())
+        // TODO: Utilizar un sistema para no acceder a los diferentes colores por index
+        binding.main.setBackgroundColor(currentTheme.focusPalette[0])
+//        binding.btnSettings.setBackgroundColor(currentTheme.focusPalette[0])
+//        binding.btnCharacterSelect.setBackgroundColor(currentTheme.focusPalette[0])
     }
 
 
@@ -164,7 +156,11 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
     private fun updateBackgroundAndRounds(state: TimerUIState) {
         state.interval?.let { interval ->
-            val palette = if (interval.type == IntervalType.FOCUS) focusColors else breakColors
+            val palette = if (interval.type == IntervalType.FOCUS)
+                currentTheme.focusPalette
+            else
+                currentTheme.breakPalette
+
             binding.main.setBackgroundColor(palette.first())
         }
     }
