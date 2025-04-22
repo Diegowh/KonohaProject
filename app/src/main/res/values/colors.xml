@@ -38,4 +38,26 @@
     <color name="guy_break_secondary">#EAC49D</color>
     <color name="guy_break_tertiary">#DC9B51</color>
     <color name="guy_break_text">#ffffff</color>
+
+<!--    Naruto-->
+    <color name="naruto_focus_primary">#F66C2D</color>
+    <color name="naruto_focus_secondary">#4691CC</color>
+    <color name="naruto_focus_tertiary">#082C8C</color>
+    <color name="naruto_focus_text">#ffffff</color>
+
+    <color name="naruto_break_primary">#E7E419</color>
+    <color name="naruto_break_secondary">#4691CC</color>
+    <color name="naruto_break_tertiary">#082C8C</color>
+    <color name="naruto_break_text">#ffffff</color>
+
+<!--    Kakashi-->
+    <color name="kakashi_focus_primary">#343C55</color>
+    <color name="kakashi_focus_secondary">#768379</color>
+    <color name="kakashi_focus_tertiary">#576360</color>
+    <color name="kakashi_focus_text">#ffffff</color>
+
+    <color name="kakashi_break_primary">#D6DBE4</color>
+    <color name="kakashi_break_secondary">#768379</color>
+    <color name="kakashi_break_tertiary">#576360</color>
+    <color name="kakashi_break_text">#ffffff</color>
 </resources>

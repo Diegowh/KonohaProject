@@ -16,7 +16,7 @@ object CharacterDataSource {
         ),
         Character(
             2,
-            "Guy 1",
+            "Guy",
             R.drawable.guy_miniatura,
             R.array.test_guy_focus_frames,
             R.array.test_guy_break_frames,
@@ -25,21 +25,21 @@ object CharacterDataSource {
         ),
         Character(
             3,
-            "Guy 2",
-            R.drawable.guy_miniatura,
-            R.array.test_sakura_focus_frames,
-            R.array.test_sakura_break_frames,
-            R.array.test_sakura_focus_palette,
-            R.array.test_sakura_break_palette
+            "Naruto",
+            R.drawable.naruto_miniatura,
+            R.array.test_naruto_focus_frames,
+            R.array.test_naruto_break_frames,
+            R.array.test_naruto_focus_palette,
+            R.array.test_naruto_break_palette
         ),
         Character(
-            3,
-            "Guy 3",
-            R.drawable.guy_miniatura,
-            R.array.test_sakura_focus_frames,
-            R.array.test_sakura_break_frames,
-            R.array.test_sakura_focus_palette,
-            R.array.test_sakura_break_palette
+            4,
+            "Kakashi",
+            R.drawable.kakashi_miniatura,
+            R.array.test_kakashi_focus_frames,
+            R.array.test_kakashi_break_frames,
+            R.array.test_kakashi_focus_palette,
+            R.array.test_kakashi_break_palette
         )
     )
 
