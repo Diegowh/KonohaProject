@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.addCallback
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -23,6 +22,7 @@ import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerState
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -33,6 +33,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     private val viewModel: TimerViewModel by viewModels({ requireActivity() })
     private lateinit var soundPlayer: SoundPlayer
     private val roundViews = mutableListOf<View>()
+    private var currentCharacterId: Int = -1
 
     private lateinit var currentTheme: CharacterTheme
     private lateinit var charAnim: AnimationDrawable
@@ -45,8 +46,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             .addCallback(viewLifecycleOwner) { /* nada */ }
 
         initSoundPlayer()
-        initAnimator()
-        updateCharacterUI(viewModel.selectedCharacter.value)
         initComponents()
     }
 
@@ -63,13 +62,12 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun initAnimator() {
-
         charAnim = binding.imgCharacter.drawable as AnimationDrawable
         charAnim.isOneShot = false
-
     }
 
     private fun initComponents() {
+        initAnimator()
         observeViewModel()
         setupListeners()
     }
@@ -77,73 +75,71 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     private fun observeViewModel() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-
-                launch {
-                    viewModel.selectedCharacter.collect { character ->
-                        println("YEPAAAAAAA")
-                        updateCharacterUI(character)
+                viewModel.selectedCharacter
+                    .combine(viewModel.uiState) { character, state ->
+                        Pair(character, state)
                     }
-                }
-                launch {
-                    viewModel.uiState.collect { state ->
+                    .collect { (character, state) ->
+                        handleCharacterChange(character)
                         updateMainUI(state)
                         handleAnimationLogic(state)
+                        applyCurrentTheme(state)
                     }
-                }
             }
         }
         observeSoundEvents()
     }
 
+    private fun handleCharacterChange(newCharacter: Character) {
+        if (newCharacter.id != currentCharacterId) {
+            currentCharacterId = newCharacter.id
+            currentTheme = ThemeManager.loadTheme(requireContext(), newCharacter)
+            updateAnimationFrames()
+            println("Personaje cambiado a: ${newCharacter.name}")
+        }
+    }
 
-    private fun updateCharacterUI(character: Character) {
-        currentTheme = ThemeManager.loadTheme(requireContext(), character)
-
-        val anim = AnimationDrawable().apply {
+    private fun updateAnimationFrames() {
+        val newAnim = AnimationDrawable().apply {
             isOneShot = false
             currentTheme.focusFrames.forEach { frame ->
                 addFrame(frame, currentTheme.frameDuration)
             }
         }
-        binding.imgCharacter.setImageDrawable(anim)
-        println("APLICADO ESTILO DE: ${character.name}!!")
-        charAnim = anim
+        binding.imgCharacter.setImageDrawable(newAnim)
+        charAnim = newAnim
+    }
 
 
-        // TODO: Utilizar un sistema para no acceder a los diferentes colores por index
+    private fun applyCurrentTheme(state: TimerUIState) {
         binding.main.setBackgroundColor(currentTheme.focusPalette[0])
+        updateButtonColors()
+        updateRoundCounters(state.totalRounds, state.currentRound)
+    }
 
+    private fun updateButtonColors() {
         fun View.applyButtonColors(bgColor: Int, borderColor: Int) {
-            ((background as? GradientDrawable)?.mutate() as? GradientDrawable)
-                ?.apply {
-                    setColor(bgColor)
-                    val strokeDp = 4f
-                    val metrics = context.resources.displayMetrics
-                    val strokePx = (strokeDp * metrics.density).roundToInt()
-
-                    setStroke(strokePx, borderColor)
-                }
+            ((background as? GradientDrawable)?.mutate() as? GradientDrawable)?.apply {
+                setColor(bgColor)
+                setStroke((2f * resources.displayMetrics.density).roundToInt(), borderColor)
+            }
         }
 
-        val buttons = listOf(
+        listOf(
             binding.btnPlay,
             binding.btnPause,
             binding.btnReset,
             binding.btnSettings,
             binding.btnCharacterSelect
-        )
-        buttons.forEach { btn ->
+        ).forEach { btn ->
             btn.applyButtonColors(currentTheme.focusPalette[1], currentTheme.focusPalette[2])
         }
-
     }
-
 
     private fun updateMainUI(state: TimerUIState) {
         binding.txtTimer.text = state.timerText
         updateButtonVisibility(state.state)
         updateBackgroundAndRounds(state)
-        updateRoundCounters(state.totalRounds, state.currentRound)
     }
 
     private fun updateButtonVisibility(timerState: TimerState) {
@@ -187,23 +183,26 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun handleAnimationLogic(state: TimerUIState) {
-
         state.animationAction?.let { action ->
             when (action) {
-                is AnimationAction.Start -> {
-                    charAnim.start()
+                AnimationAction.Start -> {
+                    if (!charAnim.isRunning) charAnim.start()
                 }
 
-                AnimationAction.Pause -> {
-                    charAnim.stop()
-                }
-
+                AnimationAction.Pause -> charAnim.stop()
                 AnimationAction.Stop -> {
                     charAnim.stop()
                     charAnim.selectDrawable(0)
                 }
             }
             viewModel.clearAnimationAction()
+        }
+
+
+        when (state.state) {
+            TimerState.Running -> if (!charAnim.isRunning) charAnim.start()
+            TimerState.Paused -> charAnim.stop()
+            TimerState.Stopped -> charAnim.stop()
         }
     }
 
@@ -248,9 +247,11 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                     if (idx < total - 1) marginEnd = margin
                 }
                 setBackgroundResource(R.drawable.round_button)
-                backgroundTintList =
-                    ContextCompat.getColorStateList(context, R.color.sakura_focus_secondary)
 
+                ((background as? GradientDrawable)?.mutate() as? GradientDrawable)
+                    ?.apply {
+                        setColor(currentTheme.focusPalette[1])
+                    }
                 binding.roundCounterContainer.addView(this)
                 roundViews.add(this)
             }
@@ -258,12 +259,13 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun updateRoundUI(cycle: Int) {
-        val active =
-            ContextCompat.getColorStateList(requireContext(), R.color.sakura_focus_tertiary)
-        val inactive =
-            ContextCompat.getColorStateList(requireContext(), R.color.sakura_focus_secondary)
+        val activeColor = currentTheme.focusPalette[2]
+        val inactiveColor = currentTheme.focusPalette[1]
+
         roundViews.forEachIndexed { i, v ->
-            v.backgroundTintList = if (i < cycle) active else inactive
+            ((v.background as? GradientDrawable)?.mutate() as GradientDrawable).apply {
+                setColor(if (i < cycle) activeColor else inactiveColor)
+            }
         }
     }
 
