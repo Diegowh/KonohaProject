@@ -406,3 +406,4 @@ app/release/baselineProfiles/
 app/release/output-metadata.json
 
 # End of https://www.toptal.com/developers/gitignore/api/android,androidstudio,kotlin,java,gradle,intellij,intellij+all
+CLAUDE.md
