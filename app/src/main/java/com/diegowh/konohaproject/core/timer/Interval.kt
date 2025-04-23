@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.utils.timer
+package com.diegowh.konohaproject.core.timer
 
 data class Interval(
     val currentRound: Int,

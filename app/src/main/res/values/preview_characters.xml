@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preview_characters">
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_miniatura</item>
+    </array>
+</resources>

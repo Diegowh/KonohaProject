@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.ui.components
+package com.diegowh.konohaproject.core.ui
 
 import android.content.Context
 import android.graphics.Canvas
@@ -21,7 +21,7 @@ class ArcProgressDrawable(
 ) : Drawable() {
 
     private val backgroundPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.button_secondary)
+        color = ContextCompat.getColor(context, R.color.sakura_focus_secondary)
         style = Paint.Style.STROKE
         this.strokeWidth = this@ArcProgressDrawable.strokeWidth
         isAntiAlias = true
@@ -29,7 +29,7 @@ class ArcProgressDrawable(
     }
 
     private val progressPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.button_primary)
+        color = ContextCompat.getColor(context, R.color.sakura_focus_tertiary)
         style = Paint.Style.STROKE
         this.strokeWidth = this@ArcProgressDrawable.strokeWidth
         isAntiAlias = true
@@ -37,7 +37,7 @@ class ArcProgressDrawable(
     }
 
     private val capPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.button_primary)
+        color = ContextCompat.getColor(context, R.color.sakura_focus_tertiary)
         style = Paint.Style.FILL
         isAntiAlias = true
     }

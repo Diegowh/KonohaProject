@@ -1,48 +1,54 @@
 package com.diegowh.konohaproject.ui.timer
 
 import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.addCallback
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.core.animation.AnimationAction
+import com.diegowh.konohaproject.core.sound.SoundType
+import com.diegowh.konohaproject.core.timer.IntervalType
+import com.diegowh.konohaproject.core.ui.CharacterTheme
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
+import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
-import com.diegowh.konohaproject.domain.timer.TimerState
+import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
+import com.diegowh.konohaproject.domain.timer.TimerStatus
+import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
-import com.diegowh.konohaproject.utils.animation.AnimationAction
-import com.diegowh.konohaproject.utils.sound.SoundType
-import com.diegowh.konohaproject.utils.timer.IntervalType
 import kotlinx.coroutines.launch
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: TimerViewModel by viewModels({ requireActivity() })
+    val viewModel: TimerViewModel by viewModels({ requireActivity() })
     private lateinit var soundPlayer: SoundPlayer
-
     private val roundViews = mutableListOf<View>()
+    private var currentCharacterId: Int = -1
 
+    private lateinit var currentTheme: CharacterTheme
     private lateinit var charAnim: AnimationDrawable
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentTimerBinding.bind(view)
 
-        requireActivity().onBackPressedDispatcher
-            .addCallback(viewLifecycleOwner) { /* nada */ }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) { /* empty */ }
+
+        currentCharacterId = viewModel.state.value.character.id
+        currentTheme = ThemeManager.loadTheme(requireContext(), viewModel.state.value.character)
+        binding.main.setBackgroundColor(currentTheme.focusPalette.first())
 
         initSoundPlayer()
-        initAnimator()
         initComponents()
-
     }
 
     override fun onDestroyView() {
@@ -58,73 +64,143 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun initAnimator() {
-
-        charAnim = binding.imgCharacter.drawable as AnimationDrawable
+        updateAnimationFrames()
         charAnim.isOneShot = false
-
     }
 
     private fun initComponents() {
+        initAnimator()
         observeViewModel()
         setupListeners()
+        updateTimerUI(viewModel.state.value.timer)
     }
 
     private fun observeViewModel() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-
-                viewModel.uiState.collect { state ->
-                    updateMainUI(state)
-                    handleAnimationLogic(state)
+                launch { 
+                    viewModel.state.collect { screenState ->
+                        updateTimerUI(screenState.timer)
+                        handleAnimations(screenState.animation)
+                        handleCharacterChange(screenState.character)
+                        
+                       screenState.soundEvent?.let { soundType ->
+                            soundPlayer.play(soundType)
+                        }
+                    }
                 }
             }
         }
-        observeSoundEvents()
     }
 
-    private fun updateMainUI(state: TimerUIState) {
-        binding.txtTimer.text = state.timerText
-        updateButtonVisibility(state.state)
-        updateBackgroundAndRounds(state)
-        updateRoundCounters(state.totalRounds, state.currentRound)
+    private fun handleCharacterChange(newCharacter: Character) {
+        if (newCharacter.id != currentCharacterId) {
+            currentCharacterId = newCharacter.id
+            currentTheme = ThemeManager.loadTheme(requireContext(), newCharacter)
+
+            updateAnimationFrames()
+
+            val palette = currentTheme.focusPalette
+            binding.main.setBackgroundColor(palette.first())
+            updateButtonColors(palette)
+
+            println("Personaje cambiado a: ${newCharacter.name}")
+
+            // fuerza el cambio a la UI independientemente del estado del timer
+            updateTimerUI(viewModel.state.value.timer)
+        }
     }
 
-    private fun updateButtonVisibility(timerState: TimerState) {
+    private fun handleAnimations(state: AnimationState) {
+        state.action?.let { action ->
+            when (action) {
+                AnimationAction.Start -> startAnimation()
+                AnimationAction.Pause -> pauseAnimation()
+                AnimationAction.Stop -> stopAnimation()
+            }
+            viewModel.clearAnimationAction()
+        }
+        manageAnimationState(state)
+    }
+
+    private fun updateAnimationFrames() {
+        val newAnim = AnimationDrawable().apply {
+            isOneShot = false
+            currentTheme.focusFrames.forEach { frame ->
+                addFrame(frame, currentTheme.frameDuration)
+            }
+        }
+        binding.imgCharacter.setImageDrawable(newAnim)
+        charAnim = newAnim
+    }
+
+    private fun manageAnimationState(state: AnimationState) {
+        when {
+            state.isPaused -> charAnim.stop()
+            state.currentFrame > 0 -> charAnim.selectDrawable(state.currentFrame)
+        }
+
+        // sincroniza el estado de la animación con el servicio
+        when (viewModel.state.value.timer.status) {
+            TimerStatus.Running -> if (!charAnim.isRunning) charAnim.start()
+            TimerStatus.Paused, TimerStatus.Stopped -> charAnim.stop()
+        }
+    }
+
+    private fun startAnimation() {
+        if (!charAnim.isRunning) {
+            charAnim.start()
+        }
+    }
+
+    private fun pauseAnimation() {
+        charAnim.stop()
+    }
+
+    private fun stopAnimation() {
+        charAnim.stop()
+        charAnim.selectDrawable(0)
+    }
+
+    private fun updateButtonVisibility(timerStatus: TimerStatus) {
         with(binding) {
-            when (timerState) {
-                TimerState.Running -> {
+            when (timerStatus) {
+                TimerStatus.Running -> {
                     btnPlay.visibility = View.GONE
                     btnReset.visibility = View.GONE
                     btnPause.visibility = View.VISIBLE
                 }
 
-                TimerState.Paused -> {
+                TimerStatus.Paused -> {
                     btnPlay.visibility = View.VISIBLE
                     btnReset.visibility = View.VISIBLE
                     btnPause.visibility = View.GONE
                 }
 
-                TimerState.Stopped -> {
+                TimerStatus.Stopped -> {
                     btnPlay.visibility = View.VISIBLE
                     btnReset.visibility = View.VISIBLE
                     btnPause.visibility = View.GONE
-                    resetBackgroundColor()
                 }
             }
         }
     }
 
-    private fun updateBackgroundAndRounds(state: TimerUIState) {
-        state.interval?.let { interval ->
-            val isFocus = interval.type == IntervalType.FOCUS
-            binding.main.setBackgroundColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    if (isFocus) R.color.background_app_focus
-                    else R.color.background_app_break
-                )
-            )
+    private fun applyIntervalStyle(state: TimerState) {
+
+        val palette = when {
+
+            state.interval != null -> {
+                if (state.interval.type == IntervalType.FOCUS) currentTheme.focusPalette
+                else currentTheme.breakPalette
+            }
+
+            else -> currentTheme.focusPalette
         }
+
+        binding.main.setBackgroundColor(palette.first())
+
+        updateButtonColors(palette)
     }
 
     private fun updateRoundCounters(totalRounds: Int, currentRound: Int) {
@@ -132,59 +208,56 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         updateRoundUI(currentRound)
     }
 
-    private fun handleAnimationLogic(state: TimerUIState) {
-
-        state.animationAction?.let { action ->
-            when (action) {
-                is AnimationAction.Start -> {
-                    charAnim.start()
-                }
-
-                AnimationAction.Pause -> {
-                    charAnim.stop()
-                }
-
-                AnimationAction.Stop -> {
-                    charAnim.stop()
-                    charAnim.selectDrawable(0)
-                }
-            }
-            viewModel.clearAnimationAction()
-        }
-    }
-
-    private fun observeSoundEvents() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.intervalSoundEvent.collect { type ->
-                    if (type == SoundType.INTERVAL_CHANGE) soundPlayer.play(type)
-                }
-            }
-        }
-    }
 
     private fun setupListeners() {
-        binding.btnPlay.setOnClickListener { viewModel.onPlayClicked() }
-        binding.btnPause.setOnClickListener { viewModel.onPauseClicked() }
-        binding.btnReset.setOnClickListener { viewModel.onResetClicked() }
+        binding.btnPlay.setOnClickListener { 
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Play) 
+        }
+        binding.btnPause.setOnClickListener { 
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause) 
+        }
+        binding.btnReset.setOnClickListener { 
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset) 
+        }
         binding.btnSettings.setOnClickListener {
             binding.btnSettings.isEnabled = false
-            viewModel.onPauseClicked()
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause)
             SettingsFragment().show(childFragmentManager, "SettingsDialog")
+        }
+        binding.btnCharacterSelect.setOnClickListener {
+            CharacterSelectionFragment().show(childFragmentManager, "CharacterSelector")
         }
     }
 
     private fun resetBackgroundColor() {
-        binding.main.setBackgroundColor(
-            ContextCompat.getColor(requireContext(), R.color.background_app_focus)
-        )
+        binding.main.setBackgroundColor(currentTheme.focusPalette[0])
+        updateButtonColors(currentTheme.focusPalette)
+    }
+
+    private fun updateButtonColors(palette: IntArray) {
+        fun View.applyButtonColors(bgColor: Int, borderColor: Int) {
+            ((background as? GradientDrawable)?.mutate() as? GradientDrawable)?.apply {
+                setColor(bgColor)
+                setStroke((2f * resources.displayMetrics.density).toInt(), borderColor)
+            }
+        }
+
+        listOf(
+            binding.btnPlay,
+            binding.btnPause,
+            binding.btnReset,
+            binding.btnSettings,
+            binding.btnCharacterSelect
+        ).forEach { btn ->
+            btn.applyButtonColors(palette[1], palette[2])
+        }
     }
 
     private fun initRoundCounterViews(total: Int) {
         binding.roundCounterContainer.removeAllViews()
         roundViews.clear()
 
-        val size = 31 //31px son 12dp pero asi me ahorraba tener una funcion para transformar a px
+        val size = 31
         val margin = 31
 
         repeat(total) { idx ->
@@ -193,25 +266,43 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                     if (idx < total - 1) marginEnd = margin
                 }
                 setBackgroundResource(R.drawable.round_button)
-                backgroundTintList =
-                    ContextCompat.getColorStateList(context, R.color.button_secondary)
 
+                ((background as? GradientDrawable)?.mutate() as? GradientDrawable)?.apply {
+                        setColor(currentTheme.focusPalette[1])
+                    }
                 binding.roundCounterContainer.addView(this)
                 roundViews.add(this)
             }
         }
     }
 
+    private fun updateTimerUI(state: TimerState) {
+        binding.txtTimer.text = state.timerText
+        updateButtonVisibility(state.status)
+
+        if (::currentTheme.isInitialized) {
+            updateRoundCounters(state.totalRounds, state.currentRound)
+            applyIntervalStyle(state)
+        } else {
+            handleCharacterChange(viewModel.state.value.character)
+            updateRoundCounters(state.totalRounds, state.currentRound)
+            applyIntervalStyle(state)
+        }
+    }
+
     private fun updateRoundUI(cycle: Int) {
-        val active = ContextCompat.getColorStateList(requireContext(), R.color.button_primary)
-        val inactive = ContextCompat.getColorStateList(requireContext(), R.color.button_secondary)
+        val activeColor = currentTheme.focusPalette[2]
+        val inactiveColor = currentTheme.focusPalette[1]
+
         roundViews.forEachIndexed { i, v ->
-            v.backgroundTintList = if (i < cycle) active else inactive
+            ((v.background as? GradientDrawable)?.mutate() as GradientDrawable).apply {
+                setColor(if (i < cycle) activeColor else inactiveColor)
+            }
         }
     }
 
     override fun onSettingsChanged() {
-        viewModel.onResetClicked()
+        viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset)
         resetBackgroundColor()
     }
 

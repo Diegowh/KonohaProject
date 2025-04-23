@@ -1,13 +1,13 @@
 package com.diegowh.konohaproject.domain.settings
 
-interface SettingsProvider {
+interface TimerSettingsRepository {
     fun totalRounds(): Int
     fun focusTimeMillis(): Long
     fun shortBreakTimeMillis(): Long
     fun longBreakTimeMillis(): Long
     fun isAutorunEnabled(): Boolean
     fun isMuteEnabled(): Boolean
-    fun initialDisplayTime(isFocus: Boolean = true): String
+    fun initialDisplayTime(): String
     fun updateSettings(
         focus: Long,
         shortBreak: Long,
@@ -21,5 +21,4 @@ interface SettingsProvider {
     fun focusMinutes(): Long
     fun shortBreakMinutes(): Long
     fun longBreakMinutes(): Long
-
 }
