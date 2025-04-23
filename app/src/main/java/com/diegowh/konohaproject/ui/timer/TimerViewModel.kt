@@ -17,15 +17,19 @@ import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.character.CharacterSelectionEvent
 import com.diegowh.konohaproject.domain.settings.CharacterSettingsRepository
 import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
+import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
 import com.diegowh.konohaproject.domain.timer.TimerService
 import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.domain.timer.TimerUIEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -36,20 +40,18 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     private val characterSettings: CharacterSettingsRepository =
         (getApplication() as App).characterSettings
 
-    private val _timerState = MutableStateFlow(TimerState())
-    private val _animationState = MutableStateFlow(AnimationState())
-    private val _selectedCharacter = MutableStateFlow(
-        characterSettings.getById(
-            characterSettings.getSelectedCharacterId()
+    private val _state = MutableStateFlow(
+        TimerScreenState(
+            character = characterSettings.getById(
+                characterSettings.getSelectedCharacterId()
+            ),
+            settings = SettingsState(
+                isMuteEnabled = (getApplication() as App).timerSettings.isMuteEnabled(),
+                isAutorunEnabled = (getApplication() as App).timerSettings.isAutorunEnabled()
+            )
         )
     )
-    private val _intervalSoundEvent = MutableSharedFlow<SoundType>()
-    val intervalSoundEvent: SharedFlow<SoundType> = _intervalSoundEvent.asSharedFlow()
-    val timerState: StateFlow<TimerState> = _timerState.asStateFlow()
-    val animationState: StateFlow<AnimationState> = _animationState.asStateFlow()
-
-
-    val selectedCharacter: StateFlow<Character> = _selectedCharacter
+    val state: StateFlow<TimerScreenState> = _state.asStateFlow()
 
     private val settings: TimerSettingsRepository =
         (getApplication() as App).timerSettings
@@ -75,7 +77,11 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 }
             }
             updateUIWithCurrentState(controller)
-            _animationState.update { it.copy(action = AnimationAction.Stop) }
+            _state.update { currentState ->
+                currentState.copy(
+                    animation = currentState.animation.copy(action = AnimationAction.Stop)
+                )
+            }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -86,10 +92,6 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     init {
         bindService()
         initState()
-
-        // carga del personaje guardado
-        val saved = characterSettings.getSelectedCharacterId()
-        _selectedCharacter.value = characterSettings.getById(saved)
     }
 
     private fun bindService() {
@@ -103,13 +105,18 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun initState() {
-        _timerState.value = TimerState(
-            timerText = settings.initialDisplayTime(),
-            status = TimerStatus.Stopped,
-            currentRound = 0,
-            totalRounds = settings.totalRounds()
-        )
-        _animationState.value = AnimationState()
+        _state.update { currentState ->
+            currentState.copy(
+                timer = TimerState(
+                    timerText = settings.initialDisplayTime(),
+                    status = TimerStatus.Stopped,
+                    currentRound = 0,
+                    totalRounds = settings.totalRounds()
+                ),
+                animation = AnimationState(),
+                soundEvent = null
+            )
+        }
     }
 
     private fun formatTime(remainingMillis: Long): String {
@@ -129,134 +136,189 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun updateUIWithCurrentState(controller: TimerService) {
-        _timerState.update {
-            it.copy(
-                status = when {
-                    controller.isRunning() && !controller.isPaused() -> TimerStatus.Running
-                    controller.isPaused() -> TimerStatus.Paused
-                    else -> TimerStatus.Stopped
-                }
+        _state.update { currentState ->
+            currentState.copy(
+                timer = currentState.timer.copy(
+                    status = when {
+                        controller.isRunning() && !controller.isPaused() -> TimerStatus.Running
+                        controller.isPaused() -> TimerStatus.Paused
+                        else -> TimerStatus.Stopped
+                    }
+                )
             )
         }
     }
 
     fun clearAnimationAction() {
-        _animationState.update { it.copy(action = null) }
+        _state.update { currentState ->
+            currentState.copy(
+                animation = currentState.animation.copy(action = null)
+            )
+        }
     }
 
-    fun onPlayClicked() {
+    fun onEvent(event: TimerScreenEvent) {
+        when (event) {
+            is TimerScreenEvent.TimerEvent.Play -> onPlayClicked()
+            is TimerScreenEvent.TimerEvent.Pause -> onPauseClicked()
+            is TimerScreenEvent.TimerEvent.Reset -> onResetClicked()
+            is TimerScreenEvent.CharacterEvent.Select -> {
+                _state.update { currentState ->
+                    currentState.copy(character = event.character)
+                }
+                characterSettings.setSelectedCharacterId(event.character.id)
+            }
+            is TimerScreenEvent.SettingsEvent.UpdateSettings -> {
+                settings.updateSettings(
+                    focus = event.focusMinutes,
+                    shortBreak = event.shortBreakMinutes,
+                    longBreak = event.longBreakMinutes,
+                    rounds = event.totalRounds,
+                    autorun = event.isAutorunEnabled,
+                    mute = event.isMuteEnabled
+                )
+                _state.update { currentState ->
+                    currentState.copy(
+                        settings = SettingsState(
+                            isMuteEnabled = event.isMuteEnabled,
+                            isAutorunEnabled = event.isAutorunEnabled
+                        )
+                    )
+                }
+                countdownController?.get()?.let { handleReset(it) }
+            }
+            is TimerScreenEvent.SettingsEvent.Reset -> {
+                settings.resetToDefaults()
+                _state.update { currentState ->
+                    currentState.copy(
+                        settings = SettingsState(
+                            isMuteEnabled = settings.isMuteEnabled(),
+                            isAutorunEnabled = settings.isAutorunEnabled()
+                        )
+                    )
+                }
+                countdownController?.get()?.let { handleReset(it) }
+            }
+        }
+    }
+    
+    private fun onPlayClicked() {
         countdownController?.get()?.let { controller ->
             when {
                 controller.isPaused() -> resumeTimer(controller)
                 !controller.isRunning() -> startNewSession(controller)
             }
         }
-
     }
 
     private fun resumeTimer(controller: TimerService) {
         controller.resume()
-        _timerState.update {
-            it.copy(
-                resumedTime = controller.getRemainingTime(),
-                status = TimerStatus.Running
+        _state.update { currentState ->
+            currentState.copy(
+                timer = currentState.timer.copy(
+                    resumedTime = controller.getRemainingTime(),
+                    status = TimerStatus.Running
+                ),
+                animation = currentState.animation.copy(action = AnimationAction.Start)
             )
         }
-        _animationState.update { it.copy(action = AnimationAction.Start) }
     }
 
     private fun startNewSession(controller: TimerService) {
         controller.start(settings.focusTimeMillis())
-        _timerState.update {
-            it.copy(
-                status = TimerStatus.Running,
-                currentRound = 1
+        _state.update { currentState ->
+            currentState.copy(
+                timer = currentState.timer.copy(
+                    status = TimerStatus.Running,
+                    currentRound = 1
+                ),
+                animation = currentState.animation.copy(action = AnimationAction.Start)
             )
         }
-        _animationState.update { it.copy(action = AnimationAction.Start) }
     }
 
-    fun onPauseClicked() {
+    private fun onPauseClicked() {
         countdownController?.get()?.let { controller ->
             controller.pause()
-            _timerState.update { it.copy(status = TimerStatus.Paused) }
-            _animationState.update { it.copy(action = AnimationAction.Pause) }
+            _state.update { currentState ->
+                currentState.copy(
+                    timer = currentState.timer.copy(status = TimerStatus.Paused),
+                    animation = currentState.animation.copy(action = AnimationAction.Pause)
+                )
+            }
         }
     }
 
-    fun onResetClicked() {
+    private fun onResetClicked() {
         countdownController?.get()?.let { controller ->
             handleReset(controller)
         }
     }
 
-    fun onCharSelectEvent(event: CharacterSelectionEvent) {
-        when (event) {
-            is CharacterSelectionEvent.CharacterSelected -> {
-                _selectedCharacter.value = event.character
-                characterSettings.setSelectedCharacterId(event.character.id)
-            }
-        }
-    }
-
     private fun handleReset(controller: TimerService) {
         controller.reset()
-        _timerState.update {
-            TimerState(
-                timerText = settings.initialDisplayTime(),
-                status = TimerStatus.Stopped,
-                currentRound = 0,
-                totalRounds = settings.totalRounds()
-            )
-        }
-        _animationState.update {
-            AnimationState(
-                action = AnimationAction.Stop,
-                currentFrame = 0,
-                isPaused = false
+        _state.update { currentState ->
+            currentState.copy(
+                timer = TimerState(
+                    timerText = settings.initialDisplayTime(),
+                    status = TimerStatus.Stopped,
+                    currentRound = 0,
+                    totalRounds = settings.totalRounds()
+                ),
+                animation = AnimationState(
+                    action = AnimationAction.Stop,
+                    currentFrame = 0,
+                    isPaused = false
+                ),
+                // Ensure no sound plays on reset
+                soundEvent = null
             )
         }
     }
 
     private fun handleTimeUpdate(event: TimerUIEvent.TimeUpdate) {
-        _timerState.update { it.copy(timerText = formatTime(event.remainingMillis)) }
+        _state.update { currentState ->
+            currentState.copy(
+                timer = currentState.timer.copy(
+                    timerText = formatTime(event.remainingMillis)
+                )
+            )
+        }
     }
 
     private fun handleIntervalFinished(event: TimerUIEvent.IntervalFinished) {
         val nextDuration = calculateNextDuration(event.nextInterval)
-        _timerState.update {
-            it.copy(
-                interval = Interval(event.currentRound, event.nextInterval, nextDuration),
-                currentRound = event.currentRound
+        val shouldPlaySound = !settings.isMuteEnabled()
+        
+        _state.update { currentState ->
+            currentState.copy(
+                timer = currentState.timer.copy(
+                    interval = Interval(event.currentRound, event.nextInterval, nextDuration),
+                    currentRound = event.currentRound
+                ),
+                soundEvent = if (shouldPlaySound) SoundType.INTERVAL_CHANGE else null
             )
         }
-        if (!settings.isMuteEnabled()) {
-            viewModelScope.launch { _intervalSoundEvent.emit(SoundType.INTERVAL_CHANGE) }
+        
+        // limpio el evento para evitar que suene varias veces
+        if (shouldPlaySound) {
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(100)
+                _state.update { currentState ->
+                    currentState.copy(soundEvent = null)
+                }
+            }
         }
     }
 
     private fun handleSessionFinished() {
-        _animationState.update { it.copy(action = AnimationAction.Stop) }
+        _state.update { currentState ->
+            currentState.copy(
+                animation = currentState.animation.copy(action = AnimationAction.Stop),
+                soundEvent = null
+            )
+        }
         countdownController?.get()?.let { handleReset(it) }
-        resetTimerState()
-    }
-
-    private fun resetTimerState() {
-        _timerState.update {
-            TimerState(
-                timerText = settings.initialDisplayTime(),
-                status = TimerStatus.Stopped,
-                currentRound = 0,
-                totalRounds = settings.totalRounds()
-            )
-        }
-        _animationState.update {
-            AnimationState(
-                action = AnimationAction.Stop,
-                currentFrame = 0,
-                isPaused = false
-            )
-        }
     }
 
     override fun onCleared() {

@@ -8,12 +8,9 @@ import androidx.fragment.app.activityViewModels
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentCharacterSelectionBinding
 import com.diegowh.konohaproject.domain.character.CharacterDataSource
-import com.diegowh.konohaproject.domain.character.CharacterSelectionEvent
+import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
 import com.diegowh.konohaproject.ui.timer.TimerViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 
 class CharacterSelectionFragment :
     BottomSheetDialogFragment(R.layout.fragment_character_selection) {
@@ -21,8 +18,6 @@ class CharacterSelectionFragment :
     private var _binding: FragmentCharacterSelectionBinding? = null
     private val binding get() = _binding!!
 
-    private val _eventFlow = MutableSharedFlow<CharacterSelectionEvent>()
-    val eventFlow: SharedFlow<CharacterSelectionEvent> = _eventFlow.asSharedFlow()
 
     private val timerViewModel: TimerViewModel by activityViewModels()
 
@@ -49,7 +44,7 @@ class CharacterSelectionFragment :
 
         binding.charactersRecycler.adapter =
             CharactersAdapter(characters) { character ->
-                timerViewModel.onCharSelectEvent(CharacterSelectionEvent.CharacterSelected(character))
+                timerViewModel.onEvent(TimerScreenEvent.CharacterEvent.Select(character))
 //                dismiss()
             }
     }

@@ -8,6 +8,8 @@ import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentSettingsBinding
 import com.diegowh.konohaproject.app.App
 import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
+import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
+import com.diegowh.konohaproject.ui.timer.TimerFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 
@@ -138,20 +140,29 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
     }
 
     private fun handleSave() {
-        settings.updateSettings(
-            focus = selectedFocus.toLong(),
-            shortBreak = selectedShortBreak.toLong(),
-            longBreak = selectedLongBreak.toLong(),
-            rounds = selectedRounds,
-            autorun = autorunEnabled,
-            mute = muteEnabled
-        )
+        (parentFragment as? TimerFragment)?.let { timerFragment ->
+            val viewModel = timerFragment.viewModel
+            viewModel.onEvent(
+                TimerScreenEvent.SettingsEvent.UpdateSettings(
+                    focusMinutes = selectedFocus.toLong(),
+                    shortBreakMinutes = selectedShortBreak.toLong(),
+                    longBreakMinutes = selectedLongBreak.toLong(),
+                    totalRounds = selectedRounds,
+                    isAutorunEnabled = autorunEnabled,
+                    isMuteEnabled = muteEnabled
+                )
+            )
+        }
         listener?.onSettingsChanged()
         dismiss()
     }
 
     private fun handleReset() {
-        settings.resetToDefaults()
+        (parentFragment as? TimerFragment)?.let { timerFragment ->
+            val viewModel = timerFragment.viewModel
+            viewModel.onEvent(TimerScreenEvent.SettingsEvent.Reset)
+        }
+        
         loadPreferences()
         updateUi()
     }

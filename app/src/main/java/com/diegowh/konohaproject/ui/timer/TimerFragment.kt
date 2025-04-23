@@ -19,6 +19,7 @@ import com.diegowh.konohaproject.core.ui.CharacterTheme
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.sound.SoundPlayer
+import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
 import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
@@ -28,7 +29,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: TimerViewModel by viewModels({ requireActivity() })
+    val viewModel: TimerViewModel by viewModels({ requireActivity() })
     private lateinit var soundPlayer: SoundPlayer
     private val roundViews = mutableListOf<View>()
     private var currentCharacterId: Int = -1
@@ -40,10 +41,10 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentTimerBinding.bind(view)
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) { /* nada */ }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) { /* empty */ }
 
-        currentCharacterId = viewModel.selectedCharacter.value.id
-        currentTheme = ThemeManager.loadTheme(requireContext(), viewModel.selectedCharacter.value)
+        currentCharacterId = viewModel.state.value.character.id
+        currentTheme = ThemeManager.loadTheme(requireContext(), viewModel.state.value.character)
         binding.main.setBackgroundColor(currentTheme.focusPalette.first())
 
         initSoundPlayer()
@@ -71,16 +72,23 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         initAnimator()
         observeViewModel()
         setupListeners()
-        updateTimerUI(viewModel.timerState.value)
+        updateTimerUI(viewModel.state.value.timer)
     }
 
     private fun observeViewModel() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { viewModel.timerState.collect(::updateTimerUI) }
-                launch { viewModel.animationState.collect(::handleAnimations) }
-                launch { viewModel.selectedCharacter.collect(::handleCharacterChange) }
-                launch { viewModel.intervalSoundEvent.collect { soundPlayer.play(it) } }
+                launch { 
+                    viewModel.state.collect { screenState ->
+                        updateTimerUI(screenState.timer)
+                        handleAnimations(screenState.animation)
+                        handleCharacterChange(screenState.character)
+                        
+                       screenState.soundEvent?.let { soundType ->
+                            soundPlayer.play(soundType)
+                        }
+                    }
+                }
             }
         }
     }
@@ -98,10 +106,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
             println("Personaje cambiado a: ${newCharacter.name}")
 
-            // Fuerza el cambio a la UI independientemente del estado del timer
-            viewModel.timerState.value.let { currentState ->
-                updateTimerUI(currentState)
-            }
+            // fuerza el cambio a la UI independientemente del estado del timer
+            updateTimerUI(viewModel.state.value.timer)
         }
     }
 
@@ -135,7 +141,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         }
 
         // sincroniza el estado de la animación con el servicio
-        when (viewModel.timerState.value.status) {
+        when (viewModel.state.value.timer.status) {
             TimerStatus.Running -> if (!charAnim.isRunning) charAnim.start()
             TimerStatus.Paused, TimerStatus.Stopped -> charAnim.stop()
         }
@@ -204,12 +210,18 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
 
     private fun setupListeners() {
-        binding.btnPlay.setOnClickListener { viewModel.onPlayClicked() }
-        binding.btnPause.setOnClickListener { viewModel.onPauseClicked() }
-        binding.btnReset.setOnClickListener { viewModel.onResetClicked() }
+        binding.btnPlay.setOnClickListener { 
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Play) 
+        }
+        binding.btnPause.setOnClickListener { 
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause) 
+        }
+        binding.btnReset.setOnClickListener { 
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset) 
+        }
         binding.btnSettings.setOnClickListener {
             binding.btnSettings.isEnabled = false
-            viewModel.onPauseClicked()
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause)
             SettingsFragment().show(childFragmentManager, "SettingsDialog")
         }
         binding.btnCharacterSelect.setOnClickListener {
@@ -245,7 +257,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         binding.roundCounterContainer.removeAllViews()
         roundViews.clear()
 
-        val size = 31 //31px son 12dp pero asi me ahorraba tener una funcion para transformar a px
+        val size = 31
         val margin = 31
 
         repeat(total) { idx ->
@@ -268,12 +280,11 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         binding.txtTimer.text = state.timerText
         updateButtonVisibility(state.status)
 
-        // actualizo solo las partes de la UI que requieran el currentTheme
         if (::currentTheme.isInitialized) {
             updateRoundCounters(state.totalRounds, state.currentRound)
             applyIntervalStyle(state)
         } else {
-            handleCharacterChange(viewModel.selectedCharacter.value)
+            handleCharacterChange(viewModel.state.value.character)
             updateRoundCounters(state.totalRounds, state.currentRound)
             applyIntervalStyle(state)
         }
@@ -291,7 +302,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     override fun onSettingsChanged() {
-        viewModel.onResetClicked()
+        viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset)
         resetBackgroundColor()
     }
 

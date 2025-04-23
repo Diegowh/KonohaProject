@@ -4,6 +4,7 @@ import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.core.animation.AnimationAction
+import com.diegowh.konohaproject.core.sound.SoundType
 import com.diegowh.konohaproject.core.timer.Interval
 
 
@@ -22,10 +23,15 @@ data class AnimationState(
     val isPaused: Boolean = false
 )
 
-data class TimerUIState(
-    val timerState: TimerState = TimerState(),
-    val animationState: AnimationState = AnimationState(),
-    val selectedCharacter: Character = Character(
+data class SettingsState(
+    val isMuteEnabled: Boolean = false,
+    val isAutorunEnabled: Boolean = true
+)
+
+data class TimerScreenState(
+    val timer: TimerState = TimerState(),
+    val animation: AnimationState = AnimationState(),
+    val character: Character = Character(
         1,
         "Sakura",
         R.drawable.sakura_miniatura,
@@ -33,5 +39,9 @@ data class TimerUIState(
         R.array.test_sakura_break_frames,
         R.array.test_sakura_focus_palette,
         R.array.test_sakura_break_palette
-    )
+    ),
+    val settings: SettingsState = SettingsState(),
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val soundEvent: SoundType? = null
 )
