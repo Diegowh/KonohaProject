@@ -49,7 +49,6 @@ class CharacterSelectionFragment :
 
         binding.charactersRecycler.adapter =
             CharactersAdapter(characters) { character ->
-
                 timerViewModel.onCharSelectEvent(CharacterSelectionEvent.CharacterSelected(character))
 //                dismiss()
             }

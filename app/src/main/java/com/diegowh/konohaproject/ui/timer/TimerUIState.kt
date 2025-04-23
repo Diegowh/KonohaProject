@@ -2,22 +2,29 @@ package com.diegowh.konohaproject.ui.timer
 
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.domain.character.Character
-import com.diegowh.konohaproject.domain.timer.TimerState
+import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.core.animation.AnimationAction
-import com.diegowh.konohaproject.core.animation.AnimationState
-
-
 import com.diegowh.konohaproject.core.timer.Interval
 
-data class TimerUIState(
+
+data class TimerState(
     val timerText: String = "",
-    val state: TimerState = TimerState.Stopped,
+    val status: TimerStatus = TimerStatus.Stopped,
     val currentRound: Int = 0,
-    val interval: Interval? = null,
-    val resumedTime: Long = 0L,
     val totalRounds: Int = 0,
-    val animationAction: AnimationAction? = null,
-    val animationState: AnimationState = AnimationState(0, isPaused = false),
+    val interval: Interval? = null,
+    val resumedTime: Long = 0L
+)
+
+data class AnimationState(
+    val action: AnimationAction? = null,
+    val currentFrame: Int = 0,
+    val isPaused: Boolean = false
+)
+
+data class TimerUIState(
+    val timerState: TimerState = TimerState(),
+    val animationState: AnimationState = AnimationState(),
     val selectedCharacter: Character = Character(
         1,
         "Sakura",
