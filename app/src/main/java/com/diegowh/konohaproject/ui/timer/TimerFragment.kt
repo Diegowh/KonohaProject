@@ -1,5 +1,6 @@
 package com.diegowh.konohaproject.ui.timer
 
+import android.content.res.ColorStateList
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -251,14 +252,15 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         ).forEach { btn ->
             btn.applyButtonColors(palette[1], palette[2])
         }
+        binding.btnCharacterSelect.backgroundTintList = ColorStateList.valueOf(palette[1])
     }
 
     private fun initRoundCounterViews(total: Int) {
         binding.roundCounterContainer.removeAllViews()
         roundViews.clear()
 
-        val size = 31
-        val margin = 31
+        val size = resources.getDimensionPixelSize(R.dimen.round_indicator_size)
+        val margin = resources.getDimensionPixelSize(R.dimen.round_indicator_margin)
 
         repeat(total) { idx ->
             View(requireContext()).apply {

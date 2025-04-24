@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="timer_button_size">54dp</dimen>
+    <dimen name="timer_text_size">64sp</dimen>
+    <dimen name="round_indicator_size">10dp</dimen>
+</resources>
