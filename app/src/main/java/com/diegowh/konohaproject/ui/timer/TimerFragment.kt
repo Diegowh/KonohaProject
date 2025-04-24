@@ -238,7 +238,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         fun View.applyButtonColors(bgColor: Int, borderColor: Int) {
             ((background as? GradientDrawable)?.mutate() as? GradientDrawable)?.apply {
                 setColor(bgColor)
-                setStroke((2f * resources.displayMetrics.density).toInt(), borderColor)
+//                setStroke((2f * resources.displayMetrics.density).toInt(), borderColor)
             }
         }
 
