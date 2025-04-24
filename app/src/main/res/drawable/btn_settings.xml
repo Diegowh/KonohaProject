@@ -4,7 +4,7 @@
 
     <corners android:radius="6dp" />
     <solid android:color="@color/sakura_focus_primary" />
-    <stroke
-        android:width="2dp"
-        android:color="@android:color/black"/>
+<!--    <stroke-->
+<!--        android:width="2dp"-->
+<!--        android:color="@android:color/black"/>-->
 </shape>
