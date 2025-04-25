@@ -43,8 +43,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentTimerBinding.bind(view)
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) { /* empty */ }
-
         currentCharacterId = viewModel.state.value.character.id
         currentTheme = ThemeManager.loadTheme(requireContext(), viewModel.state.value.character)
         binding.main.setBackgroundColor(currentTheme.focusPalette.first())
