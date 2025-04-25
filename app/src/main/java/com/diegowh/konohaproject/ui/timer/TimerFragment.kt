@@ -24,6 +24,7 @@ import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
 import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
+import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 
 class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
@@ -236,13 +237,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun updateButtonColors(palette: IntArray) {
-        fun View.applyButtonColors(bgColor: Int, borderColor: Int) {
-            ((background as? GradientDrawable)?.mutate() as? GradientDrawable)?.apply {
-                setColor(bgColor)
-//                setStroke((2f * resources.displayMetrics.density).toInt(), borderColor)
-            }
-        }
-
         listOf(
             binding.btnPlay,
             binding.btnPause,
@@ -250,9 +244,11 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             binding.btnSettings,
             binding.btnCharacterSelect
         ).forEach { btn ->
-            btn.applyButtonColors(palette[1], palette[2])
+            (btn as? MaterialButton)?.apply {
+                backgroundTintList = ColorStateList.valueOf(palette[1])
+//                iconTint = ColorStateList.valueOf(palette[2])
+            }
         }
-        binding.btnCharacterSelect.backgroundTintList = ColorStateList.valueOf(palette[1])
     }
 
     private fun initRoundCounterViews(total: Int) {

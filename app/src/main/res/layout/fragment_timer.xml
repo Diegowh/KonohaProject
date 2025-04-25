@@ -8,16 +8,25 @@
     tools:background="@color/sakura_focus_primary"
     tools:context=".ui.timer.TimerFragment">
 
-    <ImageButton
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSettings"
         android:layout_width="@dimen/timer_button_size"
         android:layout_height="@dimen/timer_button_size"
         android:layout_marginBottom="@dimen/btn_settings_margin_bottom"
-        android:background="@drawable/round_button"
         android:contentDescription="@string/settings_description"
-        android:padding="@dimen/button_icon_padding"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_settings"
+        app:icon="@drawable/ic_settings"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="@dimen/button_icon_size"
+        app:iconTint="@color/black"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        app:cornerRadius="@dimen/timer_button_size"
+        style="@style/ElevatedRoundButton"
+        app:backgroundTint="@color/sakura_focus_secondary"
         app:layout_constraintBottom_toTopOf="@+id/imgCharacter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -95,42 +104,28 @@
 
     </LinearLayout>
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCharacterSelect"
         android:layout_width="@dimen/timer_button_size"
         android:layout_height="@dimen/timer_button_size"
-        android:background="@drawable/round_button"
-        android:drawableStart="@drawable/dot"
-        tools:backgroundTint="@color/sakura_focus_secondary"
-        android:contentDescription="@string/character_selection_description"
-        android:padding="@dimen/button_icon_padding"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_profile"
         android:layout_marginBottom="20dp"
+        android:contentDescription="@string/character_selection_description"
+        app:icon="@drawable/ic_profile"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="@dimen/button_icon_size"
+        app:iconTint="@color/black"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        style="@style/Widget.MaterialComponents.Button"
+        app:cornerRadius="@dimen/timer_button_size"
+        app:backgroundTint="@color/sakura_focus_secondary"
         app:layout_constraintBottom_toTopOf="@+id/controlButtonsGuideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/roundCounterContainer" />
-
-<!--    <Button-->
-<!--        android:id="@+id/btnCharacterSelect"-->
-<!--        android:layout_width="90dp"-->
-<!--        android:layout_height="28dp"-->
-<!--        android:layout_marginBottom="20dp"-->
-<!--        android:background="@drawable/btn_settings"-->
-<!--        android:drawableLeft="@drawable/dot"-->
-<!--        android:gravity="center"-->
-<!--        android:paddingHorizontal="22dp"-->
-<!--        android:paddingVertical="0dp"-->
-<!--        android:text="Study"-->
-<!--        android:textSize="11sp"-->
-<!--        android:textColor="@color/black"-->
-<!--        android:contentDescription="@string/character_selection_description"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/roundCounterContainer"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/controlButtonsGuideline"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
-
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/controlButtonsGuideline"
@@ -139,47 +134,71 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.88" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnPlay"
         android:layout_width="@dimen/timer_button_size"
         android:layout_height="@dimen/timer_button_size"
-        android:background="@drawable/round_button"
         android:contentDescription="@string/play_button_description"
-        android:padding="@dimen/button_icon_padding"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_play"
-        app:layout_constraintTop_toTopOf="@+id/controlButtonsGuideline"
+        app:icon="@drawable/ic_play"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="@dimen/button_icon_size"
+        app:iconTint="@color/black"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        app:cornerRadius="@dimen/timer_button_size"
+        style="@style/Widget.MaterialComponents.Button"
+        app:backgroundTint="@color/sakura_focus_secondary"
         app:layout_constraintBottom_toBottomOf="@+id/controlButtonsGuideline"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnPause"
-        app:layout_constraintHorizontal_chainStyle="spread" />
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/controlButtonsGuideline" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnPause"
         android:layout_width="@dimen/timer_button_size"
         android:layout_height="@dimen/timer_button_size"
-        android:visibility="gone"
-        android:background="@drawable/round_button"
         android:contentDescription="@string/pause_button_description"
-        android:padding="@dimen/button_icon_padding"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_pause"
-        app:layout_constraintTop_toTopOf="@+id/controlButtonsGuideline"
+        app:icon="@drawable/ic_pause"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="@dimen/button_icon_size"
+        app:iconTint="@color/black"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        app:cornerRadius="@dimen/timer_button_size"
+        style="@style/Widget.MaterialComponents.Button"
+        app:backgroundTint="@color/sakura_focus_secondary"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/controlButtonsGuideline"
+        app:layout_constraintEnd_toStartOf="@+id/btnReset"
         app:layout_constraintStart_toEndOf="@+id/btnPlay"
-        app:layout_constraintEnd_toStartOf="@+id/btnReset" />
+        app:layout_constraintTop_toTopOf="@+id/controlButtonsGuideline" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnReset"
         android:layout_width="@dimen/timer_button_size"
         android:layout_height="@dimen/timer_button_size"
-        android:background="@drawable/round_button"
         android:contentDescription="@string/reset_button_description"
-        android:padding="@dimen/button_icon_padding"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_reset"
-        app:layout_constraintTop_toTopOf="@+id/controlButtonsGuideline"
+        app:icon="@drawable/ic_reset"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="@dimen/button_icon_size"
+        app:iconTint="@color/black"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        app:cornerRadius="@dimen/timer_button_size"
+        style="@style/Widget.MaterialComponents.Button"
+        app:backgroundTint="@color/sakura_focus_secondary"
         app:layout_constraintBottom_toBottomOf="@+id/controlButtonsGuideline"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnPause"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/controlButtonsGuideline" />
 </androidx.constraintlayout.widget.ConstraintLayout>

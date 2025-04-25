@@ -6,7 +6,7 @@
 
     <dimen name="timer_button_size">56dp</dimen>
     <dimen name="timer_text_size">64sp</dimen>
-    <dimen name="button_icon_padding">16dp</dimen>
+    <dimen name="button_icon_size">22dp</dimen>
 
     <dimen name="btn_settings_margin_bottom">80dp</dimen>
 

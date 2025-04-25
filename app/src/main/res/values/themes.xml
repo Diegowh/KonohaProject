@@ -29,4 +29,10 @@
         <item name="behavior_fitToContents">true</item>
         <item name="behavior_skipCollapsed">true</item>
     </style>
+
+    <style name="ElevatedRoundButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:elevation">8dp</item>
+        <item name="elevation">8dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
 </resources>
