@@ -3,6 +3,7 @@ package com.diegowh.konohaproject.ui.settings
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.SeekBar
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentSettingsBinding
@@ -10,6 +11,8 @@ import com.diegowh.konohaproject.app.App
 import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
 import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
 import com.diegowh.konohaproject.ui.timer.TimerFragment
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 
@@ -43,10 +46,40 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
         _binding = FragmentSettingsBinding.bind(view)
         settings = (requireActivity().application as App).timerSettings
         listener = parentFragment as? Listener ?: activity as? Listener
+
+        dialog?.setOnShowListener { dialog ->
+            val bottomSheetDialog = dialog as BottomSheetDialog
+            setupFullHeight(bottomSheetDialog)
+        }
         loadPreferences()
         initUi()
     }
 
+    private fun setupFullHeight(bottomSheetDialog: BottomSheetDialog) {
+        val bottomSheet = bottomSheetDialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+        bottomSheet?.let {
+            val behavior = BottomSheetBehavior.from(it)
+            val layoutParams = it.layoutParams
+
+            // Calculate 90% of the screen height
+            val windowHeight = requireActivity().window.decorView.height
+            val desiredHeight = (windowHeight * 0.9).toInt()
+
+            // Set the height
+            layoutParams.height = desiredHeight
+            it.layoutParams = layoutParams
+
+            // Set the initial state to expanded
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+            // Optionally, disable dragging to prevent users from collapsing it
+            behavior.isDraggable = true
+            behavior.skipCollapsed = true
+
+            // Set peekHeight to show enough content
+            behavior.peekHeight = (windowHeight * 0.6).toInt()
+        }
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
