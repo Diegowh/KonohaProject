@@ -15,7 +15,9 @@
     <string name="rounds">Rounds</string>
     <string name="autorun">Autorun</string>
     <string name="reset">Reset</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="mute">Mute</string>
+    <string name="timer_settings">Timer Settings</string>
+    <string name="options">Options</string>
+    <string name="autorun_description">Automatically start next session</string>
+    <string name="mute_description">Turn off interval finished sound</string>
 </resources>

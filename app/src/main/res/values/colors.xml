@@ -60,4 +60,24 @@
     <color name="kakashi_break_secondary">#768379</color>
     <color name="kakashi_break_tertiary">#576360</color>
     <color name="kakashi_break_text">#ffffff</color>
+
+
+<!-- Settings -->
+    <color name="background_color">#FFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="accent_color">#F66C2D</color>
+    <color name="divider_color">#E0E0E0</color>
+
+    <!-- Drag handle -->
+    <color name="drag_handle_color">#BDBDBD</color>
+
+    <!-- SeekBar colors -->
+    <color name="seekbar_background">#E0E0E0</color>
+
+    <!-- Switch colors -->
+    <color name="switch_thumb_unchecked">#F5F5F5</color>
+    <color name="switch_track_checked">#FFAB91</color>
+    <color name="switch_track_unchecked">#BDBDBD</color>
+
 </resources>
