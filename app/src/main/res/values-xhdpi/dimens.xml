@@ -4,7 +4,7 @@
     <dimen name="character_image_size">250dp</dimen>
     <dimen name="character_img_margin_top">54dp</dimen>
     <dimen name="button_icon_size">16dp</dimen>
-    <dimen name="timer_button_size">44dp</dimen>
+    <dimen name="timer_button_size">48dp</dimen>
     <dimen name="timer_text_size">52sp</dimen>
     <dimen name="button_icon_padding">13dp</dimen>
     <dimen name="btn_settings_margin_bottom">30dp</dimen>
