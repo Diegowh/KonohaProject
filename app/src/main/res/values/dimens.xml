@@ -1,6 +1,14 @@
 <?xml version="1.0"?>
 <resources>
-    <dimen name="timer_button_size">40dp</dimen>
-    <dimen name="timer_text_size">48sp</dimen>
+    <dimen name="character_image_size">230dp</dimen>
+    <dimen name="character_img_margin_top">54dp</dimen>
+    <dimen name="button_icon_size">16dp</dimen>
+    <dimen name="timer_button_size">48dp</dimen>
+    <dimen name="timer_text_size">52sp</dimen>
+    <dimen name="button_icon_padding">13dp</dimen>
+    <dimen name="btn_settings_margin_bottom">50dp</dimen>
     <dimen name="round_indicator_size">8dp</dimen>
+    <dimen name="round_indicator_margin">8dp</dimen>
+
+    <dimen name="footer_height">108dp</dimen>
 </resources>

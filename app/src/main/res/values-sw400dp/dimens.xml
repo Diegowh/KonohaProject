@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <dimen name="character_image_size">340dp</dimen>
     <dimen name="character_img_margin_top">108dp</dimen>
 
@@ -14,5 +13,4 @@
     <dimen name="round_indicator_margin">8dp</dimen>
 
     <dimen name="footer_height">180dp</dimen>
-
 </resources>
