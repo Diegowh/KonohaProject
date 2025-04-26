@@ -3,7 +3,7 @@
     <dimen name="character_image_size">340dp</dimen>
     <dimen name="character_img_margin_top">108dp</dimen>
 
-    <dimen name="timer_button_size">56dp</dimen>
+    <dimen name="timer_button_size">64dp</dimen>
     <dimen name="timer_text_size">64sp</dimen>
     <dimen name="button_icon_size">22dp</dimen>
 
