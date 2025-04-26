@@ -18,12 +18,11 @@ class SoundPlayer(private val context: Context) {
         sounds[type]?.let { id ->
             val vol =
                 (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).getStreamVolume(
-                        AudioManager.STREAM_MUSIC
-                    ).toFloat()
+                    AudioManager.STREAM_MUSIC
+                ).toFloat()
             soundPool.play(id, vol, vol, 1, 0, 1.0f)
         }
     }
 
     fun release() = soundPool.release()
-
 }

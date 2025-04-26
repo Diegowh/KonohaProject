@@ -42,6 +42,5 @@ data class TimerScreenState(
     ),
     val settings: SettingsState = SettingsState(),
     val isLoading: Boolean = false,
-    val error: String? = null,
-    val soundEvent: SoundType? = null
+    val error: String? = null
 )

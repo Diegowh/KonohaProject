@@ -1,8 +1,8 @@
 package com.diegowh.konohaproject.domain.timer
 
 
-import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
 import com.diegowh.konohaproject.core.timer.IntervalType
+import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

@@ -8,28 +8,22 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.app.App
 import com.diegowh.konohaproject.core.animation.AnimationAction
 import com.diegowh.konohaproject.core.sound.SoundType
 import com.diegowh.konohaproject.core.timer.Interval
 import com.diegowh.konohaproject.core.timer.IntervalType
-import com.diegowh.konohaproject.domain.character.Character
-import com.diegowh.konohaproject.domain.character.CharacterSelectionEvent
 import com.diegowh.konohaproject.domain.settings.CharacterSettingsRepository
 import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
+import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
 import com.diegowh.konohaproject.domain.timer.TimerService
 import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.domain.timer.TimerUIEvent
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -52,14 +46,14 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         )
     )
     val state: StateFlow<TimerScreenState> = _state.asStateFlow()
-
     private val settings: TimerSettingsRepository =
         (getApplication() as App).timerSettings
 
-    /* Utilizo WeakReference para evitar que el TimerService mantenga una referencia fuerte
-    * al context. Ya que previamente se referenciaba de manera directa, lo que podia causar leaks de
-    * memoria (cosa que tampoco llegue a comprobar, pero me avisaba el IDE)
-    * De esta manera el colector de basura no tendra problemas para liberarlo si fuese necesario */
+    private var hasStarted = false
+    private val soundPlayer: SoundPlayer = SoundPlayer(getApplication()).apply {
+        loadSound(SoundType.INTERVAL_CHANGE, R.raw.bubble_tiny)
+    }
+
     private var countdownController: WeakReference<TimerService>? = null
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -114,7 +108,6 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                     totalRounds = settings.totalRounds()
                 ),
                 animation = AnimationState(),
-                soundEvent = null
             )
         }
     }
@@ -168,6 +161,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 characterSettings.setSelectedCharacterId(event.character.id)
             }
+
             is TimerScreenEvent.SettingsEvent.UpdateSettings -> {
                 settings.updateSettings(
                     focus = event.focusMinutes,
@@ -187,6 +181,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 countdownController?.get()?.let { handleReset(it) }
             }
+
             is TimerScreenEvent.SettingsEvent.Reset -> {
                 settings.resetToDefaults()
                 _state.update { currentState ->
@@ -201,7 +196,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
-    
+
     private fun onPlayClicked() {
         countdownController?.get()?.let { controller ->
             when {
@@ -256,6 +251,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun handleReset(controller: TimerService) {
+        hasStarted = false
         controller.reset()
         _state.update { currentState ->
             currentState.copy(
@@ -269,9 +265,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                     action = AnimationAction.Stop,
                     currentFrame = 0,
                     isPaused = false
-                ),
-                // Ensure no sound plays on reset
-                soundEvent = null
+                )
             )
         }
     }
@@ -287,27 +281,21 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun handleIntervalFinished(event: TimerUIEvent.IntervalFinished) {
+        val shouldPlaySound = !settings.isMuteEnabled() && hasStarted
+
+        if (shouldPlaySound ) {
+            soundPlayer.play(SoundType.INTERVAL_CHANGE)
+        }
+        hasStarted = true
         val nextDuration = calculateNextDuration(event.nextInterval)
-        val shouldPlaySound = !settings.isMuteEnabled()
-        
+
         _state.update { currentState ->
             currentState.copy(
                 timer = currentState.timer.copy(
                     interval = Interval(event.currentRound, event.nextInterval, nextDuration),
                     currentRound = event.currentRound
                 ),
-                soundEvent = if (shouldPlaySound) SoundType.INTERVAL_CHANGE else null
             )
-        }
-        
-        // limpio el evento para evitar que suene varias veces
-        if (shouldPlaySound) {
-            viewModelScope.launch {
-                kotlinx.coroutines.delay(100)
-                _state.update { currentState ->
-                    currentState.copy(soundEvent = null)
-                }
-            }
         }
     }
 
@@ -315,15 +303,14 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { currentState ->
             currentState.copy(
                 animation = currentState.animation.copy(action = AnimationAction.Stop),
-                soundEvent = null
             )
         }
         countdownController?.get()?.let { handleReset(it) }
     }
 
     override fun onCleared() {
+        soundPlayer.release()
         super.onCleared()
         getApplication<Application>().unbindService(serviceConnection)
     }
-
 }
