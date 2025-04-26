@@ -9,6 +9,7 @@
     <dimen name="btn_settings_margin_bottom">50dp</dimen>
     <dimen name="round_indicator_size">8dp</dimen>
     <dimen name="round_indicator_margin">8dp</dimen>
-
+    <dimen name="btn_settings_margin_top">12dp</dimen>
     <dimen name="footer_height">108dp</dimen>
+    <dimen name="rounds_container_margin_bottom">24dp</dimen>
 </resources>

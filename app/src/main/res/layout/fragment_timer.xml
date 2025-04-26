@@ -14,6 +14,7 @@
         android:layout_width="@dimen/timer_button_size"
         android:layout_height="@dimen/timer_button_size"
         android:layout_marginBottom="@dimen/btn_settings_margin_bottom"
+        android:layout_marginTop="@dimen/btn_settings_margin_top"
         android:contentDescription="@string/settings_description"
         app:icon="@drawable/ic_settings"
         app:iconGravity="textStart"
@@ -59,9 +60,13 @@
         android:id="@+id/roundCounterContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounds_container"
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="10dp"
         android:gravity="center"
         android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/rounds_container_margin_bottom"
         app:layout_constraintBottom_toTopOf="@+id/btnCharacterSelect"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,32 +77,31 @@
             android:layout_width="@dimen/round_indicator_size"
             android:layout_height="@dimen/round_indicator_size"
             android:layout_marginEnd="@dimen/round_indicator_margin"
-            tools:background="@drawable/round_button"
-            tools:backgroundTint="@color/sakura_focus_secondary" />
+            android:background="@drawable/round_button"
+            android:backgroundTint="@color/sakura_focus_secondary" />
 
         <View
             android:id="@+id/round2"
             android:layout_width="@dimen/round_indicator_size"
             android:layout_height="@dimen/round_indicator_size"
             android:layout_marginEnd="@dimen/round_indicator_margin"
-            tools:background="@drawable/round_button"
-            tools:backgroundTint="@color/sakura_focus_secondary" />
+            android:background="@drawable/round_button"
+            android:backgroundTint="@color/sakura_focus_secondary" />
 
         <View
             android:id="@+id/round3"
             android:layout_width="@dimen/round_indicator_size"
             android:layout_height="@dimen/round_indicator_size"
             android:layout_marginEnd="@dimen/round_indicator_margin"
-            tools:background="@drawable/round_button"
-            tools:backgroundTint="@color/sakura_focus_secondary" />
+            android:background="@drawable/round_button"
+            android:backgroundTint="#80FFFFFF" />
 
         <View
             android:id="@+id/round4"
             android:layout_width="@dimen/round_indicator_size"
             android:layout_height="@dimen/round_indicator_size"
-            tools:background="@drawable/round_button"
-            tools:backgroundTint="@color/sakura_focus_secondary" />
-
+            android:background="@drawable/round_button"
+            android:backgroundTint="#80FFFFFF" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -106,12 +110,11 @@
         android:layout_height="@dimen/timer_button_size"
         android:layout_marginBottom="20dp"
         android:contentDescription="@string/character_selection_description"
-        app:icon="@drawable/ic_profile"
+        app:icon="@drawable/smiley_24"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
         app:iconSize="@dimen/button_icon_size"
         app:iconTint="@color/black"
-
         style="@style/Widget.Material3.Button.ElevatedButton"
         app:cornerRadius="@dimen/timer_button_size"
         app:backgroundTint="@color/sakura_focus_secondary"
@@ -125,7 +128,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.88" />
+        app:layout_constraintGuide_percent="0.90" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnPlay"
