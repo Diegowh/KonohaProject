@@ -32,7 +32,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
     val viewModel: TimerViewModel by viewModels({ requireActivity() })
-    private lateinit var soundPlayer: SoundPlayer
     private val roundViews = mutableListOf<View>()
     private var currentCharacterId: Int = -1
 
@@ -47,21 +46,14 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         currentTheme = ThemeManager.loadTheme(requireContext(), viewModel.state.value.character)
         binding.main.setBackgroundColor(currentTheme.focusPalette.first())
 
-        initSoundPlayer()
         initComponents()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        soundPlayer.release()
         _binding = null
     }
 
-    private fun initSoundPlayer() {
-        soundPlayer = SoundPlayer(requireContext()).apply {
-            loadSound(SoundType.INTERVAL_CHANGE, R.raw.bubble_tiny)
-        }
-    }
 
     private fun initAnimator() {
         updateAnimationFrames()
@@ -83,10 +75,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                         updateTimerUI(screenState.timer)
                         handleAnimations(screenState.animation)
                         handleCharacterChange(screenState.character)
-                        
-                       screenState.soundEvent?.let { soundType ->
-                            soundPlayer.play(soundType)
-                        }
                     }
                 }
             }
