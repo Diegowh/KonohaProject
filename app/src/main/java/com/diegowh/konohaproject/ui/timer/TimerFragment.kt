@@ -107,6 +107,10 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
             // fuerza el cambio a la UI independientemente del estado del timer
             updateTimerUI(viewModel.state.value.timer)
+
+            if (viewModel.state.value.timer.status == TimerStatus.Running) {
+                startAnimation()
+            }
         }
     }
 
@@ -159,9 +163,9 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     }
 
     private fun startAnimation() {
-        if (!charAnim.isRunning) {
-            charAnim.start()
-        }
+        // para asegurarme de que la animacion se pare antes de iniciar otra
+        charAnim.stop()
+        charAnim.start()
     }
 
     private fun pauseAnimation() {

@@ -159,8 +159,17 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             is TimerScreenEvent.TimerEvent.Pause -> onPauseClicked()
             is TimerScreenEvent.TimerEvent.Reset -> onResetClicked()
             is TimerScreenEvent.CharacterEvent.Select -> {
+                val isTimerRunning = _state.value.timer.status == TimerStatus.Running
+                
                 _state.update { currentState ->
-                    currentState.copy(character = event.character)
+                    currentState.copy(
+                        character = event.character,
+                        animation = if (isTimerRunning) {
+                            currentState.animation.copy(action = AnimationAction.Start)
+                        } else {
+                            currentState.animation
+                        }
+                    )
                 }
                 characterSettings.setSelectedCharacterId(event.character.id)
             }
