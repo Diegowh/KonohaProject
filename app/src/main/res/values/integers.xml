@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="frame_duration">200</integer>
+    <integer name="frame_duration">80</integer>
 </resources>

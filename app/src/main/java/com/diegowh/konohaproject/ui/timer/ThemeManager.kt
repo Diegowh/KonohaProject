@@ -37,7 +37,8 @@ object ThemeManager {
             breakPalette = breakPalette,
             focusFrames = focusFrames,
             breakFrames = breakFrames,
-            frameDuration = frameDuration
+            frameDuration = frameDuration,
+            character = character
         )
     }
 }

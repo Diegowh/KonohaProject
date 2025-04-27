@@ -2,19 +2,19 @@
 <animation-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:drawable="@drawable/sakura_crop"
+        android:drawable="@drawable/test0"
         android:duration="@integer/frame_duration"/>
     <item
-        android:drawable="@drawable/losiento1"
+        android:drawable="@drawable/test1"
         android:duration="@integer/frame_duration"/>
     <item
-        android:drawable="@drawable/losiento2"
+        android:drawable="@drawable/test2"
         android:duration="@integer/frame_duration"/>
     <item
-        android:drawable="@drawable/losiento3"
+        android:drawable="@drawable/test3"
         android:duration="@integer/frame_duration"/>
     <item
-        android:drawable="@drawable/losiento4"
+        android:drawable="@drawable/test4"
         android:duration="@integer/frame_duration"/>
 
 </animation-list>
