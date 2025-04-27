@@ -81,6 +81,20 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
         }
     }
 
+    private fun updateTimerUI(state: TimerState) {
+        binding.txtTimer.text = state.timerText
+        updateButtonVisibility(state.status)
+
+        if (::currentTheme.isInitialized) {
+            updateRoundCounters(state.totalRounds, state.currentRound)
+            applyIntervalStyle(state)
+        } else {
+            handleCharacterChange(viewModel.state.value.character)
+            updateRoundCounters(state.totalRounds, state.currentRound)
+            applyIntervalStyle(state)
+        }
+    }
+
     private fun handleCharacterChange(newCharacter: Character) {
         if (newCharacter.id != currentCharacterId) {
             currentCharacterId = newCharacter.id
@@ -257,20 +271,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                 binding.roundCounterContainer.addView(this)
                 roundViews.add(this)
             }
-        }
-    }
-
-    private fun updateTimerUI(state: TimerState) {
-        binding.txtTimer.text = state.timerText
-        updateButtonVisibility(state.status)
-
-        if (::currentTheme.isInitialized) {
-            updateRoundCounters(state.totalRounds, state.currentRound)
-            applyIntervalStyle(state)
-        } else {
-            handleCharacterChange(viewModel.state.value.character)
-            updateRoundCounters(state.totalRounds, state.currentRound)
-            applyIntervalStyle(state)
         }
     }
 
