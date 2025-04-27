@@ -44,7 +44,11 @@ class CharacterSelectionFragment :
 
         binding.charactersRecycler.adapter =
             CharactersAdapter(characters) { character ->
-                timerViewModel.onEvent(TimerScreenEvent.CharacterEvent.Select(character))
+
+                if (character.id != timerViewModel.state.value.character.id) {
+                    timerViewModel.onEvent(TimerScreenEvent.CharacterEvent.Select(character))
+                }
+                // No quiero hacer dismiss al seleccionar por ahora, pero lo dejo para acordarme
 //                dismiss()
             }
     }
