@@ -145,7 +145,10 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     fun clearAnimationAction() {
         _state.update { currentState ->
             currentState.copy(
-                animation = currentState.animation.copy(action = null)
+                animation = currentState.animation.copy(
+                    action = null,
+                    shouldUpdateFrames = false
+                )
             )
         }
     }
@@ -295,6 +298,9 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                     interval = Interval(event.currentRound, event.nextInterval, nextDuration),
                     currentRound = event.currentRound
                 ),
+                animation = currentState.animation.copy(
+                    shouldUpdateFrames = true
+                )
             )
         }
     }

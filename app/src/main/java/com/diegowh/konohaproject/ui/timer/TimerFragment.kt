@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -14,12 +13,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.core.animation.AnimationAction
-import com.diegowh.konohaproject.core.sound.SoundType
 import com.diegowh.konohaproject.core.timer.IntervalType
 import com.diegowh.konohaproject.core.ui.CharacterTheme
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.domain.character.Character
-import com.diegowh.konohaproject.domain.sound.SoundPlayer
 import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
 import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
@@ -70,7 +67,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
     private fun observeViewModel() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { 
+                launch {
                     viewModel.state.collect { screenState ->
                         updateTimerUI(screenState.timer)
                         handleAnimations(screenState.animation)
@@ -122,13 +119,25 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             }
             viewModel.clearAnimationAction()
         }
+        
+        if (state.shouldUpdateFrames) {
+            updateAnimationFrames()
+            viewModel.clearAnimationAction()
+        }
+        
         manageAnimationState(state)
     }
 
     private fun updateAnimationFrames() {
+        val currentIntervalType = viewModel.state.value.timer.interval?.type ?: IntervalType.FOCUS
+        val frames = if (currentIntervalType == IntervalType.FOCUS) {
+            currentTheme.focusFrames
+        } else {
+            currentTheme.breakFrames
+        }
         val newAnim = AnimationDrawable().apply {
             isOneShot = false
-            currentTheme.focusFrames.forEach { frame ->
+            frames.forEach { frame ->
                 addFrame(frame, currentTheme.frameDuration)
             }
         }
@@ -212,14 +221,14 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
 
 
     private fun setupListeners() {
-        binding.btnPlay.setOnClickListener { 
-            viewModel.onEvent(TimerScreenEvent.TimerEvent.Play) 
+        binding.btnPlay.setOnClickListener {
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Play)
         }
-        binding.btnPause.setOnClickListener { 
-            viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause) 
+        binding.btnPause.setOnClickListener {
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause)
         }
-        binding.btnReset.setOnClickListener { 
-            viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset) 
+        binding.btnReset.setOnClickListener {
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset)
         }
         binding.btnSettings.setOnClickListener {
             binding.btnSettings.isEnabled = false
@@ -266,8 +275,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                 setBackgroundResource(R.drawable.round_button)
 
                 ((background as? GradientDrawable)?.mutate() as? GradientDrawable)?.apply {
-                        setColor(currentTheme.focusPalette[1])
-                    }
+                    setColor(currentTheme.focusPalette[1])
+                }
                 binding.roundCounterContainer.addView(this)
                 roundViews.add(this)
             }
