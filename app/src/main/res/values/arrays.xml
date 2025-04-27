@@ -3,19 +3,33 @@
 
 <!--    Sakura-->
     <array name="test_sakura_focus_frames">
-        <item>@drawable/sakura_crop</item>
-        <item>@drawable/losiento1</item>
-        <item>@drawable/losiento2</item>
-        <item>@drawable/losiento3</item>
-        <item>@drawable/losiento4</item>
+        <item>@drawable/test0</item>
+        <item>@drawable/test1</item>
+        <item>@drawable/test2</item>
+        <item>@drawable/test3</item>
+        <item>@drawable/test4</item>
+        <item>@drawable/test5</item>
+        <item>@drawable/test6</item>
+        <item>@drawable/test7</item>
+        <item>@drawable/test8</item>
+        <item>@drawable/test7</item>
+        <item>@drawable/test6</item>
+        <item>@drawable/test5</item>
+        <item>@drawable/test4</item>
+        <item>@drawable/test3</item>
+        <item>@drawable/test2</item>
+        <item>@drawable/test1</item>
     </array>
 
     <array name="test_sakura_break_frames">
-        <item>@drawable/sakura_crop</item>
-        <item>@drawable/losiento1</item>
-        <item>@drawable/losiento2</item>
-        <item>@drawable/losiento3</item>
-        <item>@drawable/losiento4</item>
+        <item>@drawable/test0</item>
+        <item>@drawable/test1</item>
+        <item>@drawable/test2</item>
+        <item>@drawable/test3</item>
+        <item>@drawable/test4</item>
+        <item>@drawable/test5</item>
+        <item>@drawable/test6</item>
+
     </array>
 
 
