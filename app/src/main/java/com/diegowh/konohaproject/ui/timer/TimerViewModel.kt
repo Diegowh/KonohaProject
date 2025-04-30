@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.app.App
 import com.diegowh.konohaproject.core.animation.AnimationAction
+import com.diegowh.konohaproject.core.service.ServiceNotifier
 import com.diegowh.konohaproject.core.sound.SoundType
 import com.diegowh.konohaproject.core.timer.Interval
 import com.diegowh.konohaproject.core.timer.IntervalType
@@ -52,6 +53,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         loadSound(SoundType.INTERVAL_CHANGE, R.raw.interval_finished)
     }
     
+    private val serviceNotifier = ServiceNotifier(getApplication())
     private val serviceConnector: TimerServiceConnector = TimerServiceConnectorImpl(viewModelScope)
     
     init {
@@ -229,11 +231,16 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     }
     
     private fun handleIntervalFinished(event: TimerUIEvent.IntervalFinished) {
-        val shouldPlaySound = !timerSettings.isMuteEnabled() && hasStarted
+        val shouldNotify = hasStarted
         
-        if (shouldPlaySound) {
+        if (shouldNotify && !timerSettings.isMuteEnabled()) {
             soundPlayer.play(SoundType.INTERVAL_CHANGE)
         }
+
+        if (shouldNotify) {
+            serviceNotifier.sendIntervalFinishedNotification(event.nextInterval)
+        }
+        
         hasStarted = true
         val nextDuration = calculateNextDuration(event.nextInterval)
         
@@ -251,6 +258,8 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     }
     
     private fun handleSessionFinished() {
+        serviceNotifier.sendSessionFinishedNotification()
+        
         _state.update { currentState ->
             currentState.copy(
                 animation = currentState.animation.copy(action = AnimationAction.Stop),
