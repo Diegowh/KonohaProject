@@ -61,22 +61,17 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
             val behavior = BottomSheetBehavior.from(it)
             val layoutParams = it.layoutParams
 
-            // Calculate 90% of the screen height
             val windowHeight = requireActivity().window.decorView.height
             val desiredHeight = (windowHeight * 0.9).toInt()
 
-            // Set the height
             layoutParams.height = desiredHeight
             it.layoutParams = layoutParams
 
-            // Set the initial state to expanded
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
 
-            // Optionally, disable dragging to prevent users from collapsing it
             behavior.isDraggable = true
             behavior.skipCollapsed = true
-
-            // Set peekHeight to show enough content
+            
             behavior.peekHeight = (windowHeight * 0.6).toInt()
         }
     }
