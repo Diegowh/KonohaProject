@@ -1,6 +1,7 @@
 package com.diegowh.konohaproject.ui.timer
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -17,11 +18,12 @@ import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import kotlinx.coroutines.launch
 
 
-class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
+class TimerFragment : Fragment(R.layout.fragment_timer) {
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
 
+    private var lastClickTime: Long = 0
     val viewModel: TimerViewModel by viewModels({ requireActivity() })
 
     private lateinit var animationManager: CharacterAnimationManager
@@ -119,21 +121,18 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
             viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset)
         }
         binding.btnSettings.setOnClickListener {
-            binding.btnSettings.isEnabled = false
-            viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause)
-            SettingsFragment().show(childFragmentManager, "SettingsDialog")
+            if (SystemClock.elapsedRealtime() - lastClickTime > 1000) {
+                viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause)
+                SettingsFragment().show(childFragmentManager, "SettingsDialog")
+                lastClickTime = SystemClock.elapsedRealtime()
+            }
         }
         binding.btnCharacterSelect.setOnClickListener {
-            CharacterSelectionFragment().show(childFragmentManager, "CharacterSelector")
+            if (SystemClock.elapsedRealtime() - lastClickTime > 1000) {
+                CharacterSelectionFragment().show(childFragmentManager, "CharacterSelector")
+                lastClickTime = SystemClock.elapsedRealtime()
+            }
         }
     }
 
-    override fun onSettingsChanged() {
-        viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset)
-        uiManager.resetBackgroundColor()
-    }
-
-    override fun onDismiss() {
-        binding.btnSettings.isEnabled = true
-    }
 }

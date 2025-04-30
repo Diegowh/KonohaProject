@@ -59,19 +59,19 @@
 <!--    Guy -->
 
     <array name="test_guy_focus_frames">
-        <item>@drawable/guy_miniatura</item>
-        <item>@drawable/guy_miniatura</item>
-        <item>@drawable/guy_miniatura</item>
-        <item>@drawable/guy_miniatura</item>
-        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_tpose</item>
+        <item>@drawable/guy_tpose</item>
+        <item>@drawable/guy_tpose</item>
+        <item>@drawable/guy_tpose</item>
+        <item>@drawable/guy_tpose</item>
     </array>
 
     <array name="test_guy_break_frames">
-        <item>@drawable/guy_miniatura</item>
-        <item>@drawable/guy_miniatura</item>
-        <item>@drawable/guy_miniatura</item>
-        <item>@drawable/guy_miniatura</item>
-        <item>@drawable/guy_miniatura</item>
+        <item>@drawable/guy_tpose</item>
+        <item>@drawable/guy_tpose</item>
+        <item>@drawable/guy_tpose</item>
+        <item>@drawable/guy_tpose</item>
+        <item>@drawable/guy_tpose</item>
     </array>
 
 

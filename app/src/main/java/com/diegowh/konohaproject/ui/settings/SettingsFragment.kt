@@ -20,7 +20,6 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
-    private var listener: Listener? = null
 
     private val focusOptions = getFocusValues()
     private val shortBreakOptions = getShortBreakValues()
@@ -36,16 +35,10 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
 
     private lateinit var settings: TimerSettingsRepository
 
-    interface Listener {
-        fun onSettingsChanged()
-        fun onDismiss()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSettingsBinding.bind(view)
         settings = (requireActivity().application as App).timerSettings
-        listener = parentFragment as? Listener ?: activity as? Listener
 
         dialog?.setOnShowListener { dialog ->
             val bottomSheetDialog = dialog as BottomSheetDialog
@@ -61,22 +54,17 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
             val behavior = BottomSheetBehavior.from(it)
             val layoutParams = it.layoutParams
 
-            // Calculate 90% of the screen height
             val windowHeight = requireActivity().window.decorView.height
             val desiredHeight = (windowHeight * 0.9).toInt()
 
-            // Set the height
             layoutParams.height = desiredHeight
             it.layoutParams = layoutParams
 
-            // Set the initial state to expanded
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
 
-            // Optionally, disable dragging to prevent users from collapsing it
             behavior.isDraggable = true
             behavior.skipCollapsed = true
-
-            // Set peekHeight to show enough content
+            
             behavior.peekHeight = (windowHeight * 0.6).toInt()
         }
     }
@@ -143,11 +131,6 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
         btnMute.isChecked = muteEnabled
     }
 
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        (parentFragment as? Listener ?: activity as? Listener)?.onDismiss()
-    }
-
     private fun getFocusValues(): List<Int> =
         (1..5).toList() +
                 (10..60 step 5).toList() +
@@ -185,8 +168,9 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
                     isMuteEnabled = muteEnabled
                 )
             )
+
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset)
         }
-        listener?.onSettingsChanged()
         dismiss()
     }
 
