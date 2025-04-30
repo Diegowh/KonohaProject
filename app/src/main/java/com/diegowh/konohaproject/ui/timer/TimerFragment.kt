@@ -18,7 +18,7 @@ import com.diegowh.konohaproject.ui.settings.SettingsFragment
 import kotlinx.coroutines.launch
 
 
-class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listener {
+class TimerFragment : Fragment(R.layout.fragment_timer) {
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
@@ -133,11 +133,6 @@ class TimerFragment : Fragment(R.layout.fragment_timer), SettingsFragment.Listen
                 lastClickTime = SystemClock.elapsedRealtime()
             }
         }
-    }
-
-    override fun onSettingsChanged() {
-        viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset)
-        uiManager.resetBackgroundColor()
     }
 
 }

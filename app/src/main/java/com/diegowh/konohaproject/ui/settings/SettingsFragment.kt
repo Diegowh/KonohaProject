@@ -20,7 +20,6 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
-    private var listener: Listener? = null
 
     private val focusOptions = getFocusValues()
     private val shortBreakOptions = getShortBreakValues()
@@ -36,15 +35,10 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
 
     private lateinit var settings: TimerSettingsRepository
 
-    interface Listener {
-        fun onSettingsChanged()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSettingsBinding.bind(view)
         settings = (requireActivity().application as App).timerSettings
-        listener = parentFragment as? Listener ?: activity as? Listener
 
         dialog?.setOnShowListener { dialog ->
             val bottomSheetDialog = dialog as BottomSheetDialog
@@ -174,8 +168,9 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
                     isMuteEnabled = muteEnabled
                 )
             )
+
+            viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset)
         }
-        listener?.onSettingsChanged()
         dismiss()
     }
 
