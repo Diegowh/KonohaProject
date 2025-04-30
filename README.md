@@ -31,6 +31,3 @@ The app is currently in early development, but we have plans for different featu
   - **NonCommercial** - You may not use the material for [commercial purposes](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en#ref-commercial-purposes)
   - **NoDerivatives** - If you [remix, transform, or build upon](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en#ref-some-kinds-of-mods) the material, you may not distribute the modified material.
   ---
-
-### Sound effects
-bubble_tiny.wav by cdonahueucsd -- https://freesound.org/s/337131/ -- License: Attribution 4.0
