@@ -38,7 +38,6 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
 
     interface Listener {
         fun onSettingsChanged()
-        fun onDismiss()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -136,11 +135,6 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
 
         btnAutorun.isChecked = autorunEnabled
         btnMute.isChecked = muteEnabled
-    }
-
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        (parentFragment as? Listener ?: activity as? Listener)?.onDismiss()
     }
 
     private fun getFocusValues(): List<Int> =
