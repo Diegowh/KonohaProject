@@ -49,7 +49,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     
     private var hasStarted = false
     private val soundPlayer: SoundPlayer = SoundPlayer(getApplication()).apply {
-        loadSound(SoundType.INTERVAL_CHANGE, R.raw.bubble_tiny)
+        loadSound(SoundType.INTERVAL_CHANGE, R.raw.interval_finished)
     }
     
     private val serviceConnector: TimerServiceConnector = TimerServiceConnectorImpl(viewModelScope)

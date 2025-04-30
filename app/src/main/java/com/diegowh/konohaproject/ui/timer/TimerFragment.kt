@@ -123,13 +123,13 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
         binding.btnSettings.setOnClickListener {
             if (SystemClock.elapsedRealtime() - lastClickTime > 1000) {
                 viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause)
-                SettingsFragment().show(childFragmentManager, "SettingsDialog")
+                SettingsFragment().show(childFragmentManager, "SettingsFragment")
                 lastClickTime = SystemClock.elapsedRealtime()
             }
         }
         binding.btnCharacterSelect.setOnClickListener {
             if (SystemClock.elapsedRealtime() - lastClickTime > 1000) {
-                CharacterSelectionFragment().show(childFragmentManager, "CharacterSelector")
+                CharacterSelectionFragment().show(childFragmentManager, "CharacterSelectionFragment")
                 lastClickTime = SystemClock.elapsedRealtime()
             }
         }
