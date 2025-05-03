@@ -75,37 +75,46 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
             handleCharacterChange(state.character)
         }
         updateTimerUI(state.timer)
-        if (state.intervalDialog.showDialog && state.intervalDialog.intervalType != null) {
-            showIntervalFinishedDialog(state.intervalDialog.intervalType)
+        state.intervalDialog.intervalType?.let { intervalType ->
+            if (state.intervalDialog.showDialog) {
+                showIntervalFinishedDialog(
+                    intervalType = intervalType,
+                    onTakeBreak = {
+                        viewModel.onDialogContinueClicked()
+                    },
+                    onSkipBreak = {
+                        // TODO: Implementar Break Skip
+                        viewModel.onDialogDismissed()
+                    }
+                )
+            }
         }
     }
 
-    private fun showIntervalFinishedDialog(intervalType: IntervalType) {
-        val title = when (intervalType) {
-            IntervalType.FOCUS -> "Break finished"
-            IntervalType.SHORT_BREAK, IntervalType.LONG_BREAK -> "Well done!"
-        }
+    private fun showIntervalFinishedDialog(
+        intervalType: IntervalType,
+        onTakeBreak: () -> Unit,
+        onSkipBreak: () -> Unit
+    ) {
 
-        val message = when (intervalType) {
+        if (intervalType == IntervalType.SHORT_BREAK || intervalType == IntervalType.LONG_BREAK) {
+            val options = arrayOf("Take a break", "Skip break")
+            var selectedOption = 0
 
-            IntervalType.FOCUS -> "Are you ready to focus?"
-            IntervalType.SHORT_BREAK -> "A short break?"
-            IntervalType.LONG_BREAK -> "A long break?"
-        }
-
-        if (childFragmentManager.findFragmentByTag("interval_dialog") == null) {
             AlertDialog.Builder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
+                .setTitle("Well done! What's next?")
+                .setSingleChoiceItems(options, selectedOption) { _, which ->
+                    selectedOption = which
+                }
+                .setPositiveButton("Confirm") { dialog, _ ->
+                    if (selectedOption == 0) {
+                        onTakeBreak()
+                    } else {
+                        onSkipBreak()
+                    }
+                    dialog.dismiss()
+                }
                 .setCancelable(false)
-                .setPositiveButton("Yes") { dialog, _ ->
-                    viewModel.onDialogContinueClicked()
-                    dialog.dismiss()
-                }
-                .setNegativeButton("No") { dialog, _ ->
-                    viewModel.onDialogDismissed()
-                    dialog.dismiss()
-                }
                 .create()
                 .show()
 

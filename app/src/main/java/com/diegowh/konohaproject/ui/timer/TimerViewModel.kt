@@ -248,10 +248,8 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 _state.update { state ->
                     state.copy(
                         timer = state.timer.copy(
-                            // avanzamos al siguiente intervalo y cargamos su duración
                             interval    = Interval(event.currentRound, event.nextInterval, nextDuration),
                             currentRound = event.currentRound,
-                            // ponemos el estado en STOPPED y mostramos el contador inicial
                             status      = TimerStatus.Stopped,
                             timerText   = formatTime(nextDuration)
                         ),
