@@ -3,12 +3,14 @@ package com.diegowh.konohaproject.ui.timer
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.core.timer.IntervalType
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
@@ -73,6 +75,42 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
             handleCharacterChange(state.character)
         }
         updateTimerUI(state.timer)
+        if (state.intervalDialog.showDialog && state.intervalDialog.intervalType != null) {
+            showIntervalFinishedDialog(state.intervalDialog.intervalType)
+        }
+    }
+
+    private fun showIntervalFinishedDialog(intervalType: IntervalType) {
+        val title = when (intervalType) {
+            IntervalType.FOCUS -> "Break finished"
+            IntervalType.SHORT_BREAK, IntervalType.LONG_BREAK -> "Well done!"
+        }
+
+        val message = when (intervalType) {
+
+            IntervalType.FOCUS -> "Are you ready to focus?"
+            IntervalType.SHORT_BREAK -> "A short break?"
+            IntervalType.LONG_BREAK -> "A long break?"
+        }
+
+        if (childFragmentManager.findFragmentByTag("interval_dialog") == null) {
+            AlertDialog.Builder(requireContext())
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("Yes") { dialog, _ ->
+                    viewModel.onDialogContinueClicked()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No") { dialog, _ ->
+                    viewModel.onDialogDismissed()
+                    dialog.dismiss()
+                }
+                .create()
+                .show()
+
+            viewModel.onDialogShown()
+        }
     }
 
     private fun processAnimationState(state: AnimationState) {

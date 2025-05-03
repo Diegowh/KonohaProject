@@ -1,6 +1,8 @@
 package com.diegowh.konohaproject.ui.timer
 
 import android.app.Application
+import android.os.health.TimerStat
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.diegowh.konohaproject.R
@@ -239,6 +241,32 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
         if (shouldNotify) {
             serviceNotifier.sendIntervalFinishedNotification(event.nextInterval)
+
+            if (!timerSettings.isAutorunEnabled()) {
+                val nextDuration = calculateNextDuration(event.nextInterval)
+
+                _state.update { state ->
+                    state.copy(
+                        timer = state.timer.copy(
+                            // avanzamos al siguiente intervalo y cargamos su duración
+                            interval    = Interval(event.currentRound, event.nextInterval, nextDuration),
+                            currentRound = event.currentRound,
+                            // ponemos el estado en STOPPED y mostramos el contador inicial
+                            status      = TimerStatus.Stopped,
+                            timerText   = formatTime(nextDuration)
+                        ),
+                        animation = state.animation.copy(
+                            shouldUpdateFrames = true
+                        ),
+                        intervalDialog = IntervalDialogState(
+                            showDialog    = true,
+                            intervalType  = event.nextInterval
+                        )
+                    )
+                }
+                serviceConnector.getService()?.pause()
+                return
+            }
         }
         
         hasStarted = true
@@ -293,7 +321,42 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
+    fun onDialogContinueClicked() {
+        serviceConnector.getService()?.resume()
+        _state.update { currentState ->
+            currentState.copy(
+                timer = currentState.timer.copy(
+                    status = TimerStatus.Running
+                ),
+                animation = currentState.animation.copy(
+                    action = AnimationAction.Start,
+                    shouldUpdateFrames = true
+                ),
+                intervalDialog = IntervalDialogState()  // showDialog = false
+            )
+        }
+
+    }
+
+    fun onDialogDismissed() {
+        _state.update { currentState ->
+            currentState.copy(
+                intervalDialog = IntervalDialogState()
+            )
+        }
+    }
+
+    fun onDialogShown() {
+        _state.update { current ->
+            current.copy(
+                intervalDialog = current.intervalDialog.copy(
+                    showDialog = false
+                )
+            )
+        }
+    }
+
     override fun onCleared() {
         soundPlayer.release()
         serviceConnector.disconnect(getApplication())
