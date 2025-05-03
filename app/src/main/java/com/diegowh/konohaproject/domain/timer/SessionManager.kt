@@ -36,7 +36,6 @@ class SessionManager(
 
         val nextInterval: IntervalType
         val totalRounds = settings.totalRounds()
-        val isAutorun = settings.isAutorunEnabled()
         val isLastRound = currentSession.round == totalRounds
 
         if (currentSession.intervalType == IntervalType.FOCUS) {
@@ -59,17 +58,6 @@ class SessionManager(
             when {
                 !isLastRound -> {
                     currentSession.round++
-                    start(focusTime)
-                    _eventFlow.emit(
-                        TimerUIEvent.IntervalFinished(
-                            currentSession.round,
-                            nextInterval
-                        )
-                    )
-                }
-
-                isAutorun -> {
-                    currentSession.round = 1
                     start(focusTime)
                     _eventFlow.emit(
                         TimerUIEvent.IntervalFinished(
