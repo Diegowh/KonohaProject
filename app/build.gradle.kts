@@ -11,8 +11,8 @@ android {
         applicationId = "com.diegowh.konohaproject"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1013
-        versionName = "0.1.13-beta"
+        versionCode = 2000
+        versionName = "0.2.0-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

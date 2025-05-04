@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.app.App
 import com.diegowh.konohaproject.core.animation.AnimationAction
+import com.diegowh.konohaproject.core.service.ServiceNotifier
 import com.diegowh.konohaproject.core.sound.SoundType
 import com.diegowh.konohaproject.core.timer.Interval
 import com.diegowh.konohaproject.core.timer.IntervalType
@@ -25,15 +26,14 @@ import kotlinx.coroutines.flow.update
 import java.util.Locale
 
 
-
 class TimerViewModel(app: Application) : AndroidViewModel(app) {
-    
+
     private val characterSettings: CharacterSettingsRepository =
         (getApplication() as App).characterSettings
-    
+
     private val timerSettings: TimerSettingsRepository =
         (getApplication() as App).timerSettings
-    
+
     private val _state = MutableStateFlow(
         TimerScreenState(
             character = characterSettings.getById(
@@ -46,19 +46,20 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         )
     )
     val state: StateFlow<TimerScreenState> = _state.asStateFlow()
-    
+
     private var hasStarted = false
     private val soundPlayer: SoundPlayer = SoundPlayer(getApplication()).apply {
-        loadSound(SoundType.INTERVAL_CHANGE, R.raw.bubble_tiny)
+        loadSound(SoundType.INTERVAL_CHANGE, R.raw.interval_finished)
     }
-    
+
+    private val serviceNotifier = ServiceNotifier(getApplication())
     private val serviceConnector: TimerServiceConnector = TimerServiceConnectorImpl(viewModelScope)
-    
+
     init {
         connectToTimerService()
         initState()
     }
-    
+
     private fun connectToTimerService() {
         serviceConnector.connect(getApplication()) { event ->
             when (event) {
@@ -68,7 +69,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
-    
+
     private fun initState() {
         _state.update { currentState ->
             currentState.copy(
@@ -82,7 +83,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     fun onEvent(event: TimerScreenEvent) {
         when (event) {
             is TimerScreenEvent.TimerEvent.Play -> onPlayClicked()
@@ -93,11 +94,11 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             is TimerScreenEvent.SettingsEvent.Reset -> onSettingsReset()
         }
     }
-    
+
     private fun onCharacterSelected(event: TimerScreenEvent.CharacterEvent.Select) {
         if (event.character.id != _state.value.character.id) {
             val isTimerRunning = _state.value.timer.status == TimerStatus.Running
-            
+
             _state.update { currentState ->
                 currentState.copy(
                     character = event.character,
@@ -111,7 +112,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             characterSettings.setSelectedCharacterId(event.character.id)
         }
     }
-    
+
     private fun onSettingsUpdated(event: TimerScreenEvent.SettingsEvent.UpdateSettings) {
         timerSettings.updateSettings(
             focus = event.focusMinutes,
@@ -131,7 +132,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         }
         serviceConnector.getService()?.let { handleReset(it) }
     }
-    
+
     private fun onSettingsReset() {
         timerSettings.resetToDefaults()
         _state.update { currentState ->
@@ -144,7 +145,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         }
         serviceConnector.getService()?.let { handleReset(it) }
     }
-    
+
     private fun onPlayClicked() {
         serviceConnector.getService()?.let { controller ->
             when {
@@ -153,7 +154,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
-    
+
     private fun resumeTimer(controller: TimerService) {
         controller.resume()
         _state.update { currentState ->
@@ -166,7 +167,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun startNewSession(controller: TimerService) {
         controller.start(timerSettings.focusTimeMillis())
         _state.update { currentState ->
@@ -179,7 +180,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun onPauseClicked() {
         serviceConnector.getService()?.let { controller ->
             controller.pause()
@@ -191,13 +192,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
-    
+
     private fun onResetClicked() {
         serviceConnector.getService()?.let { controller ->
             handleReset(controller)
         }
     }
-    
+
     private fun handleReset(controller: TimerService) {
         hasStarted = false
         controller.reset()
@@ -217,7 +218,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun handleTimeUpdate(event: TimerUIEvent.TimeUpdate) {
         _state.update { currentState ->
             currentState.copy(
@@ -227,16 +228,50 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun handleIntervalFinished(event: TimerUIEvent.IntervalFinished) {
-        val shouldPlaySound = !timerSettings.isMuteEnabled() && hasStarted
-        
-        if (shouldPlaySound) {
+        val shouldNotify = hasStarted
+
+        if (shouldNotify && !timerSettings.isMuteEnabled()) {
             soundPlayer.play(SoundType.INTERVAL_CHANGE)
         }
+
+        // evita notificar al iniciar el timer por primera vez
+        if (shouldNotify) {
+            serviceNotifier.sendIntervalFinishedNotification(event.nextInterval)
+
+            if (!timerSettings.isAutorunEnabled()) {
+                val nextDuration = calculateNextDuration(event.nextInterval)
+
+                _state.update { state ->
+                    state.copy(
+                        timer = state.timer.copy(
+                            interval = Interval(
+                                event.currentRound,
+                                event.nextInterval,
+                                nextDuration
+                            ),
+                            currentRound = event.currentRound,
+                            status = TimerStatus.Stopped,
+                            timerText = formatTime(nextDuration)
+                        ),
+                        animation = state.animation.copy(
+                            shouldUpdateFrames = true
+                        ),
+                        intervalDialog = IntervalDialogState(
+                            showDialog = true,
+                            intervalType = event.nextInterval
+                        )
+                    )
+                }
+                serviceConnector.getService()?.pause()
+                return
+            }
+        }
+
         hasStarted = true
         val nextDuration = calculateNextDuration(event.nextInterval)
-        
+
         _state.update { currentState ->
             currentState.copy(
                 timer = currentState.timer.copy(
@@ -249,23 +284,26 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun handleSessionFinished() {
+        serviceNotifier.sendSessionFinishedNotification()
+
         _state.update { currentState ->
             currentState.copy(
                 animation = currentState.animation.copy(action = AnimationAction.Stop),
+                sessionDialogVisible = true
             )
         }
         serviceConnector.getService()?.let { handleReset(it) }
     }
-    
+
     private fun formatTime(remainingMillis: Long): String {
         val totalSeconds = (remainingMillis + 500) / 1000
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
         return String.format(Locale.US, "%02d:%02d", minutes, seconds)
     }
-    
+
     private fun calculateNextDuration(intervalType: IntervalType): Long {
         return when (intervalType) {
             IntervalType.FOCUS -> timerSettings.focusTimeMillis()
@@ -273,7 +311,35 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             IntervalType.LONG_BREAK -> timerSettings.longBreakTimeMillis()
         }
     }
-    
+
+    private fun getNextIntervalType(event: TimerUIEvent.IntervalFinished): IntervalType {
+        return when (event.nextInterval) {
+            IntervalType.FOCUS -> {
+                calculateBreakType(event.currentRound)
+            }
+
+            IntervalType.SHORT_BREAK, IntervalType.LONG_BREAK -> {
+                IntervalType.FOCUS
+            }
+        }
+    }
+
+    private fun getNextRound(event: TimerUIEvent.IntervalFinished): Int {
+        return when (getNextIntervalType(event)) {
+            IntervalType.FOCUS ->
+                event.currentRound + 1
+
+            IntervalType.SHORT_BREAK,
+            IntervalType.LONG_BREAK ->
+                event.currentRound
+        }
+    }
+
+    private fun calculateBreakType(currentRound: Int): IntervalType {
+        return if (currentRound >= timerSettings.totalRounds()) IntervalType.LONG_BREAK
+        else IntervalType.SHORT_BREAK
+    }
+
     fun clearAnimationAction() {
         _state.update { currentState ->
             currentState.copy(
@@ -284,7 +350,48 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
+    fun onDialogContinueClicked() {
+        serviceConnector.getService()?.resume()
+        _state.update { currentState ->
+            currentState.copy(
+                timer = currentState.timer.copy(
+                    status = TimerStatus.Running
+                ),
+                animation = currentState.animation.copy(
+                    action = AnimationAction.Start,
+                    shouldUpdateFrames = true
+                ),
+                intervalDialog = IntervalDialogState()  // showDialog = false
+            )
+        }
+    }
+
+    fun onDialogSkipClicked() {
+        _state.update { state ->
+            state.copy(intervalDialog = IntervalDialogState())
+        }
+        serviceConnector.getService()?.skip()
+    }
+
+    fun onSessionDialogDismissed() {
+        _state.update { currentState ->
+            currentState.copy(
+                sessionDialogVisible = false
+            )
+        }
+    }
+
+    fun onDialogShown() {
+        _state.update { current ->
+            current.copy(
+                intervalDialog = current.intervalDialog.copy(
+                    showDialog = false
+                )
+            )
+        }
+    }
+
     override fun onCleared() {
         soundPlayer.release()
         serviceConnector.disconnect(getApplication())

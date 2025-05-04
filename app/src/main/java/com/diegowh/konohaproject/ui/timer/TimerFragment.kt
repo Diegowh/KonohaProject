@@ -9,12 +9,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.core.timer.IntervalType
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.domain.character.Character
 import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
 import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 
@@ -73,6 +75,66 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
             handleCharacterChange(state.character)
         }
         updateTimerUI(state.timer)
+        state.intervalDialog.intervalType?.let { intervalType ->
+            if (state.intervalDialog.showDialog) {
+                showIntervalFinishedDialog(
+                    intervalType = intervalType,
+                    onTakeBreak = {
+                        viewModel.onDialogContinueClicked()
+                    },
+                    onSkipBreak = {
+                        viewModel.onDialogSkipClicked()
+                    }
+                )
+            }
+        }
+        if (state.sessionDialogVisible) {
+            showSessionFinishedDialog()
+            viewModel.onSessionDialogDismissed()
+        }
+    }
+
+    private fun showIntervalFinishedDialog(
+        intervalType: IntervalType,
+        onTakeBreak: () -> Unit,
+        onSkipBreak: () -> Unit
+    ) {
+
+        if (intervalType == IntervalType.SHORT_BREAK || intervalType == IntervalType.LONG_BREAK) {
+            val options = arrayOf("Take a break", "Skip break")
+            var selectedOption = 0
+
+
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Well done! What's next?")
+                .setSingleChoiceItems(options, selectedOption) { _, which ->
+                    selectedOption = which
+                }
+                .setPositiveButton("Confirm") { dialog, _ ->
+                    if (selectedOption == 0) {
+                        onTakeBreak()
+                    } else {
+                        onSkipBreak()
+                    }
+                    dialog.dismiss()
+                }
+                .setCancelable(false)
+                .create()
+                .show()
+
+            viewModel.onDialogShown()
+        }
+    }
+
+    private fun showSessionFinishedDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Congratulations!")
+            .setMessage("You finished a session!")
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     private fun processAnimationState(state: AnimationState) {
@@ -123,13 +185,13 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
         binding.btnSettings.setOnClickListener {
             if (SystemClock.elapsedRealtime() - lastClickTime > 1000) {
                 viewModel.onEvent(TimerScreenEvent.TimerEvent.Pause)
-                SettingsFragment().show(childFragmentManager, "SettingsDialog")
+                SettingsFragment().show(childFragmentManager, "SettingsFragment")
                 lastClickTime = SystemClock.elapsedRealtime()
             }
         }
         binding.btnCharacterSelect.setOnClickListener {
             if (SystemClock.elapsedRealtime() - lastClickTime > 1000) {
-                CharacterSelectionFragment().show(childFragmentManager, "CharacterSelector")
+                CharacterSelectionFragment().show(childFragmentManager, "CharacterSelectionFragment")
                 lastClickTime = SystemClock.elapsedRealtime()
             }
         }

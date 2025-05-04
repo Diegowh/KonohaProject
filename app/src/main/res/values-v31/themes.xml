@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.KonohaProject" parent="Base.Theme.KonohaProject">
+        <item name="android:windowSplashScreenBackground">@color/naruto_focus_primary</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/konohalogo</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">#000000</item>
+    </style>
+</resources>
