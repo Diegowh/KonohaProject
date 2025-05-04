@@ -3,7 +3,6 @@ package com.diegowh.konohaproject.ui.timer
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,6 +16,7 @@ import com.diegowh.konohaproject.domain.timer.TimerScreenEvent
 import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.ui.character.CharacterSelectionFragment
 import com.diegowh.konohaproject.ui.settings.SettingsFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 
@@ -104,7 +104,8 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
             val options = arrayOf("Take a break", "Skip break")
             var selectedOption = 0
 
-            AlertDialog.Builder(requireContext())
+
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Well done! What's next?")
                 .setSingleChoiceItems(options, selectedOption) { _, which ->
                     selectedOption = which
@@ -126,7 +127,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
     }
 
     private fun showSessionFinishedDialog() {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Congratulations!")
             .setMessage("You finished a session!")
             .setPositiveButton("OK") { dialog, _ ->
