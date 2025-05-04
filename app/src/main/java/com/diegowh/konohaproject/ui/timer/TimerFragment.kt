@@ -83,8 +83,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
                         viewModel.onDialogContinueClicked()
                     },
                     onSkipBreak = {
-                        // TODO: Implementar Break Skip
-                        viewModel.onDialogDismissed()
+                        viewModel.onDialogSkipClicked()
                     }
                 )
             }

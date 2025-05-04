@@ -1,8 +1,6 @@
 package com.diegowh.konohaproject.ui.timer
 
 import android.app.Application
-import android.os.health.TimerStat
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.diegowh.konohaproject.R
@@ -238,6 +236,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             soundPlayer.play(SoundType.INTERVAL_CHANGE)
         }
 
+        // evita notificar al iniciar el timer por primera vez
         if (shouldNotify) {
             serviceNotifier.sendIntervalFinishedNotification(event.nextInterval)
 
@@ -247,17 +246,21 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 _state.update { state ->
                     state.copy(
                         timer = state.timer.copy(
-                            interval    = Interval(event.currentRound, event.nextInterval, nextDuration),
+                            interval = Interval(
+                                event.currentRound,
+                                event.nextInterval,
+                                nextDuration
+                            ),
                             currentRound = event.currentRound,
-                            status      = TimerStatus.Stopped,
-                            timerText   = formatTime(nextDuration)
+                            status = TimerStatus.Stopped,
+                            timerText = formatTime(nextDuration)
                         ),
                         animation = state.animation.copy(
                             shouldUpdateFrames = true
                         ),
                         intervalDialog = IntervalDialogState(
-                            showDialog    = true,
-                            intervalType  = event.nextInterval
+                            showDialog = true,
+                            intervalType = event.nextInterval
                         )
                     )
                 }
@@ -307,7 +310,35 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             IntervalType.LONG_BREAK -> timerSettings.longBreakTimeMillis()
         }
     }
-    
+
+    private fun getNextIntervalType(event: TimerUIEvent.IntervalFinished): IntervalType {
+        return when (event.nextInterval) {
+            IntervalType.FOCUS -> {
+                calculateBreakType(event.currentRound)
+            }
+
+            IntervalType.SHORT_BREAK, IntervalType.LONG_BREAK -> {
+                IntervalType.FOCUS
+            }
+        }
+    }
+
+    private fun getNextRound(event: TimerUIEvent.IntervalFinished): Int {
+        return when (getNextIntervalType(event)) {
+            IntervalType.FOCUS ->
+                event.currentRound + 1
+
+            IntervalType.SHORT_BREAK,
+            IntervalType.LONG_BREAK ->
+                    event.currentRound
+        }
+    }
+
+    private fun calculateBreakType(currentRound: Int): IntervalType {
+        return if (currentRound >= timerSettings.totalRounds()) IntervalType.LONG_BREAK
+        else IntervalType.SHORT_BREAK
+    }
+
     fun clearAnimationAction() {
         _state.update { currentState ->
             currentState.copy(
@@ -333,7 +364,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 intervalDialog = IntervalDialogState()  // showDialog = false
             )
         }
+    }
 
+    fun onDialogSkipClicked() {
+        _state.update { state ->
+            state.copy(intervalDialog = IntervalDialogState())
+        }
+        serviceConnector.getService()?.skip()
     }
 
     fun onDialogDismissed() {

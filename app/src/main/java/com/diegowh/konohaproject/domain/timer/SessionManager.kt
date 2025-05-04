@@ -99,6 +99,12 @@ class SessionManager(
         engine.reset()
         currentSession.round = 0
     }
+    fun skipInterval() {
+        engine.reset()
+        scope.launch {
+            handleIntervalFinished()
+        }
+    }
 
     fun getRemainingTime(): Long = engine.getRemainingTime()
     fun isPaused(): Boolean = engine.isPaused()
