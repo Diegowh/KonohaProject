@@ -28,15 +28,14 @@ import kotlinx.coroutines.flow.update
 import java.util.Locale
 
 
-
 class TimerViewModel(app: Application) : AndroidViewModel(app) {
-    
+
     private val characterSettings: CharacterSettingsRepository =
         (getApplication() as App).characterSettings
-    
+
     private val timerSettings: TimerSettingsRepository =
         (getApplication() as App).timerSettings
-    
+
     private val _state = MutableStateFlow(
         TimerScreenState(
             character = characterSettings.getById(
@@ -54,15 +53,15 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     private val soundPlayer: SoundPlayer = SoundPlayer(getApplication()).apply {
         loadSound(SoundType.INTERVAL_CHANGE, R.raw.interval_finished)
     }
-    
+
     private val serviceNotifier = ServiceNotifier(getApplication())
     private val serviceConnector: TimerServiceConnector = TimerServiceConnectorImpl(viewModelScope)
-    
+
     init {
         connectToTimerService()
         initState()
     }
-    
+
     private fun connectToTimerService() {
         serviceConnector.connect(getApplication()) { event ->
             when (event) {
@@ -72,7 +71,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
-    
+
     private fun initState() {
         _state.update { currentState ->
             currentState.copy(
@@ -86,7 +85,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     fun onEvent(event: TimerScreenEvent) {
         when (event) {
             is TimerScreenEvent.TimerEvent.Play -> onPlayClicked()
@@ -97,11 +96,11 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             is TimerScreenEvent.SettingsEvent.Reset -> onSettingsReset()
         }
     }
-    
+
     private fun onCharacterSelected(event: TimerScreenEvent.CharacterEvent.Select) {
         if (event.character.id != _state.value.character.id) {
             val isTimerRunning = _state.value.timer.status == TimerStatus.Running
-            
+
             _state.update { currentState ->
                 currentState.copy(
                     character = event.character,
@@ -115,7 +114,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             characterSettings.setSelectedCharacterId(event.character.id)
         }
     }
-    
+
     private fun onSettingsUpdated(event: TimerScreenEvent.SettingsEvent.UpdateSettings) {
         timerSettings.updateSettings(
             focus = event.focusMinutes,
@@ -135,7 +134,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         }
         serviceConnector.getService()?.let { handleReset(it) }
     }
-    
+
     private fun onSettingsReset() {
         timerSettings.resetToDefaults()
         _state.update { currentState ->
@@ -148,7 +147,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         }
         serviceConnector.getService()?.let { handleReset(it) }
     }
-    
+
     private fun onPlayClicked() {
         serviceConnector.getService()?.let { controller ->
             when {
@@ -157,7 +156,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
-    
+
     private fun resumeTimer(controller: TimerService) {
         controller.resume()
         _state.update { currentState ->
@@ -170,7 +169,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun startNewSession(controller: TimerService) {
         controller.start(timerSettings.focusTimeMillis())
         _state.update { currentState ->
@@ -183,7 +182,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun onPauseClicked() {
         serviceConnector.getService()?.let { controller ->
             controller.pause()
@@ -195,13 +194,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
-    
+
     private fun onResetClicked() {
         serviceConnector.getService()?.let { controller ->
             handleReset(controller)
         }
     }
-    
+
     private fun handleReset(controller: TimerService) {
         hasStarted = false
         controller.reset()
@@ -221,7 +220,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun handleTimeUpdate(event: TimerUIEvent.TimeUpdate) {
         _state.update { currentState ->
             currentState.copy(
@@ -231,10 +230,10 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun handleIntervalFinished(event: TimerUIEvent.IntervalFinished) {
         val shouldNotify = hasStarted
-        
+
         if (shouldNotify && !timerSettings.isMuteEnabled()) {
             soundPlayer.play(SoundType.INTERVAL_CHANGE)
         }
@@ -266,10 +265,10 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 return
             }
         }
-        
+
         hasStarted = true
         val nextDuration = calculateNextDuration(event.nextInterval)
-        
+
         _state.update { currentState ->
             currentState.copy(
                 timer = currentState.timer.copy(
@@ -282,10 +281,10 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
     }
-    
+
     private fun handleSessionFinished() {
         serviceNotifier.sendSessionFinishedNotification()
-        
+
         _state.update { currentState ->
             currentState.copy(
                 animation = currentState.animation.copy(action = AnimationAction.Stop),
@@ -293,14 +292,14 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         }
         serviceConnector.getService()?.let { handleReset(it) }
     }
-    
+
     private fun formatTime(remainingMillis: Long): String {
         val totalSeconds = (remainingMillis + 500) / 1000
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
         return String.format(Locale.US, "%02d:%02d", minutes, seconds)
     }
-    
+
     private fun calculateNextDuration(intervalType: IntervalType): Long {
         return when (intervalType) {
             IntervalType.FOCUS -> timerSettings.focusTimeMillis()
