@@ -6,6 +6,7 @@ import com.diegowh.konohaproject.domain.timer.TimerStatus
 import com.diegowh.konohaproject.core.animation.AnimationAction
 import com.diegowh.konohaproject.core.sound.SoundType
 import com.diegowh.konohaproject.core.timer.Interval
+import com.diegowh.konohaproject.core.timer.IntervalType
 
 
 data class TimerState(
@@ -29,6 +30,12 @@ data class SettingsState(
     val isAutorunEnabled: Boolean = true
 )
 
+data class IntervalDialogState(
+    val showDialog: Boolean = false,
+    val intervalType: IntervalType? = null,
+    val continueNext: Boolean? = null
+)
+
 data class TimerScreenState(
     val timer: TimerState = TimerState(),
     val animation: AnimationState = AnimationState(),
@@ -43,5 +50,7 @@ data class TimerScreenState(
     ),
     val settings: SettingsState = SettingsState(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val intervalDialog: IntervalDialogState = IntervalDialogState(),
+    val sessionDialogVisible: Boolean = false
 )
