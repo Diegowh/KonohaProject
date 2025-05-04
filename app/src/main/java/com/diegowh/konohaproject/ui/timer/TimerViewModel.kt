@@ -46,7 +46,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         )
     )
     val state: StateFlow<TimerScreenState> = _state.asStateFlow()
-    
+
     private var hasStarted = false
     private val soundPlayer: SoundPlayer = SoundPlayer(getApplication()).apply {
         loadSound(SoundType.INTERVAL_CHANGE, R.raw.interval_finished)
@@ -291,6 +291,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         _state.update { currentState ->
             currentState.copy(
                 animation = currentState.animation.copy(action = AnimationAction.Stop),
+                sessionDialogVisible = true
             )
         }
         serviceConnector.getService()?.let { handleReset(it) }
@@ -330,7 +331,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
             IntervalType.SHORT_BREAK,
             IntervalType.LONG_BREAK ->
-                    event.currentRound
+                event.currentRound
         }
     }
 
@@ -373,10 +374,10 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         serviceConnector.getService()?.skip()
     }
 
-    fun onDialogDismissed() {
+    fun onSessionDialogDismissed() {
         _state.update { currentState ->
             currentState.copy(
-                intervalDialog = IntervalDialogState()
+                sessionDialogVisible = false
             )
         }
     }

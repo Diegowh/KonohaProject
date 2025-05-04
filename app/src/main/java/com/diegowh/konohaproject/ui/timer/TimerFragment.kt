@@ -88,6 +88,10 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
                 )
             }
         }
+        if (state.sessionDialogVisible) {
+            showSessionFinishedDialog()
+            viewModel.onSessionDialogDismissed()
+        }
     }
 
     private fun showIntervalFinishedDialog(
@@ -119,6 +123,17 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
 
             viewModel.onDialogShown()
         }
+    }
+
+    private fun showSessionFinishedDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Congratulations!")
+            .setMessage("You finished a session!")
+            .setPositiveButton("Ok") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     private fun processAnimationState(state: AnimationState) {

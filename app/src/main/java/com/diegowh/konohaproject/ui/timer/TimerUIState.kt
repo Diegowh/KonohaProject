@@ -51,5 +51,6 @@ data class TimerScreenState(
     val settings: SettingsState = SettingsState(),
     val isLoading: Boolean = false,
     val error: String? = null,
-    val intervalDialog: IntervalDialogState = IntervalDialogState()
+    val intervalDialog: IntervalDialogState = IntervalDialogState(),
+    val sessionDialogVisible: Boolean = false
 )
