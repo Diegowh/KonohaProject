@@ -129,7 +129,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
         AlertDialog.Builder(requireContext())
             .setTitle("Congratulations!")
             .setMessage("You finished a session!")
-            .setPositiveButton("Ok") { dialog, _ ->
+            .setPositiveButton("OK") { dialog, _ ->
                 dialog.dismiss()
             }
             .create()
