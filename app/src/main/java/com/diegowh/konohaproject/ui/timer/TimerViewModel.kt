@@ -312,34 +312,6 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun getNextIntervalType(event: TimerUIEvent.IntervalFinished): IntervalType {
-        return when (event.nextInterval) {
-            IntervalType.FOCUS -> {
-                calculateBreakType(event.currentRound)
-            }
-
-            IntervalType.SHORT_BREAK, IntervalType.LONG_BREAK -> {
-                IntervalType.FOCUS
-            }
-        }
-    }
-
-    private fun getNextRound(event: TimerUIEvent.IntervalFinished): Int {
-        return when (getNextIntervalType(event)) {
-            IntervalType.FOCUS ->
-                event.currentRound + 1
-
-            IntervalType.SHORT_BREAK,
-            IntervalType.LONG_BREAK ->
-                event.currentRound
-        }
-    }
-
-    private fun calculateBreakType(currentRound: Int): IntervalType {
-        return if (currentRound >= timerSettings.totalRounds()) IntervalType.LONG_BREAK
-        else IntervalType.SHORT_BREAK
-    }
-
     fun clearAnimationAction() {
         _state.update { currentState ->
             currentState.copy(
