@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/timerFragment"
-        android:name="com.diegowh.konohaproject.ui.timer.TimerFragment"
+        android:name="com.diegowh.konohaproject.timer.infrastructure.ui.TimerFragment"
         android:label="Timer">
     </fragment>
 

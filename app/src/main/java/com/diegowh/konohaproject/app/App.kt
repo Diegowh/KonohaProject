@@ -3,10 +3,10 @@ package com.diegowh.konohaproject.app
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import com.diegowh.konohaproject.domain.settings.CharacterPrefsRepository
-import com.diegowh.konohaproject.domain.settings.CharacterSettingsRepository
-import com.diegowh.konohaproject.domain.settings.TimerPrefsRepository
-import com.diegowh.konohaproject.domain.settings.TimerSettingsRepository
+import com.diegowh.konohaproject.settings.infrastructure.repository.CharacterPrefsRepository
+import com.diegowh.konohaproject.settings.domain.repository.CharacterSettingsRepository
+import com.diegowh.konohaproject.settings.infrastructure.repository.TimerPrefsRepository
+import com.diegowh.konohaproject.settings.domain.repository.TimerSettingsRepository
 import java.util.concurrent.atomic.AtomicBoolean
 
 class App : Application(), Application.ActivityLifecycleCallbacks {

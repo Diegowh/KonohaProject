@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:background="@color/sakura_focus_primary"
-    tools:context=".ui.timer.TimerFragment">
+    tools:context=".timer.infrastructure.ui.TimerFragment">
 
 
     <com.google.android.material.button.MaterialButton
