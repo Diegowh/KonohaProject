@@ -5,7 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import com.diegowh.konohaproject.settings.infrastructure.repository.CharacterPrefsRepository
 import com.diegowh.konohaproject.settings.domain.repository.CharacterSettingsRepository
-import com.diegowh.konohaproject.settings.infrastructure.repository.TimerPrefsRepository
+import com.diegowh.konohaproject.timer.data.repository.TimerPrefsRepository
 import com.diegowh.konohaproject.settings.domain.repository.TimerSettingsRepository
 import java.util.concurrent.atomic.AtomicBoolean
 

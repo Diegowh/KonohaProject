@@ -8,8 +8,8 @@ import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.databinding.FragmentSettingsBinding
 import com.diegowh.konohaproject.app.App
 import com.diegowh.konohaproject.settings.domain.repository.TimerSettingsRepository
-import com.diegowh.konohaproject.timer.application.usecases.TimerScreenEvent
-import com.diegowh.konohaproject.timer.infrastructure.ui.TimerFragment
+import com.diegowh.konohaproject.timer.presentation.events.TimerEvent
+import com.diegowh.konohaproject.timer.presentation.view.TimerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -158,7 +158,7 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
         (parentFragment as? TimerFragment)?.let { timerFragment ->
             val viewModel = timerFragment.viewModel
             viewModel.onEvent(
-                TimerScreenEvent.SettingsEvent.UpdateSettings(
+                TimerEvent.SettingsAction.UpdateSettings(
                     focusMinutes = selectedFocus.toLong(),
                     shortBreakMinutes = selectedShortBreak.toLong(),
                     longBreakMinutes = selectedLongBreak.toLong(),
@@ -168,7 +168,7 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
                 )
             )
 
-            viewModel.onEvent(TimerScreenEvent.TimerEvent.Reset)
+            viewModel.onEvent(TimerEvent.TimerAction.Reset)
         }
         dismiss()
     }
@@ -176,7 +176,7 @@ class SettingsFragment : BottomSheetDialogFragment(R.layout.fragment_settings) {
     private fun handleReset() {
         (parentFragment as? TimerFragment)?.let { timerFragment ->
             val viewModel = timerFragment.viewModel
-            viewModel.onEvent(TimerScreenEvent.SettingsEvent.Reset)
+            viewModel.onEvent(TimerEvent.SettingsAction.Reset)
         }
         
         loadPreferences()

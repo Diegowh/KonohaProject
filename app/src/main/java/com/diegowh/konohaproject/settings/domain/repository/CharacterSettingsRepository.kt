@@ -1,7 +1,7 @@
 package com.diegowh.konohaproject.settings.domain.repository
 
-import com.diegowh.konohaproject.character.domain.models.Character
-import com.diegowh.konohaproject.character.domain.models.CharacterMetadata
+import com.diegowh.konohaproject.character.domain.model.Character
+import com.diegowh.konohaproject.character.domain.model.CharacterMetadata
 
 interface CharacterSettingsRepository {
     fun getAllMetadata(): List<CharacterMetadata>

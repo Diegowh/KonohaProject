@@ -1,8 +1,8 @@
 package com.diegowh.konohaproject.timer.domain.repository
 
 import android.app.Application
-import com.diegowh.konohaproject.timer.application.usecases.TimerUIEvent
-import com.diegowh.konohaproject.timer.infrastructure.service.TimerService
+import com.diegowh.konohaproject.timer.presentation.events.TimerUIEvent
+import com.diegowh.konohaproject.timer.data.service.TimerService
 
 
 interface TimerServiceConnector {

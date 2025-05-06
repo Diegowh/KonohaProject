@@ -1,9 +1,9 @@
 package com.diegowh.konohaproject.settings.infrastructure.repository
 
 import android.content.Context
-import com.diegowh.konohaproject.character.domain.models.Character
-import com.diegowh.konohaproject.character.application.CharacterDataSource
-import com.diegowh.konohaproject.character.domain.models.CharacterMetadata
+import com.diegowh.konohaproject.character.domain.model.Character
+import com.diegowh.konohaproject.character.data.CharacterDataSource
+import com.diegowh.konohaproject.character.domain.model.CharacterMetadata
 import com.diegowh.konohaproject.settings.domain.repository.CharacterSettingsRepository
 
 class CharacterPrefsRepository(

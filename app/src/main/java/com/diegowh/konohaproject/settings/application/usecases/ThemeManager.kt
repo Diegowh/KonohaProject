@@ -6,7 +6,7 @@ import androidx.annotation.ArrayRes
 import androidx.core.content.ContextCompat
 import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.core.ui.CharacterTheme
-import com.diegowh.konohaproject.character.domain.models.Character
+import com.diegowh.konohaproject.character.domain.model.Character
 
 object ThemeManager {
 
