@@ -11,8 +11,8 @@ import android.media.AudioAttributes
 import android.net.Uri
 import androidx.core.app.NotificationCompat
 import com.diegowh.konohaproject.R
-import com.diegowh.konohaproject.timer.domain.model.IntervalType
-import com.diegowh.konohaproject.app.MainActivity
+import com.diegowh.konohaproject.feature.timer.domain.model.IntervalType
+import com.diegowh.konohaproject.core.app.MainActivity
 
 class ServiceNotifier(private val context: Context) {
 
