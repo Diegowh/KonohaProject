@@ -40,7 +40,7 @@ class TimerServiceConnectorImpl(private val coroutineScope: CoroutineScope) :
         return object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 val binder = service as TimerService.TimerBinder
-                val controller = binder.getController() as TimerService
+                val controller = binder.getController()
                 serviceRef = WeakReference(controller)
 
                 coroutineScope.launch {
