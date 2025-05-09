@@ -7,7 +7,6 @@ import android.os.IBinder
 import com.diegowh.konohaproject.core.app.App
 import com.diegowh.konohaproject.feature.timer.domain.repository.TimerSettingsRepository
 import com.diegowh.konohaproject.core.notification.ServiceNotifier
-import com.diegowh.konohaproject.feature.timer.domain.repository.TimerController
 import com.diegowh.konohaproject.feature.timer.domain.service.SessionManager
 import com.diegowh.konohaproject.feature.timer.domain.service.TimerEngine
 import kotlinx.coroutines.CoroutineScope
