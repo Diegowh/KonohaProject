@@ -13,7 +13,7 @@ import com.diegowh.konohaproject.feature.timer.domain.service.TimerEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-class TimerService : Service(), TimerController {
+class TimerService : Service() {
 
     private val binder = TimerBinder()
     private lateinit var serviceNotifier: ServiceNotifier
@@ -25,7 +25,7 @@ class TimerService : Service(), TimerController {
     private val serviceScope = CoroutineScope(Dispatchers.Default)
 
     inner class TimerBinder : Binder() {
-        fun getController(): TimerController = this@TimerService
+        fun getController(): TimerService = this@TimerService
     }
 
     override fun onCreate() {
@@ -55,15 +55,14 @@ class TimerService : Service(), TimerController {
         super.onDestroy()
     }
 
-    override fun start(durationMillis: Long) = sessionManager.start(durationMillis)
-    override fun pause() = sessionManager.pause()
-    override fun resume() = sessionManager.resume()
-    override fun reset() = sessionManager.reset()
-    override fun getRemainingTime(): Long = sessionManager.getRemainingTime()
-    override fun isPaused(): Boolean = sessionManager.isPaused()
-    override fun isRunning(): Boolean = sessionManager.isRunning()
-    override fun getCurrentRound(): Int = sessionManager.getCurrentRound()
-    override fun skip() = sessionManager.skipInterval()
+    fun start(durationMillis: Long) = sessionManager.start(durationMillis)
+    fun pause() = sessionManager.pause()
+    fun resume() = sessionManager.resume()
+    fun reset() = sessionManager.reset()
+    fun getRemainingTime(): Long = sessionManager.getRemainingTime()
+    fun isPaused(): Boolean = sessionManager.isPaused()
+    fun isRunning(): Boolean = sessionManager.isRunning()
+    fun skip() = sessionManager.skipInterval()
 
     fun getTimerEvents() = sessionManager.eventFlow
 
