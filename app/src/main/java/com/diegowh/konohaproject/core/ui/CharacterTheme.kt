@@ -1,7 +1,7 @@
 package com.diegowh.konohaproject.core.ui
 
 import android.graphics.drawable.Drawable
-import com.diegowh.konohaproject.domain.character.Character
+import com.diegowh.konohaproject.feature.character.domain.model.Character
 
 data class CharacterTheme(
     val focusPalette: IntArray,
