@@ -22,14 +22,14 @@ class SessionManager(
 
     init {
         scope.launch {
-            engine.timeFlow.collect { remaining ->
-                _eventFlow.emit(TimerUIEvent.TimeUpdate(remaining))
-            }
-        }
-
-        scope.launch {
-            engine.finishFlow.collect {
-                handleIntervalFinished()
+            engine.state.collect { state ->
+                when (state) {
+                    is TimerState.Running -> {
+                        _eventFlow.emit(TimerUIEvent.TimeUpdate(state.remaining))
+                    }
+                    is TimerState.Finished -> handleIntervalFinished()
+                    else -> Unit
+                }
             }
         }
     }
@@ -111,5 +111,4 @@ class SessionManager(
     fun getRemainingTime(): Long = engine.getRemainingTime()
     fun isPaused(): Boolean = engine.isPaused()
     fun isRunning(): Boolean = engine.isRunning()
-    fun getCurrentRound(): Int = currentSession.round
 }

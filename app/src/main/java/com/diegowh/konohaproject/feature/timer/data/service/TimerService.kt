@@ -11,17 +11,19 @@ import com.diegowh.konohaproject.feature.timer.domain.service.SessionManager
 import com.diegowh.konohaproject.feature.timer.domain.service.TimerEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 class TimerService : Service() {
 
     private val binder = TimerBinder()
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private lateinit var serviceNotifier: ServiceNotifier
     private lateinit var sessionManager: SessionManager
 
     private val settingsProvider: TimerSettingsRepository
         get() = (application as App).timerSettings
 
-    private val serviceScope = CoroutineScope(Dispatchers.Default)
 
     inner class TimerBinder : Binder() {
         fun getController(): TimerService = this@TimerService
