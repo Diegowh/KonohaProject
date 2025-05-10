@@ -45,13 +45,12 @@
     </integer-array>
 
 <!--    Guy -->
-
     <array name="test_guy_focus_frames">
-        <item>@drawable/guy_wheelchair</item>
-        <item>@drawable/guy_wheelchair</item>
-        <item>@drawable/guy_wheelchair</item>
-        <item>@drawable/guy_wheelchair</item>
-        <item>@drawable/guy_wheelchair</item>
+        <item>@drawable/guy_focus</item>
+        <item>@drawable/guy_focus</item>
+        <item>@drawable/guy_focus</item>
+        <item>@drawable/guy_focus</item>
+        <item>@drawable/guy_focus</item>
     </array>
 
     <array name="test_guy_break_frames">
@@ -87,11 +86,11 @@
     </array>
 
     <array name="test_naruto_break_frames">
-        <item>@drawable/naruto_focus</item>
-        <item>@drawable/naruto_focus</item>
-        <item>@drawable/naruto_focus</item>
-        <item>@drawable/naruto_focus</item>
-        <item>@drawable/naruto_focus</item>
+        <item>@drawable/naruto_break</item>
+        <item>@drawable/naruto_break</item>
+        <item>@drawable/naruto_break</item>
+        <item>@drawable/naruto_break</item>
+        <item>@drawable/naruto_break</item>
     </array>
 
     <integer-array name="test_naruto_focus_palette">
@@ -118,11 +117,11 @@
     </array>
 
     <array name="test_kakashi_break_frames">
-        <item>@drawable/kakashi_chiquito</item>
-        <item>@drawable/kakashi_chiquito</item>
-        <item>@drawable/kakashi_chiquito</item>
-        <item>@drawable/kakashi_chiquito</item>
-        <item>@drawable/kakashi_chiquito</item>
+        <item>@drawable/kakashi_break</item>
+        <item>@drawable/kakashi_break</item>
+        <item>@drawable/kakashi_break</item>
+        <item>@drawable/kakashi_break</item>
+        <item>@drawable/kakashi_break</item>
     </array>
 
     <integer-array name="test_kakashi_focus_palette">
