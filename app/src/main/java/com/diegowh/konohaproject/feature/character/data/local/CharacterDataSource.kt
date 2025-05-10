@@ -42,6 +42,15 @@ object CharacterDataSource {
             R.array.test_kakashi_break_frames,
             R.array.test_kakashi_focus_palette,
             R.array.test_kakashi_break_palette
+        ),
+        Character (
+            5,
+            "Tobi",
+            R.drawable.tobi_miniatura,
+            R.array.test_tobi_focus_frames,
+            R.array.test_tobi_break_frames,
+            R.array.test_tobi_focus_palette,
+            R.array.test_tobi_break_palette
         )
     )
 
