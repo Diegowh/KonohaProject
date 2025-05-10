@@ -3,6 +3,7 @@ package com.diegowh.konohaproject.core.app
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import com.diegowh.konohaproject.databinding.ActivityMainBinding
@@ -17,8 +18,7 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
+        this.enableEdgeToEdge()
         processNotificationIntent(intent)
     }
     

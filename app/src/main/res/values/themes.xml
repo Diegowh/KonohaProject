@@ -2,7 +2,6 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.KonohaProject" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.KonohaProject" parent="Base.Theme.KonohaProject" />
