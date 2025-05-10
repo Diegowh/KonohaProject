@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.core.animation.AnimationAction
 import com.diegowh.konohaproject.feature.timer.domain.model.IntervalType
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.feature.character.domain.model.Character
@@ -161,10 +162,13 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
     private fun handleCharacterChange(newCharacter: Character) {
         animationManager.initialize(newCharacter)
 
+        val intervalType = viewModel.state.value.timer.interval?.type ?: IntervalType.FOCUS
+        animationManager.updateAnimationFrames(intervalType)
+
         updateTimerUI(viewModel.state.value.timer)
 
         if (viewModel.state.value.timer.status == TimerStatus.Running) {
-            animationManager.performAnimationAction(com.diegowh.konohaproject.core.animation.AnimationAction.Start)
+            animationManager.performAnimationAction(AnimationAction.Start)
         }
     }
 

@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.Locale
+import kotlin.math.round
 
 
 class TimerViewModel(app: Application) : AndroidViewModel(app) {
@@ -201,13 +202,17 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                     timerText = timerSettings.initialDisplayTime(),
                     status = TimerStatus.Stopped,
                     currentRound = 0,
-                    totalRounds = timerSettings.totalRounds()
+                    totalRounds = timerSettings.totalRounds(),
+                    interval = Interval(0, IntervalType.FOCUS,
+                        timerSettings.focusTimeMillis())
                 ),
                 animation = AnimationState(
                     action = AnimationAction.Stop,
                     currentFrame = 0,
-                    isPaused = false
-                )
+                    isPaused = false,
+                    shouldUpdateFrames = true
+                ),
+
             )
         }
     }
@@ -231,15 +236,15 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             serviceNotifier.sendIntervalFinishedNotification(event.nextInterval)
             if (!timerSettings.isAutorunEnabled()) {
                 val next = calculateNextDuration(event.nextInterval)
-                _state.update { st ->
-                    st.copy(
-                        timer = st.timer.copy(
+                _state.update { state ->
+                    state.copy(
+                        timer = state.timer.copy(
                             interval = Interval(event.currentRound, event.nextInterval, next),
                             currentRound = event.currentRound,
                             status = TimerStatus.Stopped,
                             timerText = formatTime(next)
                         ),
-                        animation = st.animation.copy(shouldUpdateFrames = true),
+                        animation = state.animation.copy(shouldUpdateFrames = true),
                         intervalDialog = IntervalDialogState(
                             showDialog = true,
                             intervalType = event.nextInterval
@@ -252,13 +257,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         }
         hasStarted = true
         val next = calculateNextDuration(event.nextInterval)
-        _state.update { cs ->
-            cs.copy(
-                timer = cs.timer.copy(
+        _state.update { state ->
+            state.copy(
+                timer = state.timer.copy(
                     interval = Interval(event.currentRound, event.nextInterval, next),
                     currentRound = event.currentRound
                 ),
-                animation = cs.animation.copy(shouldUpdateFrames = true)
+                animation = state.animation.copy(shouldUpdateFrames = true)
             )
         }
     }
@@ -267,7 +272,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         serviceNotifier.sendSessionFinishedNotification()
         _state.update { currentState ->
             currentState.copy(
-                animation = currentState.animation.copy(action = AnimationAction.Stop),
+                animation = currentState.animation.copy(action = AnimationAction.Stop, shouldUpdateFrames = true),
                 sessionDialogVisible = true
             )
         }
