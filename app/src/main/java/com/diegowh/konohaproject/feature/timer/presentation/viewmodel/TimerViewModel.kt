@@ -97,17 +97,25 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     private fun onCharacterSelected(event: TimerEvent.CharacterAction.Select) {
         if (event.character.id != _characterState.value.character.id) {
             val isRunning = _timerState.value.status == TimerStatus.Running
+            val currentIntervalType = _timerState.value.interval?.type ?: IntervalType.FOCUS
 
             // Actualiza el state del Character
             _characterState.update { currentState ->
-                currentState.copy(character = event.character)
+                currentState.copy(
+                    character = event.character,
+                    currentIntervalType = currentIntervalType
+                )
             }
             
-            // Actualiza el estado de la animacion si esta Running
-            if (isRunning) {
-                _animationState.update { currentState ->
-                    currentState.copy(action = AnimationAction.Start)
-                }
+            // Actualiza el estado de la animacion
+            _animationState.update { currentState ->
+                currentState.copy(
+                    // Si está running, arranca la animación
+                    action = if (isRunning) AnimationAction.Start else null,
+                    // Siempre actualiza los frames y el theme
+                    shouldUpdateFrames = true,
+                    currentIntervalType = currentIntervalType
+                )
             }
 
             // Guarda el character en el repository
