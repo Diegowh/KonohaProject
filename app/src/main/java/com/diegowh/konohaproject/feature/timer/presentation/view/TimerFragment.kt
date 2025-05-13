@@ -145,27 +145,15 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
         val currentCharacterId = animationManager.getCurrentCharacterId()
         if (state.character.id != currentCharacterId) {
             animationManager.initialize(state.character)
-            
+
             val intervalType = state.currentIntervalType
             animationManager.updateAnimationFrames(intervalType)
 
-            // Comienza la animación en base al timerState
+            // inicia animacion si esta Running unicamente
             val timerStatus = viewModel.timerState.value.status
             if (timerStatus == TimerStatus.Running) {
                 animationManager.performAnimationAction(AnimationAction.Start)
             }
-        }
-    }
-
-    private fun handleCharacterChange(newCharacter: Character) {
-        animationManager.initialize(newCharacter)
-
-        val intervalType = viewModel.timerState.value.interval?.type ?: IntervalType.FOCUS
-        animationManager.updateAnimationFrames(intervalType)
-
-        val timerStatus = viewModel.timerState.value.status
-        if (timerStatus == TimerStatus.Running) {
-            animationManager.performAnimationAction(AnimationAction.Start)
         }
     }
 
