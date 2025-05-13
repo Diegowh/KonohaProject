@@ -42,7 +42,7 @@ class CharacterSelectionFragment :
 
         val metadatas = CharacterDataSource.getAllMetadata()
         val characters = metadatas.map { CharacterDataSource.getById(it.id) }
-        val currentId = timerViewModel.state.value.character.id
+        val currentId = timerViewModel.characterState.value.character.id
 
         // ItemDecoration para espaciado uniforme
         val spacing = resources.getDimensionPixelSize(R.dimen.grid_item_spacing)
