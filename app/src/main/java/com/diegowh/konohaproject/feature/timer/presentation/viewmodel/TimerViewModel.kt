@@ -56,22 +56,11 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         )
     )
     private val _animationState = MutableStateFlow(AnimationUiState())
-//    private val _settingsState = MutableStateFlow(
-//        SettingsUiState(
-//            isMuteEnabled = timerSettings.isMuteEnabled(),
-//            isAutorunEnabled = timerSettings.isAutorunEnabled(),
-//            focusMinutes = timerSettings.focusTimeMillis() / 60000,
-//            shortBreakMinutes = timerSettings.shortBreakTimeMillis() / 60000,
-//            longBreakMinutes = timerSettings.longBreakTimeMillis() / 60000,
-//            totalRounds = timerSettings.totalRounds()
-//        )
-//    )
     private val _screenState = MutableStateFlow(ScreenUiState())
 
     val timerState: StateFlow<TimerUiState> = _timerState.asStateFlow()
     val characterState: StateFlow<CharacterUiState> = _characterState.asStateFlow()
     val animationState: StateFlow<AnimationUiState> = _animationState.asStateFlow()
-//    val settingsState: StateFlow<SettingsUiState> = _settingsState.asStateFlow()
     val screenState: StateFlow<ScreenUiState> = _screenState.asStateFlow()
 
     // flag para contemplar primer intervalo
@@ -136,40 +125,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             autorun = event.isAutorunEnabled,
             mute = event.isMuteEnabled
         )
-        
-        // Actualiza el state
-//        _settingsState.update { currentState ->
-//            currentState.copy(
-//                isMuteEnabled = event.isMuteEnabled,
-//                isAutorunEnabled = event.isAutorunEnabled,
-//                focusMinutes = event.focusMinutes,
-//                shortBreakMinutes = event.shortBreakMinutes,
-//                longBreakMinutes = event.longBreakMinutes,
-//                totalRounds = event.totalRounds
-//            )
-//        }
-        
+
         // Resetea el timer
         serviceConnection.service?.let(::handleReset)
     }
 
     private fun onSettingsReset() {
-        // Reset settings in repository
         timerSettings.resetToDefaults()
-        
-        // Update settings state
-//        _settingsState.update { currentState ->
-//            currentState.copy(
-//                isMuteEnabled = timerSettings.isMuteEnabled(),
-//                isAutorunEnabled = timerSettings.isAutorunEnabled(),
-//                focusMinutes = timerSettings.focusTimeMillis() / 60000,
-//                shortBreakMinutes = timerSettings.shortBreakTimeMillis() / 60000,
-//                longBreakMinutes = timerSettings.longBreakTimeMillis() / 60000,
-//                totalRounds = timerSettings.totalRounds()
-//            )
-//        }
-        
-        // Reset the timer
         serviceConnection.service?.let(::handleReset)
     }
 
@@ -184,16 +146,13 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun resumeTimer(controller: TimerService) {
         controller.resume()
-        
-        // Update timer state
+
         _timerState.update { currentState ->
             currentState.copy(
                 resumedTime = controller.getRemainingTime(),
                 status = TimerStatus.Running
             )
         }
-        
-        // Update animation state
         _animationState.update { currentState ->
             currentState.copy(action = AnimationAction.Start)
         }
@@ -201,16 +160,14 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun startNewSession(controller: TimerService) {
         controller.start(timerSettings.focusTimeMillis())
-        
-        // Update timer state
+
         _timerState.update { currentState ->
             currentState.copy(
                 status = TimerStatus.Running,
                 currentRound = 1
             )
         }
-        
-        // Update animation state
+
         _animationState.update { currentState ->
             currentState.copy(action = AnimationAction.Start)
         }
@@ -219,13 +176,11 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     private fun onPauseClicked() {
         serviceConnection.service?.let { controller ->
             controller.pause()
-            
-            // Update timer state
+
             _timerState.update { currentState ->
                 currentState.copy(status = TimerStatus.Paused)
             }
-            
-            // Update animation state
+
             _animationState.update { currentState ->
                 currentState.copy(action = AnimationAction.Pause)
             }
@@ -239,8 +194,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     private fun handleReset(controller: TimerService) {
         hasStarted = false
         controller.reset()
-        
-        // Update timer state
+
         _timerState.update { currentState ->
             currentState.copy(
                 timerText = timerSettings.initialDisplayTime(),
@@ -250,23 +204,21 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 interval = Interval(0, IntervalType.FOCUS, timerSettings.focusTimeMillis())
             )
         }
-        
-        // Update animation state
+
         _animationState.update { currentState ->
             currentState.copy(
                 action = AnimationAction.Stop,
                 shouldUpdateFrames = true
             )
         }
-        
-        // Update character state to reset interval type
+
         _characterState.update { currentState ->
             currentState.copy(currentIntervalType = IntervalType.FOCUS)
         }
     }
 
     private fun handleTimeUpdate(event: TimerUIEvent.TimeUpdate) {
-        // Only update timer text - more focused update
+        // actualiza solo el texto
         _timerState.update { currentState ->
             currentState.copy(timerText = formatTime(event.remainingMillis))
         }
