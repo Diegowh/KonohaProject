@@ -2,21 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-<!--    <color name="background_component">#1D1E33</color>-->
-<!--    <color name="background_component_selected">#FF111328</color>-->
-<!--    <color name="background_app">#0E0B20</color>-->
-<!--    <color name="background_button">#EB1555</color>-->
     <color name="title_text">#FF8D8E98</color>
-<!--    <color name="background_fab">#FF6200EE</color>-->
-<!--    <color name="circular_track">#EB1555</color>-->
-
-<!--    <color name="active_cycle">#4CAF50</color>-->
-<!--    <color name="inactive_cycle">#FF8D8E98</color>-->
-
-<!--    <color name="background_focus">#0E0B20</color>-->
-<!--    <color name="background_break">#0A2012</color>-->
-
 <!--    Sakura-->
     <color name="sakura_focus_primary">#EC92AB</color>
     <color name="sakura_focus_secondary">#B3EFDC</color>
@@ -30,37 +16,47 @@
 
     <!--    Guy-->
     <color name="guy_focus_primary">#3F6F4C</color>
-    <color name="guy_focus_secondary">#EAC49D</color>
-    <color name="guy_focus_tertiary">#DC9B51</color>
+    <color name="guy_focus_secondary">#DC9B51</color>
+    <color name="guy_focus_tertiary">#ac2436</color>
     <color name="guy_focus_text">#ffffff</color>
 
     <color name="guy_break_primary">#82976C</color>
-    <color name="guy_break_secondary">#EAC49D</color>
-    <color name="guy_break_tertiary">#DC9B51</color>
+    <color name="guy_break_secondary">#DC9B51</color>
+    <color name="guy_break_tertiary">#ac2436</color>
     <color name="guy_break_text">#ffffff</color>
 
 <!--    Naruto-->
-    <color name="naruto_focus_primary">#F66C2D</color>
+    <color name="naruto_focus_primary">#f2a30b</color>
     <color name="naruto_focus_secondary">#4691CC</color>
-    <color name="naruto_focus_tertiary">#082C8C</color>
+    <color name="naruto_focus_tertiary">#093c7d</color>
     <color name="naruto_focus_text">#ffffff</color>
 
-    <color name="naruto_break_primary">#E7E419</color>
+    <color name="naruto_break_primary">#e9dc3f</color>
     <color name="naruto_break_secondary">#4691CC</color>
-    <color name="naruto_break_tertiary">#082C8C</color>
+    <color name="naruto_break_tertiary">#093c7d</color>
     <color name="naruto_break_text">#ffffff</color>
 
 <!--    Kakashi-->
     <color name="kakashi_focus_primary">#343C55</color>
     <color name="kakashi_focus_secondary">#768379</color>
-    <color name="kakashi_focus_tertiary">#576360</color>
+    <color name="kakashi_focus_tertiary">#ac2436</color>
     <color name="kakashi_focus_text">#ffffff</color>
 
-    <color name="kakashi_break_primary">#D6DBE4</color>
+    <color name="kakashi_break_primary">#c4c7cc</color>
     <color name="kakashi_break_secondary">#768379</color>
-    <color name="kakashi_break_tertiary">#576360</color>
+    <color name="kakashi_break_tertiary">#ac2436</color>
     <color name="kakashi_break_text">#ffffff</color>
 
+<!--    Tobi-->
+    <color name="tobi_focus_primary">#F58B36</color>
+    <color name="tobi_focus_secondary">#D7B0A1</color>
+    <color name="tobi_focus_tertiary">#344155</color>
+    <color name="tobi_focus_text">#ffffff</color>
+
+    <color name="tobi_break_primary">#9F223B</color>
+    <color name="tobi_break_secondary">#D7B0A1</color>
+    <color name="tobi_break_tertiary">#344155</color>
+    <color name="tobi_break_text">#ffffff</color>
 
 <!-- Settings -->
     <color name="background_color">#FFFFFF</color>
@@ -80,4 +76,5 @@
     <color name="switch_track_checked">#FFAB91</color>
     <color name="switch_track_unchecked">#BDBDBD</color>
 
+    <color name="character_card_item_bg">#F5F5F5</color>
 </resources>

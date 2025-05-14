@@ -57,13 +57,12 @@
     </integer-array>
 
 <!--    Guy -->
-
     <array name="test_guy_focus_frames">
-        <item>@drawable/guy_tpose</item>
-        <item>@drawable/guy_tpose</item>
-        <item>@drawable/guy_tpose</item>
-        <item>@drawable/guy_tpose</item>
-        <item>@drawable/guy_tpose</item>
+        <item>@drawable/guy_focus</item>
+        <item>@drawable/guy_focus</item>
+        <item>@drawable/guy_focus</item>
+        <item>@drawable/guy_focus</item>
+        <item>@drawable/guy_focus</item>
     </array>
 
     <array name="test_guy_break_frames">
@@ -91,19 +90,19 @@
 
 <!--    Naruto -->
     <array name="test_naruto_focus_frames">
-        <item>@drawable/naruto_miniatura</item>
-        <item>@drawable/naruto_miniatura</item>
-        <item>@drawable/naruto_miniatura</item>
-        <item>@drawable/naruto_miniatura</item>
-        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_focus</item>
+        <item>@drawable/naruto_focus</item>
+        <item>@drawable/naruto_focus</item>
+        <item>@drawable/naruto_focus</item>
+        <item>@drawable/naruto_focus</item>
     </array>
 
     <array name="test_naruto_break_frames">
-        <item>@drawable/naruto_miniatura</item>
-        <item>@drawable/naruto_miniatura</item>
-        <item>@drawable/naruto_miniatura</item>
-        <item>@drawable/naruto_miniatura</item>
-        <item>@drawable/naruto_miniatura</item>
+        <item>@drawable/naruto_break</item>
+        <item>@drawable/naruto_break</item>
+        <item>@drawable/naruto_break</item>
+        <item>@drawable/naruto_break</item>
+        <item>@drawable/naruto_break</item>
     </array>
 
     <integer-array name="test_naruto_focus_palette">
@@ -122,19 +121,19 @@
 
 <!--    Kakashi-->
     <array name="test_kakashi_focus_frames">
-        <item>@drawable/kakashi_miniatura</item>
-        <item>@drawable/kakashi_miniatura</item>
-        <item>@drawable/kakashi_miniatura</item>
-        <item>@drawable/kakashi_miniatura</item>
-        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_chiquito</item>
+        <item>@drawable/kakashi_chiquito</item>
+        <item>@drawable/kakashi_chiquito</item>
+        <item>@drawable/kakashi_chiquito</item>
+        <item>@drawable/kakashi_chiquito</item>
     </array>
 
     <array name="test_kakashi_break_frames">
-        <item>@drawable/kakashi_miniatura</item>
-        <item>@drawable/kakashi_miniatura</item>
-        <item>@drawable/kakashi_miniatura</item>
-        <item>@drawable/kakashi_miniatura</item>
-        <item>@drawable/kakashi_miniatura</item>
+        <item>@drawable/kakashi_break</item>
+        <item>@drawable/kakashi_break</item>
+        <item>@drawable/kakashi_break</item>
+        <item>@drawable/kakashi_break</item>
+        <item>@drawable/kakashi_break</item>
     </array>
 
     <integer-array name="test_kakashi_focus_palette">
@@ -149,6 +148,37 @@
         <item>@color/kakashi_break_secondary</item>
         <item>@color/kakashi_break_tertiary</item>
         <item>@color/kakashi_break_text</item>
+    </integer-array>
+
+    <!--    Tobi-->
+    <array name="test_tobi_focus_frames">
+        <item>@drawable/tobi_chiquito</item>
+        <item>@drawable/tobi_chiquito</item>
+        <item>@drawable/tobi_chiquito</item>
+        <item>@drawable/tobi_chiquito</item>
+        <item>@drawable/tobi_chiquito</item>
+    </array>
+
+    <array name="test_tobi_break_frames">
+        <item>@drawable/tobi_chiquito</item>
+        <item>@drawable/tobi_chiquito</item>
+        <item>@drawable/tobi_chiquito</item>
+        <item>@drawable/tobi_chiquito</item>
+        <item>@drawable/tobi_chiquito</item>
+    </array>
+
+    <integer-array name="test_tobi_focus_palette">
+        <item>@color/tobi_focus_primary</item>
+        <item>@color/tobi_focus_secondary</item>
+        <item>@color/tobi_focus_tertiary</item>
+        <item>@color/tobi_focus_text</item>
+    </integer-array>
+
+    <integer-array name="test_tobi_break_palette">
+        <item>@color/tobi_break_primary</item>
+        <item>@color/tobi_break_secondary</item>
+        <item>@color/tobi_break_tertiary</item>
+        <item>@color/tobi_break_text</item>
     </integer-array>
 
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="character_image_size">230dp</dimen>
+    <dimen name="character_image_size">330dp</dimen>
     <dimen name="character_img_margin_top">54dp</dimen>
     <dimen name="button_icon_size">22dp</dimen>
     <dimen name="timer_button_size">64dp</dimen>

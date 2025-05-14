@@ -13,4 +13,5 @@
     <dimen name="footer_height">108dp</dimen>
     <dimen name="rounds_container_margin_bottom">24dp</dimen>
     <dimen name="timer_button_height">60dp</dimen>
+    <dimen name="grid_item_spacing">8dp</dimen>
 </resources>

@@ -1,34 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.KonohaProject" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-<!--        <item name="android:background">@color/background_app_focus</item>-->
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.KonohaProject" parent="Base.Theme.KonohaProject" />
-
-    <style name="CircularProgressBar">
-        <item name="android:indeterminateOnly">false</item>
-        <item name="android:progressDrawable">@drawable/circle_determinate</item>
-    </style>
-
-    <style name="ArcProgressBar">
-        <item name="android:indeterminateOnly">false</item>
-        <item name="android:progressDrawable">@drawable/circle_determinate</item>
-        <item name="android:max">10000</item>
-    </style>
-
-    <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
-        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
-    </style>
-
-    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
-        <item name="android:background">@android:color/transparent</item>
-        <item name="behavior_peekHeight">600dp</item>
-        <item name="behavior_fitToContents">true</item>
-        <item name="behavior_skipCollapsed">true</item>
-    </style>
 
     <style name="ElevatedRoundButton" parent="Widget.MaterialComponents.Button">
         <item name="android:elevation">8dp</item>

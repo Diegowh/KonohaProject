@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.activityViewModels
 import com.diegowh.konohaproject.R
+import com.diegowh.konohaproject.core.ui.GridSpacingItemDecoration
 import com.diegowh.konohaproject.databinding.FragmentCharacterSelectionBinding
 import com.diegowh.konohaproject.feature.character.data.local.CharacterDataSource
 import com.diegowh.konohaproject.feature.character.presentation.controller.CharactersAdapter
@@ -39,18 +41,16 @@ class CharacterSelectionFragment :
         super.onViewCreated(view, savedInstanceState)
 
         val metadatas = CharacterDataSource.getAllMetadata()
-        val characters = metadatas.map { meta ->
-            CharacterDataSource.getById(meta.id)
-        }
+        val characters = metadatas.map { CharacterDataSource.getById(it.id) }
+        val currentId = timerViewModel.characterState.value.character.id
+
+        // ItemDecoration para espaciado uniforme
+        val spacing = resources.getDimensionPixelSize(R.dimen.grid_item_spacing)
+        binding.charactersRecycler.addItemDecoration(GridSpacingItemDecoration(4, spacing, true))
 
         binding.charactersRecycler.adapter =
-            CharactersAdapter(characters) { character ->
-
-                if (character.id != timerViewModel.state.value.character.id) {
-                    timerViewModel.onEvent(TimerEvent.CharacterAction.Select(character))
-                }
-                // No quiero hacer dismiss al seleccionar por ahora, pero lo dejo para acordarme
-//                dismiss()
+            CharactersAdapter(characters, currentId) { character ->
+                timerViewModel.onEvent(TimerEvent.CharacterAction.Select(character))
             }
     }
 

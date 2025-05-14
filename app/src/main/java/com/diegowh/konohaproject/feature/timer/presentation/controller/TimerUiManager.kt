@@ -95,8 +95,8 @@ class TimerUiManager(
             }
         }
     }
-    
-    private fun updateRoundUI(currentRound: Int) {
+
+    fun updateRoundUI(currentRound: Int) {
         val theme = animationManager.getCurrentTheme()
         val activeColor = theme.focusPalette[2]
         val inactiveColor = theme.focusPalette[1]
