@@ -148,6 +148,10 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
 
             val intervalType = state.currentIntervalType
             animationManager.updateAnimationFrames(intervalType)
+            uiManager.applyIntervalStyle(intervalType)
+
+            val currentRound = viewModel.timerState.value.currentRound
+            uiManager.updateRoundUI(currentRound)
 
             // inicia animacion si esta Running unicamente
             val timerStatus = viewModel.timerState.value.status
