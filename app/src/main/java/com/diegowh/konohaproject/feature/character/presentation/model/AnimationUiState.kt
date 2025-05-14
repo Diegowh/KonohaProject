@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.feature.timer.presentation.model
+package com.diegowh.konohaproject.feature.character.presentation.model
 
 import com.diegowh.konohaproject.core.animation.AnimationAction
 import com.diegowh.konohaproject.feature.timer.domain.model.IntervalType
