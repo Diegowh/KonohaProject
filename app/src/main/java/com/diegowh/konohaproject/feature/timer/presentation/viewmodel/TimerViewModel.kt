@@ -21,14 +21,10 @@ import com.diegowh.konohaproject.feature.timer.presentation.model.AnimationUiSta
 import com.diegowh.konohaproject.feature.timer.presentation.model.CharacterUiState
 import com.diegowh.konohaproject.feature.timer.presentation.model.IntervalDialogState
 import com.diegowh.konohaproject.feature.timer.presentation.model.ScreenUiState
-import com.diegowh.konohaproject.feature.timer.presentation.model.SettingsUiState
 import com.diegowh.konohaproject.feature.timer.presentation.model.TimerUiState
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import java.util.Locale
 
@@ -239,7 +235,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         if (shouldPlaySound) {
             soundPlayer.play(SoundType.INTERVAL_CHANGE)
         }
-        
+
         if (notify) {
             serviceNotifier.sendIntervalFinishedNotification(event.nextInterval)
             
@@ -381,7 +377,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     fun onDialogShown() {
         _screenState.update { state ->
             state.copy(
-                intervalDialog = state.intervalDialog.copy(showDialog = false)
+                intervalDialog = IntervalDialogState()
             )
         }
     }
