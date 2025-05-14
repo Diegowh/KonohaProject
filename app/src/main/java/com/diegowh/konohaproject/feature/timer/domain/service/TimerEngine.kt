@@ -27,7 +27,7 @@ class TimerEngine(
     private val scope: CoroutineScope,
     private val clock: Clock = SystemClockProvider,
     private val logicalTickMillis: Long = 1_000L,
-    private val timeScale: Float = 10f
+    private val timeScale: Float = 1f
 ) {
 
     init {

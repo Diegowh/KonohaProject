@@ -17,8 +17,8 @@ import com.diegowh.konohaproject.feature.timer.domain.model.IntervalType
 import com.diegowh.konohaproject.feature.timer.domain.model.TimerStatus
 import com.diegowh.konohaproject.feature.timer.domain.model.TimerUIEvent
 import com.diegowh.konohaproject.feature.timer.domain.repository.TimerSettingsRepository
-import com.diegowh.konohaproject.feature.timer.presentation.model.AnimationUiState
-import com.diegowh.konohaproject.feature.timer.presentation.model.CharacterUiState
+import com.diegowh.konohaproject.feature.character.presentation.model.AnimationUiState
+import com.diegowh.konohaproject.feature.character.presentation.model.CharacterUiState
 import com.diegowh.konohaproject.feature.timer.presentation.model.IntervalDialogState
 import com.diegowh.konohaproject.feature.timer.presentation.model.ScreenUiState
 import com.diegowh.konohaproject.feature.timer.presentation.model.TimerUiState
