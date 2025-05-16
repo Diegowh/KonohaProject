@@ -87,6 +87,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
             is TimerEvent.CharacterAction.Select    -> onCharacterSelected(event)
             is TimerEvent.SettingsAction.UpdateSettings -> onSettingsUpdated(event)
             is TimerEvent.SettingsAction.Reset   -> onSettingsReset()
+            is TimerEvent.SettingsAction.ToggleDebug -> onToggleDebug()
         }
     }
 
@@ -193,6 +194,10 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun onResetClicked() {
         serviceConnection.service?.let(::handleReset)
+    }
+
+    private fun onToggleDebug() {
+        serviceConnection.service?.toggleDebug()
     }
 
     private fun handleReset(controller: TimerService) {

@@ -20,6 +20,7 @@ class TimerService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private lateinit var serviceNotifier: ServiceNotifier
     private lateinit var sessionManager: SessionManager
+    private lateinit var engine: TimerEngine
 
     private val settingsProvider: TimerSettingsRepository
         get() = (application as App).timerSettings
@@ -32,7 +33,7 @@ class TimerService : Service() {
     override fun onCreate() {
         super.onCreate()
         serviceNotifier = ServiceNotifier(this)
-        val engine = TimerEngine(serviceScope)
+        engine = TimerEngine(serviceScope)
 
         sessionManager = SessionManager(engine, settingsProvider, serviceScope)
     }
@@ -64,6 +65,14 @@ class TimerService : Service() {
     fun isPaused(): Boolean = sessionManager.isPaused()
     fun isRunning(): Boolean = sessionManager.isRunning()
     fun skip() = sessionManager.skipInterval()
+    fun toggleDebug() {
+        val timeScale = engine.getTimeScale()
+        if (timeScale == 1f) {
+            engine.setTimeScale(10f)
+        } else {
+            engine.setTimeScale(1f)
+        }
+    }
 
     fun getTimerEvents() = sessionManager.eventFlow
 

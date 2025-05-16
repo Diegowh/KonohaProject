@@ -9,6 +9,20 @@
     tools:context=".feature.timer.presentation.view.TimerFragment">
 
 
+    
+    <View
+        android:id="@+id/debugTriggerArea"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_default="percent"
+        app:layout_constraintHeight_percent="0.08"
+        android:clickable="true"
+        android:focusable="true"
+        />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSettings"
         android:layout_width="@dimen/timer_button_size"

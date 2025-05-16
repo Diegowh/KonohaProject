@@ -23,5 +23,6 @@ sealed class TimerEvent {
             val isMuteEnabled: Boolean
         ) : SettingsAction()
         data object Reset : SettingsAction()
+        data object ToggleDebug : SettingsAction()
     }
 }
