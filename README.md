@@ -7,6 +7,12 @@ KonohaProject is an Android app designed to help you stay focused on your daily 
 ## Current Status
 The app is currently in early development, but we have plans for different features to make the app feel different from similar applications. 
 
+![image](https://github.com/user-attachments/assets/50a486c6-27f2-4415-8010-9bda7f8db834) ![image](https://github.com/user-attachments/assets/a83adab4-bc22-406c-8ae8-db4881990ac2) ![image](https://github.com/user-attachments/assets/9be136e9-01b7-4a44-b9cd-3ad7bbcaf527)
+
+
+
+
+
 ## Key features planned
 
 ### Character progression system
