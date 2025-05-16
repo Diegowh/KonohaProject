@@ -31,8 +31,12 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
 
-    private var lastClickTime: Long = 0
-    
+    private var lastClickTime = 0L
+
+    private var debugClicks: Int = 0
+    private var lastDebugClickTime = 0L
+    private val DEBUG_CLICK_INTERVAL = 500L
+
     val viewModel: TimerViewModel by viewModels({ requireActivity() })
 
     private lateinit var animationManager: CharacterAnimationManager
@@ -248,6 +252,23 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
             if (SystemClock.elapsedRealtime() - lastClickTime > 1000) {
                 CharacterSelectionFragment().show(childFragmentManager, "CharacterSelectionFragment")
                 lastClickTime = SystemClock.elapsedRealtime()
+            }
+        }
+
+        binding.debugTriggerArea.setOnClickListener {
+            val now = SystemClock.elapsedRealtime()
+
+            if (now - lastDebugClickTime > DEBUG_CLICK_INTERVAL) {
+                debugClicks = 1
+            } else {
+                debugClicks += 1
+            }
+
+            lastDebugClickTime = now
+
+            if (debugClicks == 5) {
+                debugClicks = 0
+                viewModel.onEvent(TimerEvent.SettingsAction.ToggleDebug)
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.diegowh.konohaproject.feature.timer.domain.service
 
 import android.os.SystemClock
+import android.os.health.TimerStat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -27,13 +28,9 @@ class TimerEngine(
     private val scope: CoroutineScope,
     private val clock: Clock = SystemClockProvider,
     private val logicalTickMillis: Long = 1_000L,
-    private val timeScale: Float = 1f
 ) {
 
-    init {
-        // por si aca
-        require(timeScale > 0f)
-    }
+    private var timeScale = 10f
 
     private val _state = MutableStateFlow<TimerState>(TimerState.Idle)
     val state: StateFlow<TimerState> = _state
@@ -75,6 +72,21 @@ class TimerEngine(
     fun getRemainingTime(): Long = currentRemaining()
     fun isPaused(): Boolean = _state.value is TimerState.Paused
     fun isRunning(): Boolean = _state.value is TimerState.Running
+
+    fun getTimeScale() = timeScale
+    fun setTimeScale(timeScale: Float) {
+        val now = clock.nowMillis()
+
+        if (_state.value is TimerState.Running) {
+            val remaining = currentRemaining()
+            durationLogical = remaining
+            startReal = now
+            this.timeScale = timeScale
+            launchTimer()
+        } else {
+            this.timeScale = timeScale
+        }
+    }
 
     private fun currentRemaining(): Long {
         return when (val s = _state.value) {
