@@ -22,6 +22,6 @@ class CoinPrefsRepository(context: Context) : CoinRepository {
     override fun addCoins(amount: Int) {
         val coins = getCoins() + amount
         prefs.edit().putInt("coins", coins).apply()
-        println("Añadidas monedas: $amount. Monedas actuales: $coins.")
+        println("Añadidas $amount monedas. Monedas actuales: $coins \uD83E\uDE99")
     }
 }
