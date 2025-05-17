@@ -1,4 +1,4 @@
-package com.diegowh.konohaproject.feature.settings.presentation.view
+package com.diegowh.konohaproject.feature.timer.presentation.view
 
 import android.os.Bundle
 import android.view.View
@@ -9,7 +9,6 @@ import com.diegowh.konohaproject.databinding.FragmentSettingsBinding
 import com.diegowh.konohaproject.core.app.App
 import com.diegowh.konohaproject.feature.timer.domain.repository.TimerSettingsRepository
 import com.diegowh.konohaproject.feature.timer.presentation.viewmodel.TimerEvent
-import com.diegowh.konohaproject.feature.timer.presentation.view.TimerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
