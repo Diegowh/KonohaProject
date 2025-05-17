@@ -12,13 +12,13 @@ import com.diegowh.konohaproject.R
 import com.diegowh.konohaproject.core.animation.AnimationAction
 import com.diegowh.konohaproject.databinding.FragmentTimerBinding
 import com.diegowh.konohaproject.feature.character.presentation.controller.CharacterAnimationManager
+import com.diegowh.konohaproject.feature.character.presentation.model.AnimationUiState
+import com.diegowh.konohaproject.feature.character.presentation.model.CharacterUiState
 import com.diegowh.konohaproject.feature.character.presentation.view.CharacterSelectionFragment
 import com.diegowh.konohaproject.feature.settings.presentation.view.SettingsFragment
 import com.diegowh.konohaproject.feature.timer.domain.model.IntervalType
 import com.diegowh.konohaproject.feature.timer.domain.model.TimerStatus
 import com.diegowh.konohaproject.feature.timer.presentation.controller.TimerUiManager
-import com.diegowh.konohaproject.feature.character.presentation.model.AnimationUiState
-import com.diegowh.konohaproject.feature.character.presentation.model.CharacterUiState
 import com.diegowh.konohaproject.feature.timer.presentation.model.ScreenUiState
 import com.diegowh.konohaproject.feature.timer.presentation.model.TimerUiState
 import com.diegowh.konohaproject.feature.timer.presentation.viewmodel.TimerEvent
@@ -47,7 +47,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
         _binding = FragmentTimerBinding.bind(view)
 
         val initialCharacter = viewModel.characterState.value.character
-        
+
         animationManager = CharacterAnimationManager(requireContext(), binding.imgCharacter)
         animationManager.initialize(initialCharacter)
 
@@ -65,7 +65,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
     private fun initComponents() {
         observeViewModel()
         setupListeners()
-        
+
         // Inicializa la UI basandose en el estado actual
         updateUiFromSpecializedState(
             viewModel.timerState.value,
@@ -109,7 +109,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
             }
         }
     }
-    
+
     private fun processScreenState(state: ScreenUiState) {
         state.intervalDialog.intervalType?.let { intervalType ->
             if (state.intervalDialog.showDialog) {
@@ -124,13 +124,13 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
                 )
             }
         }
-        
+
         if (state.sessionDialogVisible) {
             showSessionFinishedDialog()
             viewModel.onSessionDialogDismissed()
         }
     }
-    
+
     private fun processAnimationState(state: AnimationUiState) {
         state.action?.let { action ->
             animationManager.performAnimationAction(action)
@@ -143,7 +143,7 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
             viewModel.clearAnimationAction()
         }
     }
-    
+
     private fun handleCharacterStateChange(state: CharacterUiState) {
         val currentCharacterId = animationManager.getCurrentCharacterId()
         if (state.character.id != currentCharacterId) {
@@ -231,15 +231,15 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
         binding.btnPlay.setOnClickListener {
             viewModel.onEvent(TimerEvent.TimerAction.Play)
         }
-        
+
         binding.btnPause.setOnClickListener {
             viewModel.onEvent(TimerEvent.TimerAction.Pause)
         }
-        
+
         binding.btnReset.setOnClickListener {
             viewModel.onEvent(TimerEvent.TimerAction.Reset)
         }
-        
+
         binding.btnSettings.setOnClickListener {
             if (SystemClock.elapsedRealtime() - lastClickTime > 1000) {
                 viewModel.onEvent(TimerEvent.TimerAction.Pause)
@@ -247,10 +247,13 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
                 lastClickTime = SystemClock.elapsedRealtime()
             }
         }
-        
+
         binding.btnCharacterSelect.setOnClickListener {
             if (SystemClock.elapsedRealtime() - lastClickTime > 1000) {
-                CharacterSelectionFragment().show(childFragmentManager, "CharacterSelectionFragment")
+                CharacterSelectionFragment().show(
+                    childFragmentManager,
+                    "CharacterSelectionFragment"
+                )
                 lastClickTime = SystemClock.elapsedRealtime()
             }
         }
