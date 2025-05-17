@@ -2,9 +2,9 @@ package com.diegowh.konohaproject.feature.timer.domain.service
 
 
 import com.diegowh.konohaproject.feature.timer.domain.model.IntervalType
-import com.diegowh.konohaproject.feature.timer.domain.repository.TimerSettingsRepository
 import com.diegowh.konohaproject.feature.timer.domain.model.SessionState
 import com.diegowh.konohaproject.feature.timer.domain.model.TimerUIEvent
+import com.diegowh.konohaproject.feature.timer.domain.repository.TimerSettingsRepository
 import com.diegowh.konohaproject.feature.xp.domain.XpManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,6 +29,7 @@ class SessionManager(
                     is TimerState.Running -> {
                         _eventFlow.emit(TimerUIEvent.TimeUpdate(state.remaining))
                     }
+
                     is TimerState.Finished -> handleIntervalFinished()
                     else -> Unit
                 }
@@ -45,6 +46,7 @@ class SessionManager(
         val next = when (finished) {
             IntervalType.FOCUS ->
                 if (isLastRound) IntervalType.LONG_BREAK else IntervalType.SHORT_BREAK
+
             else -> IntervalType.FOCUS
         }
 
