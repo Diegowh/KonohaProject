@@ -48,12 +48,13 @@ class SessionManager(
             else -> IntervalType.FOCUS
         }
 
-        xpManager.addXpForInterval(finished)
+        val finishedDuration = calculateIntervalDuration(finished)
+        xpManager.addXpForIntervalCompleted(finished, finishedDuration)
 
         // comprueba si es fin de sesion
         if (finished == IntervalType.LONG_BREAK) {
 
-            xpManager.addXpForSession(currentSession.round)
+            xpManager.addXpForSession()
 
             currentSession.round = 0
             reset()
@@ -68,11 +69,7 @@ class SessionManager(
 
         // obtiene la duracion del siguiente intervalo
         currentSession.intervalType = next
-        val nextDuration = when (next) {
-            IntervalType.FOCUS -> settings.focusTimeMillis()
-            IntervalType.SHORT_BREAK -> settings.shortBreakTimeMillis()
-            IntervalType.LONG_BREAK -> settings.longBreakTimeMillis()
-        }
+        val nextDuration = calculateIntervalDuration(next)
 
         // inicia el temporizador
         start(nextDuration)
@@ -83,6 +80,15 @@ class SessionManager(
                 next
             )
         )
+    }
+
+    private fun calculateIntervalDuration(interval: IntervalType): Long {
+        val duration = when (interval) {
+            IntervalType.FOCUS -> settings.focusTimeMillis()
+            IntervalType.SHORT_BREAK -> settings.shortBreakTimeMillis()
+            IntervalType.LONG_BREAK -> settings.longBreakTimeMillis()
+        }
+        return duration
     }
 
     fun start(durationMillis: Long) {
@@ -106,15 +112,19 @@ class SessionManager(
     fun pause() = engine.pause()
     fun resume() = engine.resume()
     fun reset() {
+        println("xD!")
         engine.reset()
         currentSession.round = 0
+        xpManager.resetSessionXp()
     }
+
     fun skipInterval() {
         val skippedInterval = currentSession.intervalType
+        val skippedIntervalDuration = calculateIntervalDuration(skippedInterval)
         engine.reset()
         scope.launch {
             handleIntervalFinished()
-            xpManager.applySkipPenalty(skippedInterval)
+            xpManager.applySkipPenalty(skippedInterval, skippedIntervalDuration)
         }
     }
 

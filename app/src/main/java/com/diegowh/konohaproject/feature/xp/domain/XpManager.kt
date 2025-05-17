@@ -1,39 +1,35 @@
 package com.diegowh.konohaproject.feature.xp.domain
 
 import com.diegowh.konohaproject.feature.timer.domain.model.IntervalType
+import kotlin.math.roundToLong
 
-class XpManager (private val repo: XpRepository){
+class XpManager (
+    private val repo: XpRepository,
+    private val config: XpConfig = XpConfig()
+){
 
-    companion object {
-        private const val FOCUS_XP = 10L
-        private const val SHORT_BREAK_XP = 5L
-        private const val LONG_BREAK_XP = 8L
-        private const val SKIP_PENALTY = 2L
-        private const val SESSION_ROUND_BONUS = 20L
+    private var currentSessionXp = 0L
 
+    fun addXpForIntervalCompleted(intervalType: IntervalType, durationMs: Long) {
+        val gained = config.calculateXp(intervalType, durationMs)
+        currentSessionXp += gained
+        repo.addXp(gained)
+        println("Current session XP: $currentSessionXp.")
     }
 
-    fun addXpForInterval(intervalType: IntervalType) {
-        val xp = when (intervalType) {
-            IntervalType.FOCUS -> FOCUS_XP
-            IntervalType.SHORT_BREAK -> SHORT_BREAK_XP
-            IntervalType.LONG_BREAK -> LONG_BREAK_XP
-        }
-        repo.addXp(xp)
+    fun applySkipPenalty(intervalType: IntervalType, durationMs: Long) {
+        val loss = config.calculateXp(intervalType, durationMs) *
+                config.skipPenaltyFactor.roundToLong()
+        repo.removeXp(loss)
     }
 
-    fun applySkipPenalty(intervalType: IntervalType) {
-        var xp = when (intervalType) {
-            IntervalType.FOCUS -> FOCUS_XP
-            IntervalType.SHORT_BREAK -> SHORT_BREAK_XP
-            IntervalType.LONG_BREAK -> LONG_BREAK_XP
-        }
-        xp += SKIP_PENALTY
-        repo.removeXp(xp)
+    fun addXpForSession() {
+        val bonus = config.sessionBonus(currentSessionXp)
+        repo.addXp(bonus)
     }
 
-    fun addXpForSession(rounds: Int) {
-        val xp = rounds * SESSION_ROUND_BONUS
-        repo.addXp(xp)
+    fun resetSessionXp() {
+        currentSessionXp = 0L
+        println("Session XP reseted: $currentSessionXp")
     }
 }

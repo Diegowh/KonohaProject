@@ -30,7 +30,7 @@ class TimerEngine(
     private val logicalTickMillis: Long = 1_000L,
 ) {
 
-    private var timeScale = 10f
+    private var timeScale = 20f
 
     private val _state = MutableStateFlow<TimerState>(TimerState.Idle)
     val state: StateFlow<TimerState> = _state
