@@ -5,6 +5,7 @@ import com.diegowh.konohaproject.feature.timer.domain.model.IntervalType
 import com.diegowh.konohaproject.feature.timer.domain.repository.TimerSettingsRepository
 import com.diegowh.konohaproject.feature.timer.domain.model.SessionState
 import com.diegowh.konohaproject.feature.timer.domain.model.TimerUIEvent
+import com.diegowh.konohaproject.feature.xp.domain.XpManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 class SessionManager(
     private val engine: TimerEngine,
     private val settings: TimerSettingsRepository,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val xpManager: XpManager
 ) {
 
     private var currentSession = SessionState()
@@ -46,10 +48,12 @@ class SessionManager(
             else -> IntervalType.FOCUS
         }
 
+        xpManager.addXpForInterval(finished)
 
         // comprueba si es fin de sesion
         if (finished == IntervalType.LONG_BREAK) {
 
+            xpManager.addXpForSession(currentSession.round)
 
             currentSession.round = 0
             reset()
@@ -106,9 +110,11 @@ class SessionManager(
         currentSession.round = 0
     }
     fun skipInterval() {
+        val skippedInterval = currentSession.intervalType
         engine.reset()
         scope.launch {
             handleIntervalFinished()
+            xpManager.applySkipPenalty(skippedInterval)
         }
     }
 

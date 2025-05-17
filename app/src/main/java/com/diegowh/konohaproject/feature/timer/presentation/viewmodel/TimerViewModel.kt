@@ -36,7 +36,6 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         (getApplication() as App).characterSettings
     private val timerSettings: TimerSettingsRepository =
         (getApplication() as App).timerSettings
-    private val xpManager: XpManager = (getApplication() as App).xpManager
 
     // State flows
     private val _timerState = MutableStateFlow(

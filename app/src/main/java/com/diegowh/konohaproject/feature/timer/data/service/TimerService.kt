@@ -9,6 +9,7 @@ import com.diegowh.konohaproject.feature.timer.domain.repository.TimerSettingsRe
 import com.diegowh.konohaproject.core.notification.ServiceNotifier
 import com.diegowh.konohaproject.feature.timer.domain.service.SessionManager
 import com.diegowh.konohaproject.feature.timer.domain.service.TimerEngine
+import com.diegowh.konohaproject.feature.xp.domain.XpManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,9 +23,11 @@ class TimerService : Service() {
     private lateinit var sessionManager: SessionManager
     private lateinit var engine: TimerEngine
 
-    private val settingsProvider: TimerSettingsRepository
+    private val settings: TimerSettingsRepository
         get() = (application as App).timerSettings
 
+    private val xpManager: XpManager
+        get() = (application as App).xpManager
 
     inner class TimerBinder : Binder() {
         fun getController(): TimerService = this@TimerService
@@ -35,7 +38,7 @@ class TimerService : Service() {
         serviceNotifier = ServiceNotifier(this)
         engine = TimerEngine(serviceScope)
 
-        sessionManager = SessionManager(engine, settingsProvider, serviceScope)
+        sessionManager = SessionManager(engine, settings, serviceScope, xpManager)
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
