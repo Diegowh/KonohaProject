@@ -12,7 +12,7 @@ class XpPrefsRepository(context: Context) : XpRepository {
 
     // Este metodo lo dejo aqui por si lo necesito para hacer pruebas
     private fun resetXp() {
-        prefs.edit().remove(XP_KEY).apply()
+        prefs.edit().putLong("total_xp", 0).apply()
     }
 
     override fun addXp(amount: Long) {
