@@ -7,7 +7,9 @@ class CoinManager(
 ) {
 
     // 1_000 xp = 1 moneda
-    fun xpToCoins(xp: Long): Int = (xp.toFloat() / 1000f).roundToInt()
+    private fun xpToCoins(xp: Long): Int = (xp.toFloat() / 1000f)
+        .toInt()
+        .coerceAtLeast(0)
 
     fun addCoinsFromXp(xp: Long) = repo.addCoins(xpToCoins(xp))
 
@@ -27,4 +29,7 @@ class CoinManager(
         }
     }
 
+    fun resetCoins() {
+        repo.setCoins(0)
+    }
 }

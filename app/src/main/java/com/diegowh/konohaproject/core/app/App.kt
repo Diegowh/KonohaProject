@@ -30,7 +30,7 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
     private val coinManager: CoinManager by lazy { CoinManager(coinRepository) }
 
     private val xpRepository: XpRepository by lazy { XpPrefsRepository(this) }
-    val xpManager: XpManager by lazy { XpManager(xpRepository) }
+    val xpManager: XpManager by lazy { XpManager(xpRepository, coinManager) }
 
     private val shopManager: ShopManager by lazy { ShopManager(xpRepository, coinManager) }
 
