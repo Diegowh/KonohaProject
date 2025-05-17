@@ -4,11 +4,9 @@ import android.content.Context
 import com.diegowh.konohaproject.feature.timer.domain.repository.TimerSettingsRepository
 import java.util.Locale
 
-class TimerPrefsRepository(
-    private val context: Context
-) : TimerSettingsRepository {
+class TimerPrefsRepository(context: Context) : TimerSettingsRepository {
 
-    private val prefs = context.getSharedPreferences("timer_prefs", Context.MODE_PRIVATE)
+    private val prefs = context.applicationContext.getSharedPreferences("timer_prefs", Context.MODE_PRIVATE)
 
     private companion object Keys {
         const val FOCUS_TIME = "focus_time"
