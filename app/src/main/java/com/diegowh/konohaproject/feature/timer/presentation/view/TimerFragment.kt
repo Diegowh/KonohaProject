@@ -15,7 +15,6 @@ import com.diegowh.konohaproject.feature.character.presentation.controller.Chara
 import com.diegowh.konohaproject.feature.character.presentation.model.AnimationUiState
 import com.diegowh.konohaproject.feature.character.presentation.model.CharacterUiState
 import com.diegowh.konohaproject.feature.character.presentation.view.CharacterSelectionFragment
-import com.diegowh.konohaproject.feature.settings.presentation.view.SettingsFragment
 import com.diegowh.konohaproject.feature.timer.domain.model.IntervalType
 import com.diegowh.konohaproject.feature.timer.domain.model.TimerStatus
 import com.diegowh.konohaproject.feature.timer.presentation.controller.TimerUiManager
