@@ -348,16 +348,15 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun onDialogContinueClicked() {
-        serviceConnection.service?.resume()
         
         // Actualiza el timer, animacion y screen
         _timerState.update { state ->
-            state.copy(status = TimerStatus.Running)
+            state.copy(status = TimerStatus.Paused)
         }
         _animationState.update { state ->
             state.copy(
-                action = AnimationAction.Start,
-                shouldUpdateFrames = true
+                action = AnimationAction.Pause,
+                shouldUpdateFrames = false
             )
         }
         _screenState.update { state ->
