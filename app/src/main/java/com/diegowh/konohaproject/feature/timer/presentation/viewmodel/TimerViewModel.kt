@@ -22,6 +22,7 @@ import com.diegowh.konohaproject.feature.character.presentation.model.CharacterU
 import com.diegowh.konohaproject.feature.timer.presentation.model.IntervalDialogState
 import com.diegowh.konohaproject.feature.timer.presentation.model.ScreenUiState
 import com.diegowh.konohaproject.feature.timer.presentation.model.TimerUiState
+import com.diegowh.konohaproject.feature.xp.domain.XpManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,6 +36,7 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         (getApplication() as App).characterSettings
     private val timerSettings: TimerSettingsRepository =
         (getApplication() as App).timerSettings
+    private val xpManager: XpManager = (getApplication() as App).xpManager
 
     // State flows
     private val _timerState = MutableStateFlow(
@@ -283,7 +285,8 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
                 return
             }
         }
-        
+
+//        xpManager.addXpForInterval(event.finishedInterval)
         hasStarted = true
         val next = calculateNextDuration(event.nextInterval)
 

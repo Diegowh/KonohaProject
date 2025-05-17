@@ -7,6 +7,9 @@ import com.diegowh.konohaproject.feature.character.data.repository.CharacterPref
 import com.diegowh.konohaproject.feature.character.domain.repository.CharacterSettingsRepository
 import com.diegowh.konohaproject.feature.timer.data.repository.TimerPrefsRepository
 import com.diegowh.konohaproject.feature.timer.domain.repository.TimerSettingsRepository
+import com.diegowh.konohaproject.feature.xp.data.XpPrefsRepository
+import com.diegowh.konohaproject.feature.xp.domain.XpManager
+import com.diegowh.konohaproject.feature.xp.domain.XpRepository
 import java.util.concurrent.atomic.AtomicBoolean
 
 class App : Application(), Application.ActivityLifecycleCallbacks {
@@ -18,6 +21,9 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
     val characterSettings: CharacterSettingsRepository by lazy {
         CharacterPrefsRepository(this)
     }
+
+    private val xpRepository: XpRepository by lazy { XpPrefsRepository(this) }
+    val xpManager: XpManager by lazy { XpManager(xpRepository) }
     
     private val isInForeground = AtomicBoolean(false)
     private var activeActivities = 0
