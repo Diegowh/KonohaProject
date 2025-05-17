@@ -35,55 +35,50 @@ class SessionManager(
     }
 
     private suspend fun handleIntervalFinished() {
-        val finishedInterval = currentSession.intervalType
+        val finished = currentSession.intervalType
         val totalRounds = settings.totalRounds()
         val isLastRound = currentSession.round == totalRounds
 
-        val nextInterval: IntervalType
-        if (finishedInterval == IntervalType.FOCUS) {
-            val breakTime: Long
-            if (isLastRound) {
-                currentSession.intervalType = IntervalType.LONG_BREAK
-                nextInterval = IntervalType.LONG_BREAK
-                breakTime = settings.longBreakTimeMillis()
-            } else {
-                currentSession.intervalType = IntervalType.SHORT_BREAK
-                nextInterval = IntervalType.SHORT_BREAK
-                breakTime = settings.shortBreakTimeMillis()
-            }
-            start(breakTime)
-            _eventFlow.emit(
-                TimerUIEvent.IntervalFinished(
-                    currentSession.round,
-                    finishedInterval,
-                    nextInterval
-                )
-            )
-        } else {
-            currentSession.intervalType = IntervalType.FOCUS
-            nextInterval = IntervalType.FOCUS
-            val focusTime = settings.focusTimeMillis()
-            when {
-                !isLastRound -> {
-                    currentSession.round++
-                    start(focusTime)
-                    _eventFlow.emit(
-                        TimerUIEvent.IntervalFinished(
-                            currentSession.round,
-                            finishedInterval,
-                            nextInterval
-                        )
-                    )
-                }
-
-                else -> {
-                    currentSession.round = 0
-                    reset()
-                    _eventFlow.emit(TimerUIEvent.SessionFinished)
-                    return
-                }
-            }
+        // calcula el siguiente intervalo
+        val next = when (finished) {
+            IntervalType.FOCUS ->
+                if (isLastRound) IntervalType.LONG_BREAK else IntervalType.SHORT_BREAK
+            else -> IntervalType.FOCUS
         }
+
+
+        // comprueba si es fin de sesion
+        if (finished == IntervalType.LONG_BREAK) {
+
+
+            currentSession.round = 0
+            reset()
+            _eventFlow.emit(TimerUIEvent.SessionFinished)
+            return
+        }
+
+        // aumenta ronda si corresponde
+        if (finished != IntervalType.FOCUS) {
+            currentSession.round++
+        }
+
+        // obtiene la duracion del siguiente intervalo
+        currentSession.intervalType = next
+        val nextDuration = when (next) {
+            IntervalType.FOCUS -> settings.focusTimeMillis()
+            IntervalType.SHORT_BREAK -> settings.shortBreakTimeMillis()
+            IntervalType.LONG_BREAK -> settings.longBreakTimeMillis()
+        }
+
+        // inicia el temporizador
+        start(nextDuration)
+        _eventFlow.emit(
+            TimerUIEvent.IntervalFinished(
+                currentSession.round,
+                finished,
+                next
+            )
+        )
     }
 
     fun start(durationMillis: Long) {
