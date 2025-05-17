@@ -217,7 +217,8 @@ class TimerViewModel(app: Application) : AndroidViewModel(app) {
         _animationState.update { currentState ->
             currentState.copy(
                 action = AnimationAction.Stop,
-                shouldUpdateFrames = true
+                shouldUpdateFrames = true,
+                currentIntervalType = IntervalType.FOCUS
             )
         }
 
