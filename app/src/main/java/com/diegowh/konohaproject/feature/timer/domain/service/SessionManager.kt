@@ -35,12 +35,12 @@ class SessionManager(
     }
 
     private suspend fun handleIntervalFinished() {
-
-        val nextInterval: IntervalType
+        val finishedInterval = currentSession.intervalType
         val totalRounds = settings.totalRounds()
         val isLastRound = currentSession.round == totalRounds
 
-        if (currentSession.intervalType == IntervalType.FOCUS) {
+        val nextInterval: IntervalType
+        if (finishedInterval == IntervalType.FOCUS) {
             val breakTime: Long
             if (isLastRound) {
                 currentSession.intervalType = IntervalType.LONG_BREAK
@@ -52,7 +52,13 @@ class SessionManager(
                 breakTime = settings.shortBreakTimeMillis()
             }
             start(breakTime)
-            _eventFlow.emit(TimerUIEvent.IntervalFinished(currentSession.round, nextInterval))
+            _eventFlow.emit(
+                TimerUIEvent.IntervalFinished(
+                    currentSession.round,
+                    finishedInterval,
+                    nextInterval
+                )
+            )
         } else {
             currentSession.intervalType = IntervalType.FOCUS
             nextInterval = IntervalType.FOCUS
@@ -64,6 +70,7 @@ class SessionManager(
                     _eventFlow.emit(
                         TimerUIEvent.IntervalFinished(
                             currentSession.round,
+                            finishedInterval,
                             nextInterval
                         )
                     )
@@ -86,7 +93,9 @@ class SessionManager(
             scope.launch {
                 _eventFlow.emit(
                     TimerUIEvent.IntervalFinished(
-                        currentSession.round, currentSession.intervalType
+                        currentSession.round,
+                        currentSession.intervalType,
+                        currentSession.intervalType
                     )
                 )
             }
